@@ -55,5 +55,10 @@ ENV NODE_ENV=production \
 
 EXPOSE 3100
 
+# Entrypoint cleans stale embedded-postgres data dir on every start (including restarts)
+RUN printf '#!/bin/sh\nrm -rf /paperclip/instances/default/db\nexec "$@"\n' > /entrypoint.sh && chmod +x /entrypoint.sh
+
 USER node
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["node", "--import", "./server/node_modules/tsx/dist/loader.mjs", "server/dist/index.js"]
