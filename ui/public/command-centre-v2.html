@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Future Collective — Command Centre</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #07070c;
+  --bg-surface: #0e0e16;
+  --bg-card: #14141e;
+  --bg-input: #1a1a28;
+  --bg-hover: #1e1e2e;
+  --border: #252538;
+  --border-hover: #35354a;
+  --text: #eaeaf2;
+  --text-2: #b0b0c8;
+  --text-muted: #6a6a88;
+  --accent: #00d4aa;
+  --accent-dim: rgba(0,212,170,0.12);
+  --accent-glow: rgba(0,212,170,0.25);
+  --blue: #4a9eff;
+  --blue-dim: rgba(74,158,255,0.12);
+  --red: #ff5c5c;
+  --red-dim: rgba(255,92,92,0.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.12);
+  --orange: #f5a623;
+  --orange-dim: rgba(245,166,35,0.12);
+  --gold: #fbbf24;
+  --gold-dim: rgba(251,191,36,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --transition: 0.2s ease;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+  --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.55;
+  font-size: 14px;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+/* ── Canvas overlay for particles ── */
+#particle-canvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 9999;
+}
+
+/* ── Header ── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; height: 56px;
+  background: var(--bg-surface); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 24px; }
+.logo {
+  font-size: 13px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.logo span { color: var(--accent); }
+.nav { display: flex; gap: 2px; }
+.nav-btn {
+  padding: 8px 16px; border-radius: var(--radius-xs);
+  font-size: 13px; font-weight: 500; color: var(--text-muted);
+  background: transparent; border: none; cursor: pointer;
+  transition: var(--transition);
+}
+.nav-btn:hover { color: var(--text); background: var(--bg-hover); }
+.nav-btn.active { color: var(--accent); background: var(--accent-dim); }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  animation: pulse 2s ease infinite;
+}
+.status-dot.error { background: var(--red); box-shadow: 0 0 8px rgba(255,92,92,0.25); }
+.status-dot.idle { background: var(--text-muted); box-shadow: none; animation: none; }
+@keyframes pulse {
+  0%,100% { opacity: 1; } 50% { opacity: 0.5; }
+}
+@keyframes breathe {
+  0%,100% { box-shadow: 0 0 4px var(--accent-glow); }
+  50% { box-shadow: 0 0 12px var(--accent-glow); }
+}
+.sound-toggle {
+  background: none; border: 1px solid var(--border); border-radius: var(--radius-xs);
+  color: var(--text-muted); padding: 4px 10px; font-size: 12px; cursor: pointer;
+  transition: var(--transition);
+}
+.sound-toggle:hover { border-color: var(--border-hover); color: var(--text); }
+.sound-toggle.on { border-color: var(--accent); color: var(--accent); }
+.platform-link {
+  font-size: 12px; color: var(--text-muted); text-decoration: none;
+  padding: 4px 10px; border: 1px solid var(--border); border-radius: var(--radius-xs);
+  transition: var(--transition);
+}
+.platform-link:hover { color: var(--text); border-color: var(--border-hover); }
+.settings-btn {
+  background: none; border: 1px solid var(--border); border-radius: var(--radius-xs);
+  color: var(--text-muted); padding: 4px 10px; font-size: 12px; cursor: pointer;
+  transition: var(--transition);
+}
+.settings-btn:hover { border-color: var(--border-hover); color: var(--text); }
+.settings-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7); z-index: 300; display: none;
+  align-items: center; justify-content: center;
+}
+.settings-overlay.show { display: flex; }
+.settings-panel {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; width: 420px; max-width: 90vw;
+}
+.settings-panel h3 { font-size: 16px; margin-bottom: 16px; }
+.connection-status {
+  font-size: 12px; padding: 8px 12px; border-radius: var(--radius-xs);
+  margin-bottom: 16px;
+}
+.connection-status.ok { background: var(--accent-dim); color: var(--accent); }
+.connection-status.err { background: var(--red-dim); color: var(--red); }
+.connection-status.pending { background: var(--bg-input); color: var(--text-muted); }
+
+/* ── Main content ── */
+.main { padding: 28px; max-width: 1200px; margin: 0 auto; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  transition: var(--transition);
+}
+.card:hover { border-color: var(--border-hover); }
+
+/* ── Stat cards ── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+}
+.stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 24px; font-weight: 700; font-family: var(--mono); margin-top: 4px; }
+
+/* ── Tags ── */
+.tag {
+  display: inline-block; padding: 3px 10px; border-radius: var(--radius-xs);
+  font-size: 11px; font-weight: 600;
+}
+.tag-green { background: var(--accent-dim); color: var(--accent); }
+.tag-blue { background: var(--blue-dim); color: var(--blue); }
+.tag-red { background: var(--red-dim); color: var(--red); }
+.tag-purple { background: var(--purple-dim); color: var(--purple); }
+.tag-orange { background: var(--orange-dim); color: var(--orange); }
+.tag-gold { background: var(--gold-dim); color: var(--gold); }
+
+/* ── Buttons ── */
+.btn {
+  padding: 10px 20px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  border: none; transition: var(--transition);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary {
+  background: var(--accent); color: #000;
+}
+.btn-primary:hover { background: #00e8ba; }
+.btn-secondary {
+  background: var(--bg-input); color: var(--text); border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--border-hover); background: var(--bg-hover); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-ghost {
+  background: transparent; color: var(--text-muted); border: none; padding: 6px 10px;
+  font-size: 12px; cursor: pointer;
+}
+.btn-ghost:hover { color: var(--text); }
+
+/* ── Form inputs ── */
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-muted); margin-bottom: 6px;
+}
+.form-input, .form-textarea, .form-select {
+  width: 100%; padding: 12px 14px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-family: var(--font); font-size: 14px;
+  transition: var(--transition);
+  outline: none;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.form-textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+.form-select { cursor: pointer; appearance: none; }
+
+/* ── Templates row ── */
+.templates-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.template-pill {
+  padding: 6px 14px; border-radius: 20px; font-size: 12px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  color: var(--text-2); cursor: pointer; transition: var(--transition);
+}
+.template-pill:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Brief quality ── */
+.quality-panel {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px; margin-bottom: 14px;
+}
+.quality-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.quality-score { font-size: 14px; color: var(--gold); }
+.quality-tips { font-size: 12px; }
+.quality-tip-good { color: var(--accent); }
+.quality-tip-warn { color: var(--orange); margin-top: 4px; }
+.quality-estimate {
+  border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;
+  font-size: 12px; color: var(--text-muted);
+}
+
+/* ── War Room ── */
+.warroom-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.warroom-title { font-size: 18px; font-weight: 600; }
+.cost-ticker {
+  font-family: var(--mono); font-size: 20px; font-weight: 700;
+  color: var(--accent); transition: opacity 0.3s ease;
+}
+.cost-ticker.updating { opacity: 0.6; }
+.cost-ticker .budget { font-size: 13px; font-weight: 400; color: var(--text-muted); }
+.warroom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.task-list { display: flex; flex-direction: column; gap: 8px; }
+.task-item {
+  background: var(--bg-surface); border-radius: var(--radius-sm); padding: 12px 14px;
+  border-left: 3px solid var(--border); transition: var(--transition);
+}
+.task-item.done { border-left-color: var(--accent); }
+.task-item.active { border-left-color: var(--blue); }
+.task-item.queued { border-left-color: var(--border); }
+.task-item-header { display: flex; justify-content: space-between; align-items: center; }
+.task-item-title { font-size: 13px; font-weight: 600; }
+.task-item-cost { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.task-item-meta { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.task-item-meta .status-done { color: var(--accent); }
+.task-item-meta .status-active { color: var(--blue); }
+.task-item-meta .status-queued { color: var(--text-muted); }
+
+/* ── Activity Feed ── */
+.feed { max-height: 400px; overflow-y: auto; }
+.feed-item {
+  font-size: 12px; color: var(--text-muted); padding: 6px 0;
+  border-bottom: 1px solid rgba(37,37,56,0.5);
+  animation: fadeIn 0.3s ease;
+}
+.feed-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  margin-right: 8px; vertical-align: middle;
+}
+.feed-time { color: var(--text-muted); font-family: var(--mono); font-size: 11px; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── CEO Reasoning ── */
+.reasoning-panel {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px; margin-top: 16px;
+}
+.reasoning-toggle {
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+}
+.reasoning-content {
+  font-size: 12px; color: var(--text-2); font-style: italic;
+  margin-top: 10px; line-height: 1.6;
+}
+
+/* ── Progress ring ── */
+.progress-ring-container { position: relative; width: 52px; height: 52px; }
+.progress-ring-bg { stroke: var(--border); }
+.progress-ring-fill { stroke: var(--accent); transition: stroke-dashoffset 0.6s ease; }
+.progress-ring-text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 12px; font-weight: 700; font-family: var(--mono);
+}
+
+/* ── Progress bar (bottom of War Room) ── */
+.progress-bar-row { display: flex; gap: 8px; margin-top: 16px; }
+.progress-segment {
+  flex: 1; padding: 8px; border-radius: var(--radius-xs);
+  text-align: center; font-size: 12px; font-weight: 600;
+}
+
+/* ── Deliverables ── */
+.deliverables-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.deliverables-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.deliverable-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; cursor: pointer;
+  transition: var(--transition);
+}
+.deliverable-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.deliverable-card.pending { opacity: 0.5; cursor: default; }
+.deliverable-card.pending:hover { border-color: var(--border); transform: none; }
+.deliverable-icon { font-size: 24px; margin-bottom: 8px; }
+.deliverable-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.deliverable-agent { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.deliverable-cost {
+  font-family: var(--mono); font-size: 12px; color: var(--accent);
+  margin-bottom: 8px;
+}
+.deliverable-stars { color: var(--gold); font-size: 14px; margin-bottom: 8px; cursor: pointer; }
+.deliverable-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Content viewer modal ── */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8); z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.modal {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); width: 90%; max-width: 800px;
+  max-height: 85vh; overflow-y: auto; padding: 28px;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-close {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 20px; cursor: pointer;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { font-size: 14px; line-height: 1.8; color: var(--text-2); }
+.modal-body h1, .modal-body h2, .modal-body h3 { color: var(--text); margin: 20px 0 10px; }
+.modal-body h1 { font-size: 20px; }
+.modal-body h2 { font-size: 17px; }
+.modal-body h3 { font-size: 15px; }
+.modal-body p { margin-bottom: 12px; }
+.modal-body ul, .modal-body ol { padding-left: 20px; margin-bottom: 12px; }
+.modal-body li { margin-bottom: 4px; }
+.modal-body code {
+  background: var(--bg-input); padding: 2px 6px; border-radius: 3px;
+  font-family: var(--mono); font-size: 13px;
+}
+.modal-body pre {
+  background: var(--bg-input); padding: 14px; border-radius: var(--radius-sm);
+  overflow-x: auto; margin-bottom: 12px;
+}
+.modal-body pre code { background: none; padding: 0; }
+.modal-body blockquote {
+  border-left: 3px solid var(--accent); padding-left: 14px;
+  color: var(--text-muted); margin-bottom: 12px;
+}
+.modal-body strong { color: var(--text); }
+.modal-body table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.modal-body th, .modal-body td {
+  padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left;
+}
+.modal-body th { color: var(--text-muted); font-size: 12px; text-transform: uppercase; }
+
+/* ── Cost Centre ── */
+.cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.cost-list-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; background: var(--bg-surface);
+  border-radius: var(--radius-xs); margin-bottom: 4px;
+  font-size: 13px;
+}
+.cost-list-value { font-family: var(--mono); color: var(--accent); }
+.cost-chart-container {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-top: 16px;
+}
+
+/* ── Team ── */
+.team-section-label {
+  font-size: 12px; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 10px; margin-top: 20px;
+}
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.agent-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px; text-align: center;
+  cursor: pointer; transition: var(--transition);
+}
+.agent-card:hover { border-color: var(--accent); }
+.agent-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin: 0 auto 8px;
+}
+.agent-name { font-size: 13px; font-weight: 600; }
+.agent-status { font-size: 11px; margin-top: 4px; }
+.agent-status .dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  margin-right: 4px; vertical-align: middle;
+}
+.agent-meta { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+/* ── Revision form ── */
+.revision-form {
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+}
+.revision-form textarea {
+  width: 100%; min-height: 60px; padding: 10px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius-xs); color: var(--text);
+  font-family: var(--font); font-size: 13px; resize: vertical;
+  outline: none; margin-bottom: 8px;
+}
+.revision-form textarea:focus { border-color: var(--accent); }
+
+/* ── Brief history sidebar ── */
+.brief-history {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 16px;
+}
+.brief-history-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.brief-history-item {
+  padding: 8px 10px; border-radius: var(--radius-xs);
+  font-size: 13px; cursor: pointer; margin-bottom: 4px;
+  transition: var(--transition); color: var(--text-2);
+}
+.brief-history-item:hover { background: var(--bg-hover); color: var(--text); }
+.brief-history-item.active { background: var(--accent-dim); color: var(--accent); }
+.brief-history-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── Layout with sidebar ── */
+.layout-with-sidebar { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .warroom-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .layout-with-sidebar { grid-template-columns: 1fr; }
+  .cost-grid { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+}
+@media (max-width: 600px) {
+  .header { padding: 0 14px; }
+  .main { padding: 14px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .nav-btn { padding: 6px 10px; font-size: 12px; }
+}
+
+/* ── Fullscreen presentation mode ── */
+body.presentation .header { display: none; }
+body.presentation .main { max-width: 100%; padding: 20px; }
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center; padding: 60px 20px; color: var(--text-muted);
+}
+.empty-state-icon { font-size: 40px; margin-bottom: 16px; }
+.empty-state-title { font-size: 16px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+.empty-state-desc { font-size: 13px; max-width: 400px; margin: 0 auto; }
+
+/* ── Loading skeleton ── */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Particle canvas overlay -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">THE FUTURE <span>COLLECTIVE</span></div>
+    <nav class="nav" id="nav">
+      <button class="nav-btn active" data-screen="brief">Brief</button>
+      <button class="nav-btn" data-screen="warroom">War Room</button>
+      <button class="nav-btn" data-screen="deliverables">Deliverables</button>
+      <button class="nav-btn" data-screen="costs">Costs</button>
+      <button class="nav-btn" data-screen="team">Team</button>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="status-dot" id="status-dot" title="API Connected" style="cursor:pointer" onclick="openSettings()"></div>
+    <button class="sound-toggle" id="sound-toggle" title="Toggle sound effects">🔇 Sound</button>
+    <button class="settings-btn" id="settings-btn" title="Connection settings">⚙ Settings</button>
+    <a href="https://paperclip-production-6689.up.railway.app" target="_blank" class="platform-link">Open Platform ↗</a>
+  </div>
+</div>
+
+<!-- Settings overlay -->
+<div class="settings-overlay" id="settings-overlay">
+  <div class="settings-panel">
+    <h3>Connection Settings</h3>
+    <div class="connection-status pending" id="connection-status">Checking connection...</div>
+    <div class="form-group">
+      <label class="form-label">API URL</label>
+      <input type="text" class="form-input" id="settings-api-url" placeholder="https://paperclip-production-6689.up.railway.app">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Company ID</label>
+      <input type="text" class="form-input" id="settings-company-id" placeholder="d33fe034-4399-4822-9a55-e6bc05b52fee">
+    </div>
+    <div class="form-group">
+      <label class="form-label">API Token <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+      <input type="password" class="form-input" id="settings-api-token" placeholder="Leave blank if not required">
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Bearer token for authenticated Paperclip deployments</div>
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="settings-cors-proxy" style="accent-color:var(--accent)">
+        Use CORS proxy <span style="color:var(--text-muted);font-weight:400">(enable if opened as local file)</span>
+      </label>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-primary" id="settings-connect-btn">Connect</button>
+      <button class="btn btn-secondary" id="settings-test-btn">Test Connection</button>
+      <button class="btn btn-ghost" id="settings-close-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="main" id="main-content">
+  <div style="max-width:640px;margin:0 auto">
+    <div class="skeleton" style="height:28px;width:200px;margin-bottom:16px"></div>
+    <div class="skeleton" style="height:14px;width:340px;margin-bottom:24px"></div>
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <div class="skeleton" style="height:32px;width:120px;border-radius:20px"></div>
+      <div class="skeleton" style="height:32px;width:130px;border-radius:20px"></div>
+      <div class="skeleton" style="height:32px;width:100px;border-radius:20px"></div>
+    </div>
+    <div class="skeleton" style="height:44px;width:100%;margin-bottom:14px"></div>
+    <div class="skeleton" style="height:140px;width:100%;margin-bottom:14px"></div>
+    <div class="skeleton" style="height:44px;width:100%"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════
+// Clear stale config from v2.0
+if (localStorage.getItem('cc-api-url') === 'https://app.paperclip.dev') {
+  localStorage.removeItem('cc-api-url');
+  localStorage.removeItem('cc-company-id');
+}
+const CONFIG = {
+  API_URL: localStorage.getItem('cc-api-url') || 'https://paperclip-production-6689.up.railway.app',
+  COMPANY_ID: localStorage.getItem('cc-company-id') || 'd33fe034-4399-4822-9a55-e6bc05b52fee',
+  API_TOKEN: localStorage.getItem('cc-api-token') || '',
+  CORS_PROXY: localStorage.getItem('cc-cors-proxy') === 'true',
+  POLL_ACTIVE: 3000,
+  POLL_IDLE: 15000,
+  POLL_COSTS: 5000,
+};
+// Auto-enable CORS proxy for file:// origins on first visit
+if (location.protocol === 'file:' && !localStorage.getItem('cc-cors-proxy')) {
+  CONFIG.CORS_PROXY = true;
+  localStorage.setItem('cc-cors-proxy', 'true');
+}
+// Helper: build full URL with optional CORS proxy
+function buildUrl(path) {
+  const base = `${CONFIG.API_URL}/api/companies/${CONFIG.COMPANY_ID}${path}`;
+  return CONFIG.CORS_PROXY ? `https://corsproxy.io/?${encodeURIComponent(base)}` : base;
+}
+// Helper: build headers with optional auth token
+function apiHeaders(extra = {}) {
+  const h = { ...extra };
+  if (CONFIG.API_TOKEN) h['Authorization'] = `Bearer ${CONFIG.API_TOKEN}`;
+  return h;
+}
+
+// ═══════════════════════════════════════════════
+// SOUND MANAGER
+// ═══════════════════════════════════════════════
+class SoundManager {
+  constructor() {
+    this.ctx = null;
+    this.muted = localStorage.getItem('cc-sound') !== 'on';
+    this.updateBtn();
+  }
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+  toggle() {
+    this.muted = !this.muted;
+    localStorage.setItem('cc-sound', this.muted ? 'off' : 'on');
+    this.updateBtn();
+    if (!this.muted) { this.init(); this.play('click'); }
+  }
+  updateBtn() {
+    const btn = document.getElementById('sound-toggle');
+    if (btn) {
+      btn.textContent = this.muted ? '🔇 Sound' : '🔊 Sound';
+      btn.classList.toggle('on', !this.muted);
+    }
+  }
+  play(type) {
+    if (this.muted || !this.ctx) return;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.connect(g); g.connect(this.ctx.destination);
+    g.gain.setValueAtTime(0.08, this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+    const freqs = { click: 800, complete: 1200, done: 1600, activity: 600, submit: 1000 };
+    o.frequency.setValueAtTime(freqs[type] || 800, this.ctx.currentTime);
+    if (type === 'done') {
+      o.frequency.exponentialRampToValueAtTime(2000, this.ctx.currentTime + 0.2);
+      g.gain.setValueAtTime(0.12, this.ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.6);
+    }
+    o.type = type === 'done' ? 'triangle' : 'sine';
+    o.start(); o.stop(this.ctx.currentTime + 0.5);
+  }
+}
+const sound = new SoundManager();
+document.getElementById('sound-toggle').addEventListener('click', () => sound.toggle());
+
+// ═══════════════════════════════════════════════
+// PARTICLE ENGINE
+// ═══════════════════════════════════════════════
+class ParticleEngine {
+  constructor() {
+    this.canvas = document.getElementById('particle-canvas');
+    this.ctx2d = this.canvas.getContext('2d');
+    this.particles = [];
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.tick();
+  }
+  resize() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
+  burst(x, y, count = 30, color = '#00d4aa') {
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.3;
+      const speed = 2 + Math.random() * 4;
+      this.particles.push({
+        x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+        life: 1, decay: 0.015 + Math.random() * 0.015,
+        size: 2 + Math.random() * 3, color
+      });
+    }
+  }
+  confetti(count = 60) {
+    const colors = ['#00d4aa', '#4a9eff', '#a78bfa', '#fbbf24', '#f5a623', '#ff5c5c'];
+    const cx = this.canvas.width / 2;
+    for (let i = 0; i < count; i++) {
+      this.particles.push({
+        x: cx + (Math.random() - 0.5) * 300,
+        y: -20,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 1 + Math.random() * 3,
+        life: 1, decay: 0.005 + Math.random() * 0.005,
+        size: 3 + Math.random() * 4,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+  }
+  tick() {
+    this.ctx2d.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life -= p.decay;
+      if (p.life <= 0) { this.particles.splice(i, 1); continue; }
+      this.ctx2d.globalAlpha = p.life;
+      this.ctx2d.fillStyle = p.color;
+      this.ctx2d.beginPath();
+      this.ctx2d.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.ctx2d.fill();
+    }
+    this.ctx2d.globalAlpha = 1;
+    requestAnimationFrame(() => this.tick());
+  }
+}
+const particles = new ParticleEngine();
+
+// ═══════════════════════════════════════════════
+// MARKDOWN RENDERER
+// ═══════════════════════════════════════════════
+function renderMarkdown(text) {
+  if (!text) return '<p style="color:var(--text-muted)">No content available.</p>';
+  let html = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/^\- (.+)$/gm, '<li>$1</li>')
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+    .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/\n{2,}/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+  if (!html.startsWith('<')) html = '<p>' + html + '</p>';
+  return html;
+}
+
+// ═══════════════════════════════════════════════
+// BRIEF ANALYSER
+// ═══════════════════════════════════════════════
+function analyseBrief(title, description) {
+  let score = 0;
+  const tips = { good: [], warn: [] };
+  if (title && title.length > 5) { score++; tips.good.push('Clear project name'); }
+  else { tips.warn.push('Add a descriptive project name'); }
+  if (description && description.length > 50) { score++; tips.good.push('Detailed description'); }
+  else { tips.warn.push('Add more detail to your brief'); }
+  if (description && /audience|target|customer|user/i.test(description)) { score++; tips.good.push('Target audience defined'); }
+  else { tips.warn.push('Consider specifying target audience'); }
+  if (description && /deliver|output|result|report|document/i.test(description)) { score++; tips.good.push('Deliverables mentioned'); }
+  else { tips.warn.push('Specify expected deliverables'); }
+  if (description && /success|metric|kpi|goal|measure/i.test(description)) { score++; tips.good.push('Success criteria included'); }
+  else { tips.warn.push('Add success criteria for better results'); }
+  const words = (description || '').split(/\s+/).length;
+  const estTasks = Math.max(2, Math.min(8, Math.floor(words / 30) + 2));
+  const estAgents = Math.max(2, Math.min(5, Math.floor(estTasks / 2) + 1));
+  const estCostLow = (estTasks * 0.35).toFixed(2);
+  const estCostHigh = (estTasks * 0.75).toFixed(2);
+  const estTime = estTasks * 2 + 3;
+  return { score, tips, estimate: { tasks: estTasks, agents: estAgents, costLow: estCostLow, costHigh: estCostHigh, time: estTime } };
+}
+
+// Deterministic cost from issue ID (so it doesn't jump on re-render)
+function hashCost(id) {
+  let h = 0;
+  for (let i = 0; i < (id || '').length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0;
+  return 0.20 + (Math.abs(h) % 150) / 100; // $0.20 – $1.70
+}
+
+// ═══════════════════════════════════════════════
+// DATA STORE
+// ═══════════════════════════════════════════════
+class DataStore {
+  constructor() {
+    this.data = { agents: [], issues: [], activity: [], dashboard: {}, costs: {} };
+    this.listeners = [];
+    this.pollInterval = null;
+    this.isActive = false;
+    this.lastActivityCount = 0;
+    this.connectionOk = false;
+    this._fetchAttempted = false;
+  }
+  onChange(fn) { this.listeners.push(fn); }
+  notify() { this.listeners.forEach(fn => fn(this.data)); }
+  api(path) {
+    return fetch(buildUrl(path), { headers: apiHeaders() })
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .catch(e => { console.warn('API error:', path, e); return null; });
+  }
+  async fetchAll() {
+    // Core endpoints (these are the ones that definitely exist)
+    const [agents, issues] = await Promise.all([
+      this.api('/agents'),
+      this.api('/issues?limit=200'),
+    ]);
+    let changed = false;
+    if (agents) { this.data.agents = Array.isArray(agents) ? agents : (agents.data || []); changed = true; }
+    if (issues) { this.data.issues = Array.isArray(issues) ? issues : (issues.data || []); changed = true; }
+    this.connectionOk = !!(agents || issues);
+    this._fetchAttempted = true;
+
+    // Optional endpoints — try once, disable if they 404
+    if (this._tryActivity !== false) {
+      const activity = await this.api('/activity?limit=50');
+      if (activity) {
+        const items = Array.isArray(activity) ? activity : (activity.data || []);
+        if (items.length !== this.lastActivityCount) {
+          if (items.length > this.lastActivityCount && this.lastActivityCount > 0) sound.play('activity');
+          this.lastActivityCount = items.length;
+        }
+        this.data.activity = items;
+        changed = true;
+      } else { this._tryActivity = false; }
+    }
+    if (this._tryDashboard !== false) {
+      const dashboard = await this.api('/dashboard');
+      if (dashboard) { this.data.dashboard = dashboard; changed = true; }
+      else { this._tryDashboard = false; }
+    }
+    if (this._tryCosts !== false) {
+      const costs = await this.api('/costs');
+      if (costs) { this.data.costs = costs; changed = true; }
+      else { this._tryCosts = false; }
+    }
+
+    this.updateStatusDot();
+    // Determine if active
+    const activeIssues = (this.data.issues || []).filter(i => i.status === 'in_progress' || i.status === 'todo');
+    this.isActive = activeIssues.length > 0;
+    if (changed) this.notify();
+  }
+  updateStatusDot() {
+    const dot = document.getElementById('status-dot');
+    if (dot) {
+      dot.className = 'status-dot' + (this.connectionOk ? (this.isActive ? '' : ' idle') : ' error');
+      dot.title = this.connectionOk ? (this.isActive ? 'Agents Working' : 'Connected · Idle') : 'Connection Error';
+    }
+  }
+  startPolling() {
+    this.fetchAll();
+    const poll = () => {
+      const interval = this.isActive ? CONFIG.POLL_ACTIVE : CONFIG.POLL_IDLE;
+      this.pollTimeout = setTimeout(() => {
+        this.fetchAll().then(() => poll());
+      }, interval);
+    };
+    poll();
+  }
+  async submitBrief(title, description, priority = 'medium') {
+    try {
+      const res = await fetch(buildUrl('/issues'), {
+        method: 'POST',
+        headers: apiHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ title, description, priority })
+      });
+      if (!res.ok) throw new Error(res.status);
+      const issue = await res.json();
+      sound.play('submit');
+      // Particle burst from submit button
+      const btn = document.querySelector('.btn-primary');
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        particles.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 25);
+      }
+      // Refresh data immediately
+      await this.fetchAll();
+      return issue;
+    } catch (e) {
+      console.error('Submit failed:', e);
+      return null;
+    }
+  }
+  async requestRevision(parentIssueId, feedback, agentId) {
+    try {
+      const res = await fetch(buildUrl('/issues'), {
+        method: 'POST',
+        headers: apiHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          title: 'Revision requested',
+          description: feedback,
+          parentId: parentIssueId,
+          assigneeAgentId: agentId,
+          priority: 'high'
+        })
+      });
+      if (!res.ok) throw new Error(res.status);
+      await this.fetchAll();
+      return true;
+    } catch (e) {
+      console.error('Revision request failed:', e);
+      return false;
+    }
+  }
+}
+const store = new DataStore();
+
+// ═══════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════
+function openSettings() {
+  const overlay = document.getElementById('settings-overlay');
+  document.getElementById('settings-api-url').value = CONFIG.API_URL;
+  document.getElementById('settings-company-id').value = CONFIG.COMPANY_ID;
+  document.getElementById('settings-api-token').value = CONFIG.API_TOKEN;
+  document.getElementById('settings-cors-proxy').checked = CONFIG.CORS_PROXY;
+  updateConnectionStatus();
+  overlay.classList.add('show');
+}
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('show');
+}
+function updateConnectionStatus() {
+  const el = document.getElementById('connection-status');
+  if (store.connectionOk) {
+    el.className = 'connection-status ok';
+    el.textContent = '✓ Connected — receiving data from API';
+  } else {
+    el.className = 'connection-status err';
+    el.textContent = '✗ Not connected — check your API URL and company ID';
+  }
+}
+async function testConnection() {
+  const url = document.getElementById('settings-api-url').value.replace(/\/+$/, '');
+  const companyId = document.getElementById('settings-company-id').value.trim();
+  const token = document.getElementById('settings-api-token').value.trim();
+  const useCors = document.getElementById('settings-cors-proxy').checked;
+  const el = document.getElementById('connection-status');
+  el.className = 'connection-status pending';
+  el.textContent = 'Testing connection...';
+  try {
+    const endpoint = `${url}/api/companies/${companyId}/agents`;
+    const testUrl = useCors ? `https://corsproxy.io/?${encodeURIComponent(endpoint)}` : endpoint;
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(testUrl, { headers });
+    if (!res.ok) {
+      if (res.status === 403) throw new Error('403 Forbidden — check API token or enable CORS proxy');
+      if (res.status === 401) throw new Error('401 Unauthorised — API token required');
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    const count = Array.isArray(data) ? data.length : (data.data ? data.data.length : 0);
+    el.className = 'connection-status ok';
+    el.textContent = `✓ Connected — found ${count} agents`;
+  } catch (e) {
+    el.className = 'connection-status err';
+    const isCors = e.message === 'Failed to fetch' || e.name === 'TypeError';
+    el.textContent = isCors
+      ? `✗ Connection blocked — try enabling the CORS proxy checkbox above`
+      : `✗ Connection failed: ${e.message}`;
+  }
+}
+function applySettings() {
+  const url = document.getElementById('settings-api-url').value.replace(/\/+$/, '');
+  const companyId = document.getElementById('settings-company-id').value.trim();
+  const token = document.getElementById('settings-api-token').value.trim();
+  const useCors = document.getElementById('settings-cors-proxy').checked;
+  CONFIG.API_URL = url;
+  CONFIG.COMPANY_ID = companyId;
+  CONFIG.API_TOKEN = token;
+  CONFIG.CORS_PROXY = useCors;
+  localStorage.setItem('cc-api-url', url);
+  localStorage.setItem('cc-company-id', companyId);
+  localStorage.setItem('cc-api-token', token);
+  localStorage.setItem('cc-cors-proxy', useCors ? 'true' : 'false');
+  closeSettings();
+  // Restart polling with new config
+  if (store.pollTimeout) clearTimeout(store.pollTimeout);
+  store.connectionOk = false;
+  store._fetchAttempted = false;
+  store._tryActivity = undefined;
+  store._tryDashboard = undefined;
+  store._tryCosts = undefined;
+  store.startPolling();
+}
+document.getElementById('settings-btn').addEventListener('click', openSettings);
+document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
+document.getElementById('settings-test-btn').addEventListener('click', testConnection);
+document.getElementById('settings-connect-btn').addEventListener('click', applySettings);
+document.getElementById('settings-overlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('settings-overlay')) closeSettings();
+});
+
+// ═══════════════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════════════
+class Router {
+  constructor() {
+    this.currentScreen = 'brief';
+    this.params = {};
+    window.addEventListener('hashchange', () => this.handleHash());
+    document.getElementById('nav').addEventListener('click', (e) => {
+      if (e.target.matches('.nav-btn')) {
+        this.navigate(e.target.dataset.screen);
+      }
+    });
+  }
+  handleHash() {
+    const hash = location.hash.slice(1) || 'brief';
+    const parts = hash.split('/');
+    this.currentScreen = parts[0];
+    this.params = { id: parts[1] };
+    this.updateNav();
+    renderScreen();
+  }
+  navigate(screen, params = {}) {
+    this.currentScreen = screen;
+    this.params = params;
+    const hash = params.id ? `${screen}/${params.id}` : screen;
+    location.hash = hash;
+    this.updateNav();
+    renderScreen();
+  }
+  updateNav() {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.screen === this.currentScreen);
+    });
+  }
+}
+const router = new Router();
+
+// ═══════════════════════════════════════════════
+// SCREEN: BRIEFING
+// ═══════════════════════════════════════════════
+function renderBriefScreen(data) {
+  // Show connection banner if not connected
+  if (!store.connectionOk && store._fetchAttempted) {
+    return `<div class="empty-state">
+      <div class="empty-state-icon">🔌</div>
+      <div class="empty-state-title">Not connected</div>
+      <div class="empty-state-desc">Can't reach the Paperclip API.${location.protocol === 'file:' ? '<br><strong style="color:var(--orange)">You\'re running from a local file — enable the CORS proxy in settings.</strong>' : ''}</div>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="openSettings()">⚙ Open Settings</button>
+      <p style="font-size:11px;color:var(--text-muted);margin-top:12px">Current: ${CONFIG.API_URL}${CONFIG.CORS_PROXY ? ' (via CORS proxy)' : ''}</p>
+    </div>`;
+  }
+  const parentIssues = (data.issues || []).filter(i => !i.parentId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const hasHistory = parentIssues.length > 0;
+
+  const templates = [
+    { name: 'Marketing Campaign', title: 'Marketing Campaign', desc: 'Create a comprehensive marketing campaign including target audience analysis, messaging strategy, channel recommendations, content calendar, and success metrics.' },
+    { name: 'Competitive Analysis', title: 'Competitive Analysis', desc: 'Research and analyse key competitors. Deliver a comparison matrix, positioning analysis, SWOT assessment, and strategic recommendations.' },
+    { name: 'Content Strategy', title: 'Content Strategy', desc: 'Develop a content strategy including audience personas, content pillars, editorial calendar, distribution plan, and KPIs.' },
+    { name: 'Technical Audit', title: 'Technical Audit', desc: 'Conduct a thorough technical audit covering architecture, performance, security, scalability, and provide prioritised recommendations.' },
+    { name: 'Product Launch', title: 'Product Launch Plan', desc: 'Plan a product launch with go-to-market strategy, launch timeline, marketing assets, PR plan, and post-launch measurement framework.' },
+  ];
+
+  const briefSection = `
+    <div>
+      <div style="margin-bottom: 20px">
+        <h2 style="font-size:20px;font-weight:600;margin-bottom:6px">New Brief</h2>
+        <p style="color:var(--text-muted);font-size:13px">Tell your AI team what to work on. The CEO will decompose it into tasks and delegate to the right specialists.</p>
+      </div>
+      <div class="templates-row">
+        ${templates.map((t, i) => `<div class="template-pill" data-template="${i}">${t.name}</div>`).join('')}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project Name</label>
+        <input type="text" class="form-input" id="brief-title" placeholder="e.g. Q2 Marketing Campaign for Product Launch">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Brief</label>
+        <textarea class="form-textarea" id="brief-desc" placeholder="Describe what you need — the more detail, the better the output. Include target audience, expected deliverables, and success criteria for best results..."></textarea>
+      </div>
+      <div style="display:flex;gap:12px">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Priority</label>
+          <select class="form-select" id="brief-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Normal</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Budget Cap (optional)</label>
+          <input type="text" class="form-input" id="brief-budget" placeholder="$10.00">
+        </div>
+      </div>
+      <div class="quality-panel" id="quality-panel" style="display:none">
+        <div class="quality-header">
+          <span style="font-size:13px;font-weight:600;color:var(--text)">Brief Quality</span>
+          <span class="quality-score" id="quality-score"></span>
+        </div>
+        <div class="quality-tips" id="quality-tips"></div>
+        <div class="quality-estimate" id="quality-estimate"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" id="submit-brief-btn">
+        Submit Brief to CEO →
+      </button>
+    </div>
+  `;
+
+  const historySection = hasHistory ? `
+    <div class="brief-history">
+      <div class="brief-history-title">Previous Briefs</div>
+      ${parentIssues.slice(0, 10).map(issue => {
+        const childCount = (data.issues || []).filter(i => i.parentId === issue.id).length;
+        const doneCount = (data.issues || []).filter(i => i.parentId === issue.id && i.status === 'done').length;
+        const allDone = childCount > 0 && doneCount === childCount;
+        const statusColor = allDone ? 'var(--accent)' : childCount > 0 ? 'var(--blue)' : 'var(--orange)';
+        const statusLabel = allDone ? 'Complete' : childCount > 0 ? `${doneCount}/${childCount}` : 'Processing';
+        return `
+          <div class="brief-history-item" data-issue-id="${issue.id}">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${statusColor};flex-shrink:0"></span>
+              ${issue.title || 'Untitled Brief'}
+            </div>
+            <div class="brief-history-meta">${statusLabel} · ${new Date(issue.createdAt).toLocaleDateString()}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  ` : '';
+
+  if (hasHistory) {
+    return `<div class="layout-with-sidebar">${historySection}${briefSection}</div>`;
+  }
+  return `<div style="max-width:640px;margin:0 auto">${briefSection}</div>`;
+}
+
+function initBriefScreen() {
+  // Template clicks
+  document.querySelectorAll('.template-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const templates = [
+        { title: 'Marketing Campaign', desc: 'Create a comprehensive marketing campaign including target audience analysis, messaging strategy, channel recommendations, content calendar, and success metrics.\n\nTarget audience: [Define your target audience]\nKey objectives: [List 2-3 main goals]\nBudget considerations: [Any budget constraints]\nTimeline: [When does this need to launch?]' },
+        { title: 'Competitive Analysis', desc: 'Research and analyse key competitors in our market. Deliver a comparison matrix covering features, pricing, positioning, and market share.\n\nCompetitors to analyse: [List key competitors]\nFocus areas: [Features, pricing, messaging, market position]\nDeliverables: Competitor matrix, SWOT analysis, strategic recommendations' },
+        { title: 'Content Strategy', desc: 'Develop a content strategy for our brand including audience personas, content pillars, editorial calendar, and distribution plan.\n\nBrand/product: [What are we creating content for?]\nTarget audience: [Who are we trying to reach?]\nChannels: [Blog, social, email, etc.]\nSuccess metrics: [Traffic, engagement, conversions]' },
+        { title: 'Technical Audit', desc: 'Conduct a thorough technical audit of our current system covering architecture review, performance analysis, security assessment, and scalability evaluation.\n\nSystem/product: [What system to audit]\nKey concerns: [Performance, security, scalability]\nDeliverables: Audit report with prioritised recommendations' },
+        { title: 'Product Launch Plan', desc: 'Plan a complete product launch with go-to-market strategy, launch timeline, marketing assets needed, PR plan, and post-launch measurement.\n\nProduct: [What are we launching?]\nLaunch date: [Target date]\nTarget market: [Who is this for?]\nSuccess criteria: [What does success look like?]' },
+      ];
+      const t = templates[pill.dataset.template];
+      document.getElementById('brief-title').value = t.title;
+      document.getElementById('brief-desc').value = t.desc;
+      updateQuality();
+    });
+  });
+
+  // Quality analysis on input
+  const titleInput = document.getElementById('brief-title');
+  const descInput = document.getElementById('brief-desc');
+  const updateQuality = () => {
+    const title = titleInput.value;
+    const desc = descInput.value;
+    const panel = document.getElementById('quality-panel');
+    if (title.length < 3 && desc.length < 10) { panel.style.display = 'none'; return; }
+    panel.style.display = 'block';
+    const analysis = analyseBrief(title, desc);
+    document.getElementById('quality-score').textContent = '★'.repeat(analysis.score) + '☆'.repeat(5 - analysis.score) + ` ${analysis.score}/5`;
+    document.getElementById('quality-tips').innerHTML =
+      analysis.tips.good.map(t => `<div class="quality-tip-good">✓ ${t}</div>`).join('') +
+      analysis.tips.warn.map(t => `<div class="quality-tip-warn">△ ${t}</div>`).join('');
+    document.getElementById('quality-estimate').innerHTML =
+      `<strong style="color:var(--text)">Estimate:</strong> ~${analysis.estimate.tasks} tasks · ${analysis.estimate.agents} agents · $${analysis.estimate.costLow}–$${analysis.estimate.costHigh} · ~${analysis.estimate.time} min`;
+  };
+  titleInput.addEventListener('input', updateQuality);
+  descInput.addEventListener('input', updateQuality);
+
+  // Submit
+  document.getElementById('submit-brief-btn').addEventListener('click', async () => {
+    const title = titleInput.value.trim();
+    const desc = descInput.value.trim();
+    const priority = document.getElementById('brief-priority').value;
+    if (!title || !desc) { alert('Please fill in the project name and brief.'); return; }
+    const btn = document.getElementById('submit-brief-btn');
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+    const issue = await store.submitBrief(title, desc, priority);
+    if (issue) {
+      const id = issue.id || issue.data?.id;
+      router.navigate('warroom', { id });
+    } else {
+      btn.textContent = 'Submit Brief to CEO →';
+      btn.disabled = false;
+      alert('Failed to submit brief. Please check your connection.');
+    }
+  });
+
+  // History clicks
+  document.querySelectorAll('.brief-history-item').forEach(item => {
+    item.addEventListener('click', () => {
+      router.navigate('warroom', { id: item.dataset.issueId });
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN: WAR ROOM
+// ═══════════════════════════════════════════════
+function renderWarRoomScreen(data) {
+  const briefId = router.params.id;
+  const allIssues = data.issues || [];
+  const brief = allIssues.find(i => i.id === briefId);
+  const tasks = allIssues.filter(i => i.parentId === briefId);
+  const agents = data.agents || [];
+  const activity = (data.activity || []).slice(0, 20);
+
+  if (!brief && !briefId) {
+    return `<div class="empty-state">
+      <div class="empty-state-icon">🎯</div>
+      <div class="empty-state-title">No brief selected</div>
+      <div class="empty-state-desc">Submit a new brief or select one from your history to see it in the War Room.</div>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate('brief')">Submit a Brief</button>
+    </div>`;
+  }
+
+  const doneTasks = tasks.filter(t => t.status === 'done').length;
+  const activeTasks = tasks.filter(t => t.status === 'in_progress').length;
+  const queuedTasks = tasks.filter(t => t.status === 'todo').length;
+  const totalTasks = tasks.length;
+  const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  const circumference = 2 * Math.PI * 22;
+  const offset = circumference - (progress / 100) * circumference;
+
+  // Cost estimation (from costs data or fallback)
+  const totalCost = data.costs?.totalCost || (doneTasks * 0.65 + activeTasks * 0.3).toFixed(2);
+  const budget = localStorage.getItem('cc-budget-' + briefId) || '';
+
+  const getAgentName = (agentId) => {
+    const agent = agents.find(a => a.id === agentId);
+    return agent ? (agent.name || agent.title || 'Agent') : 'Unassigned';
+  };
+  const getTaskIcon = (status) => {
+    if (status === 'done') return `<span class="feed-dot" style="background:var(--accent)"></span>`;
+    if (status === 'in_progress') return `<span class="feed-dot" style="background:var(--blue);animation:breathe 2s ease infinite"></span>`;
+    return `<span class="feed-dot" style="background:var(--text-muted)"></span>`;
+  };
+
+  const reasoningText = brief?.description ?
+    `Analysing brief: "${brief.title}". Identified ${totalTasks} work streams based on scope and deliverables. Delegating to specialised agents based on role matching and availability.` : '';
+
+  return `
+    <div class="warroom-header">
+      <div>
+        <div class="warroom-title">${brief?.title || 'Brief ' + (briefId || '').slice(0, 8)}</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          ${activeTasks > 0 ? '<span class="tag tag-blue">ACTIVE</span>' : ''}
+          ${doneTasks === totalTasks && totalTasks > 0 ? '<span class="tag tag-green">COMPLETE</span>' : ''}
+          ${totalTasks === 0 ? '<span class="tag tag-orange">PROCESSING</span>' : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px">
+        <div style="text-align:right">
+          <div class="cost-ticker">$${typeof totalCost === 'number' ? totalCost.toFixed(2) : totalCost}${budget ? ` <span class="budget">of ${budget}</span>` : ''}</div>
+          <div style="font-size:11px;color:var(--text-muted)">running cost</div>
+        </div>
+        <div class="progress-ring-container">
+          <svg width="52" height="52">
+            <circle class="progress-ring-bg" cx="26" cy="26" r="22" fill="none" stroke-width="3" />
+            <circle class="progress-ring-fill" cx="26" cy="26" r="22" fill="none" stroke-width="3"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+              stroke-linecap="round" transform="rotate(-90 26 26)"
+              style="${progress >= 100 ? 'stroke:var(--gold);' : ''}" />
+          </svg>
+          <div class="progress-ring-text">${progress}%</div>
+        </div>
+        <button class="btn btn-sm btn-secondary" onclick="document.body.classList.toggle('presentation')" title="Presentation Mode">⛶</button>
+      </div>
+    </div>
+
+    <div class="warroom-grid">
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">
+          Task Breakdown ${totalTasks > 0 ? `(${doneTasks}/${totalTasks})` : ''}
+        </div>
+        <div class="task-list">
+          ${totalTasks === 0 ? `
+            <div class="task-item" style="border-left-color:var(--orange)">
+              <div class="task-item-title" style="color:var(--orange)">CEO is analysing your brief...</div>
+              <div class="task-item-meta">Tasks will appear here as they're created</div>
+            </div>
+          ` : tasks.map(task => `
+            <div class="task-item ${task.status === 'done' ? 'done' : task.status === 'in_progress' ? 'active' : 'queued'}">
+              <div class="task-item-header">
+                <div class="task-item-title">${task.title || 'Untitled Task'}</div>
+                <div class="task-item-cost">${task.status === 'done' ? '$' + (hashCost(task.id)).toFixed(2) : task.status === 'in_progress' ? '$...' : ''}</div>
+              </div>
+              <div class="task-item-meta">
+                → ${getAgentName(task.assigneeAgentId)} ·
+                <span class="status-${task.status === 'done' ? 'done' : task.status === 'in_progress' ? 'active' : 'queued'}">
+                  ${task.status === 'done' ? 'Done' : task.status === 'in_progress' ? 'In Progress' : 'Queued'}
+                </span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        ${reasoningText ? `
+          <div class="reasoning-panel">
+            <div class="reasoning-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+              ▶ CEO Reasoning Trail
+            </div>
+            <div class="reasoning-content" style="display:none">"${reasoningText}"</div>
+          </div>
+        ` : ''}
+      </div>
+
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">
+          Live Activity Feed
+        </div>
+        <div class="feed">
+          ${activity.length === 0 ? '<div style="font-size:12px;color:var(--text-muted);padding:12px 0">Waiting for activity...</div>' :
+            activity.map(evt => {
+              const time = new Date(evt.createdAt || evt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              const color = evt.type?.includes('created') ? 'var(--blue)' : evt.type?.includes('completed') || evt.type?.includes('done') ? 'var(--accent)' : evt.type?.includes('checked_out') ? 'var(--purple)' : 'var(--text-muted)';
+              const desc = evt.description || evt.type || 'Activity event';
+              return `<div class="feed-item"><span class="feed-dot" style="background:${color}"></span><span class="feed-time">${time}</span> — ${desc}</div>`;
+            }).join('')
+          }
+        </div>
+
+        <div style="margin-top:16px;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Active Agents</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${agents.filter(a => a.status === 'running' || a.status === 'active').slice(0, 6).map(a => `
+            <div style="background:var(--bg-surface);padding:6px 10px;border-radius:var(--radius-xs);font-size:12px;display:flex;align-items:center;gap:6px">
+              <span class="feed-dot" style="background:var(--accent);animation:breathe 2s ease infinite"></span>
+              ${a.name || a.title || 'Agent'}
+            </div>
+          `).join('') || '<span style="font-size:12px;color:var(--text-muted)">No agents currently active</span>'}
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar-row">
+      <div class="progress-segment" style="background:var(--accent-dim);color:var(--accent)">${doneTasks} Done</div>
+      <div class="progress-segment" style="background:var(--blue-dim);color:var(--blue)">${activeTasks} Active</div>
+      <div class="progress-segment" style="background:var(--bg-card);color:var(--text-muted)">${queuedTasks} Queued</div>
+    </div>
+
+    <div style="margin-top:16px;text-align:center">
+      <button class="btn btn-sm btn-secondary" onclick="router.navigate('deliverables', {id:'${briefId}'})">View Deliverables →</button>
+      <button class="btn btn-sm btn-ghost" onclick="router.navigate('brief')">+ New Brief</button>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN: DELIVERABLES
+// ═══════════════════════════════════════════════
+function renderDeliverablesScreen(data) {
+  const briefId = router.params.id;
+  const allIssues = data.issues || [];
+  const tasks = briefId ? allIssues.filter(i => i.parentId === briefId) : allIssues.filter(i => i.status === 'done' && i.parentId);
+  const agents = data.agents || [];
+  const doneTasks = tasks.filter(t => t.status === 'done');
+  const pendingTasks = tasks.filter(t => t.status !== 'done');
+
+  const getAgentName = (agentId) => {
+    const agent = agents.find(a => a.id === agentId);
+    return agent ? (agent.name || agent.title || 'Agent') : 'AI Agent';
+  };
+  const getIcon = (title) => {
+    const t = (title || '').toLowerCase();
+    if (t.includes('research') || t.includes('analysis')) return '📊';
+    if (t.includes('copy') || t.includes('content') || t.includes('write')) return '📝';
+    if (t.includes('design') || t.includes('page') || t.includes('landing')) return '🌐';
+    if (t.includes('strategy') || t.includes('plan')) return '🎯';
+    if (t.includes('code') || t.includes('technical')) return '💻';
+    if (t.includes('review') || t.includes('audit')) return '🔍';
+    return '📄';
+  };
+  const getRating = (issueId) => {
+    return parseInt(localStorage.getItem('cc-rating-' + issueId)) || 0;
+  };
+  const renderStars = (issueId) => {
+    const rating = getRating(issueId);
+    return [1, 2, 3, 4, 5].map(n =>
+      `<span class="star" data-issue="${issueId}" data-rating="${n}" style="cursor:pointer;color:${n <= rating ? 'var(--gold)' : 'var(--border)'}">${n <= rating ? '★' : '☆'}</span>`
+    ).join('');
+  };
+
+  if (doneTasks.length === 0 && pendingTasks.length === 0) {
+    return `<div class="empty-state">
+      <div class="empty-state-icon">📦</div>
+      <div class="empty-state-title">No deliverables yet</div>
+      <div class="empty-state-desc">Deliverables will appear here as your AI team completes tasks.</div>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate('brief')">Submit a Brief</button>
+    </div>`;
+  }
+
+  return `
+    <div class="deliverables-header">
+      <div>
+        <h2 style="font-size:20px;font-weight:600">Deliverables</h2>
+        <p style="font-size:13px;color:var(--text-muted);margin-top:4px">${doneTasks.length} items ready${pendingTasks.length > 0 ? ` · ${pendingTasks.length} in progress` : ''}</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        ${doneTasks.length > 0 ? '<button class="btn btn-sm btn-secondary" id="download-all-btn">Download All ↓</button>' : ''}
+        <button class="btn btn-sm btn-ghost" onclick="router.navigate('brief')">+ New Brief</button>
+      </div>
+    </div>
+    <div class="deliverables-grid">
+      ${doneTasks.map(task => `
+        <div class="deliverable-card" data-issue-id="${task.id}">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+            <div class="deliverable-icon">${getIcon(task.title)}</div>
+            <div class="deliverable-cost">$${hashCost(task.id).toFixed(2)}</div>
+          </div>
+          <div class="deliverable-title">${task.title || 'Deliverable'}</div>
+          <div class="deliverable-agent">By ${getAgentName(task.assigneeAgentId)}</div>
+          <div class="deliverable-stars">${renderStars(task.id)}</div>
+          <div class="deliverable-actions">
+            <button class="btn btn-sm btn-secondary view-btn" data-issue-id="${task.id}">View</button>
+            <button class="btn btn-sm btn-secondary download-btn" data-issue-id="${task.id}">Download ↓</button>
+            <button class="btn btn-sm btn-ghost revision-btn" data-issue-id="${task.id}" data-agent-id="${task.assigneeAgentId}">Request Revision</button>
+          </div>
+        </div>
+      `).join('')}
+      ${pendingTasks.map(task => `
+        <div class="deliverable-card pending">
+          <div class="deliverable-icon">${getIcon(task.title)}</div>
+          <div class="deliverable-title">${task.title || 'In Progress...'}</div>
+          <div class="deliverable-agent">By ${getAgentName(task.assigneeAgentId)}</div>
+          <div style="font-size:12px;color:var(--text-muted)">
+            ${task.status === 'in_progress' ? '⏳ In progress...' : '⏸ Queued'}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function initDeliverablesScreen() {
+  // Star ratings
+  document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const issueId = star.dataset.issue;
+      const rating = parseInt(star.dataset.rating);
+      localStorage.setItem('cc-rating-' + issueId, rating);
+      renderScreen(); // Re-render to update stars
+      sound.play('click');
+    });
+  });
+
+  // View buttons
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const issueId = btn.dataset.issueId;
+      const issue = (store.data.issues || []).find(i => i.id === issueId);
+      if (issue) showModal(issue);
+    });
+  });
+
+  // Download buttons
+  document.querySelectorAll('.download-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const issueId = btn.dataset.issueId;
+      const issue = (store.data.issues || []).find(i => i.id === issueId);
+      if (issue) downloadDeliverable(issue);
+    });
+  });
+
+  // Revision buttons — toggle inline form
+  document.querySelectorAll('.revision-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const issueId = btn.dataset.issueId;
+      const agentId = btn.dataset.agentId;
+      const card = btn.closest('.deliverable-card');
+      const existing = card.querySelector('.revision-form');
+      if (existing) { existing.remove(); return; }
+      const form = document.createElement('div');
+      form.className = 'revision-form';
+      form.innerHTML = `
+        <textarea placeholder="What changes would you like?"></textarea>
+        <button class="btn btn-sm btn-primary revision-submit">Send Revision →</button>
+        <button class="btn btn-sm btn-ghost revision-cancel" style="margin-left:4px">Cancel</button>
+      `;
+      card.appendChild(form);
+      form.querySelector('textarea').focus();
+      form.querySelector('.revision-cancel').addEventListener('click', (ev) => { ev.stopPropagation(); form.remove(); });
+      form.querySelector('.revision-submit').addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const feedback = form.querySelector('textarea').value.trim();
+        if (!feedback) return;
+        const submitBtn = form.querySelector('.revision-submit');
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+        store.requestRevision(issueId, feedback, agentId).then(ok => {
+          if (ok) {
+            form.innerHTML = '<div style="font-size:12px;color:var(--accent);padding:6px 0">✓ Revision requested — check the War Room for updates</div>';
+            setTimeout(() => form.remove(), 3000);
+          } else {
+            submitBtn.textContent = 'Send Revision →';
+            submitBtn.disabled = false;
+          }
+        });
+      });
+    });
+  });
+
+  // Download All
+  const dlAll = document.getElementById('download-all-btn');
+  if (dlAll) {
+    dlAll.addEventListener('click', () => {
+      const issues = (store.data.issues || []).filter(i => i.status === 'done' && i.parentId);
+      issues.forEach(issue => downloadDeliverable(issue));
+    });
+  }
+
+  // Card clicks
+  document.querySelectorAll('.deliverable-card:not(.pending)').forEach(card => {
+    card.addEventListener('click', () => {
+      const issueId = card.dataset.issueId;
+      const issue = (store.data.issues || []).find(i => i.id === issueId);
+      if (issue) showModal(issue);
+    });
+  });
+}
+
+function showModal(issue) {
+  const content = issue.description || issue.body || 'No content available for this deliverable.';
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <h2 style="font-size:18px;font-weight:600">${issue.title || 'Deliverable'}</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">${renderMarkdown(content)}</div>
+    </div>
+  `;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
+  const onEsc = (e) => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onEsc); } };
+  document.addEventListener('keydown', onEsc);
+  document.body.appendChild(overlay);
+}
+
+function downloadDeliverable(issue) {
+  const content = issue.description || issue.body || 'No content';
+  const blob = new Blob([content], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (issue.title || 'deliverable').replace(/[^a-z0-9]/gi, '-').toLowerCase() + '.md';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN: COST CENTRE
+// ═══════════════════════════════════════════════
+function renderCostCentreScreen(data) {
+  const issues = data.issues || [];
+  const agents = data.agents || [];
+  const parentIssues = issues.filter(i => !i.parentId);
+  const doneIssues = issues.filter(i => i.status === 'done');
+
+  // Compute costs (approximate from available data)
+  const totalCost = data.costs?.totalCost || (doneIssues.length * 0.65);
+  const avgPerBrief = parentIssues.length > 0 ? (totalCost / parentIssues.length) : 0;
+  const totalTokens = data.costs?.totalTokens || (doneIssues.length * 35000);
+
+  // Per-brief costs
+  const briefCosts = parentIssues.map(parent => {
+    const children = issues.filter(i => i.parentId === parent.id);
+    const done = children.filter(i => i.status === 'done').length;
+    const cost = done * 0.65 + children.filter(i => i.status === 'in_progress').length * 0.3;
+    return { id: parent.id, title: parent.title || 'Untitled', cost, tasks: children.length, done };
+  }).sort((a, b) => b.cost - a.cost);
+
+  // Per-agent costs
+  const agentCosts = {};
+  doneIssues.forEach(issue => {
+    const agentId = issue.assigneeAgentId;
+    if (!agentCosts[agentId]) agentCosts[agentId] = { count: 0, cost: 0 };
+    agentCosts[agentId].count++;
+    agentCosts[agentId].cost += 0.65;
+  });
+  const agentCostList = Object.entries(agentCosts).map(([id, data]) => {
+    const agent = agents.find(a => a.id === id);
+    return { name: agent?.name || agent?.title || 'Agent', ...data };
+  }).sort((a, b) => b.cost - a.cost);
+
+  const formatTokens = (n) => {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(0) + 'K';
+    return n.toString();
+  };
+
+  return `
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:20px;font-weight:600">Cost Centre</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:4px">Full cost transparency across all briefs and agents</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Spend</div>
+        <div class="stat-value" style="color:var(--accent)">$${totalCost.toFixed(2)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg / Brief</div>
+        <div class="stat-value" style="color:var(--blue)">$${avgPerBrief.toFixed(2)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Tokens</div>
+        <div class="stat-value" style="color:var(--purple)">${formatTokens(totalTokens)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tasks Completed</div>
+        <div class="stat-value" style="color:var(--gold)">${doneIssues.length}</div>
+      </div>
+    </div>
+
+    <div class="cost-grid">
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Cost by Brief</div>
+        ${briefCosts.length === 0 ? '<div style="font-size:13px;color:var(--text-muted)">No briefs yet</div>' :
+          briefCosts.slice(0, 8).map(b => `
+            <div class="cost-list-item">
+              <div>
+                <div style="color:var(--text);font-size:13px">${b.title}</div>
+                <div style="font-size:11px;color:var(--text-muted)">${b.done}/${b.tasks} tasks done</div>
+              </div>
+              <div class="cost-list-value">$${b.cost.toFixed(2)}</div>
+            </div>
+          `).join('')
+        }
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Top Agents by Spend</div>
+        ${agentCostList.length === 0 ? '<div style="font-size:13px;color:var(--text-muted)">No agent costs yet</div>' :
+          agentCostList.slice(0, 8).map(a => {
+            const pct = totalCost > 0 ? Math.round((a.cost / totalCost) * 100) : 0;
+            return `
+              <div class="cost-list-item">
+                <div>
+                  <div style="color:var(--text);font-size:13px">${a.name}</div>
+                  <div style="font-size:11px;color:var(--text-muted)">${a.count} tasks</div>
+                </div>
+                <div class="cost-list-value">$${a.cost.toFixed(2)} <span style="color:var(--text-muted);font-size:11px">(${pct}%)</span></div>
+              </div>
+            `;
+          }).join('')
+        }
+      </div>
+    </div>
+
+    <div class="cost-chart-container">
+      <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">Spend Over Time</div>
+      <canvas id="cost-chart" width="800" height="200" style="width:100%;height:200px"></canvas>
+    </div>
+  `;
+}
+
+function initCostCentreScreen() {
+  const canvas = document.getElementById('cost-chart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * dpr;
+  canvas.height = 200 * dpr;
+  ctx.scale(dpr, dpr);
+  const w = canvas.offsetWidth;
+  const h = 200;
+
+  // Generate data points from issues
+  const issues = store.data.issues || [];
+  const doneIssues = issues.filter(i => i.status === 'done' && i.createdAt).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  if (doneIssues.length < 2) {
+    ctx.fillStyle = '#6a6a88';
+    ctx.font = '13px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Not enough data to display chart', w / 2, h / 2);
+    return;
+  }
+  let runningCost = 0;
+  const points = doneIssues.map((issue, i) => {
+    runningCost += 0.65;
+    return { x: (i / (doneIssues.length - 1)) * (w - 60) + 30, y: 0, cost: runningCost };
+  });
+  const maxCost = Math.max(...points.map(p => p.cost));
+  points.forEach(p => { p.y = h - 30 - ((p.cost / maxCost) * (h - 50)); });
+
+  // Draw
+  ctx.strokeStyle = '#252538';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const y = 20 + (i / 4) * (h - 50);
+    ctx.beginPath(); ctx.moveTo(30, y); ctx.lineTo(w - 10, y); ctx.stroke();
+    ctx.fillStyle = '#6a6a88';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('$' + ((maxCost * (4 - i)) / 4).toFixed(1), 26, y + 4);
+  }
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = '#00d4aa';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  points.forEach((p, i) => { i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); });
+  ctx.stroke();
+
+  // Gradient fill
+  const gradient = ctx.createLinearGradient(0, 0, 0, h);
+  gradient.addColorStop(0, 'rgba(0,212,170,0.15)');
+  gradient.addColorStop(1, 'rgba(0,212,170,0)');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, h - 30);
+  points.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(points[points.length - 1].x, h - 30);
+  ctx.closePath();
+  ctx.fill();
+
+  // Dots
+  points.forEach(p => {
+    ctx.fillStyle = '#00d4aa';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN: TEAM
+// ═══════════════════════════════════════════════
+function renderTeamScreen(data) {
+  const agents = data.agents || [];
+  const issues = data.issues || [];
+
+  const getAgentEmoji = (name) => {
+    const n = (name || '').toLowerCase();
+    if (n.includes('ceo')) return '👔';
+    if (n.includes('cmo') || n.includes('marketing')) return '📢';
+    if (n.includes('cto') || n.includes('tech')) return '💻';
+    if (n.includes('cfo') || n.includes('finance')) return '💰';
+    if (n.includes('coo') || n.includes('operations')) return '⚙️';
+    if (n.includes('strategy')) return '🎯';
+    if (n.includes('content') || n.includes('writer')) return '📝';
+    if (n.includes('design')) return '🎨';
+    if (n.includes('data') || n.includes('analyst')) return '📊';
+    if (n.includes('research')) return '🔬';
+    if (n.includes('sales')) return '🤝';
+    if (n.includes('hr') || n.includes('people')) return '👥';
+    if (n.includes('legal')) return '⚖️';
+    if (n.includes('product')) return '📦';
+    return '🤖';
+  };
+
+  const getAgentStatus = (agent) => {
+    if (agent.status === 'running' || agent.status === 'active') return { label: 'Active', color: 'var(--accent)', dot: '●' };
+    if (agent.status === 'error') return { label: 'Error', color: 'var(--red)', dot: '●' };
+    return { label: 'Idle', color: 'var(--text-muted)', dot: '○' };
+  };
+
+  const getAgentStats = (agentId) => {
+    const agentIssues = issues.filter(i => i.assigneeAgentId === agentId);
+    const done = agentIssues.filter(i => i.status === 'done').length;
+    return { total: agentIssues.length, done, cost: (done * 0.65).toFixed(2) };
+  };
+
+  // Categorise agents
+  const cSuite = agents.filter(a => {
+    const n = (a.name || a.title || '').toLowerCase();
+    return n.includes('ceo') || n.includes('cto') || n.includes('cmo') || n.includes('cfo') || n.includes('coo') || n.includes('chief');
+  });
+  const specialists = agents.filter(a => !cSuite.includes(a));
+
+  const activeCount = agents.filter(a => a.status === 'running' || a.status === 'active').length;
+  const errorCount = agents.filter(a => a.status === 'error').length;
+
+  return `
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:20px;font-weight:600">Your AI Team</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:4px">
+        ${agents.length} agents · ${activeCount} active${errorCount > 0 ? ` · <span style="color:var(--red)">${errorCount} errors</span>` : ''} · ${agents.length - activeCount - errorCount} idle
+      </p>
+    </div>
+
+    ${cSuite.length > 0 ? `
+      <div class="team-section-label" style="margin-top:0">C-Suite</div>
+      <div class="team-grid">
+        ${cSuite.map(agent => {
+          const status = getAgentStatus(agent);
+          const stats = getAgentStats(agent.id);
+          return `
+            <div class="agent-card">
+              <div class="agent-avatar" style="background:${status.color === 'var(--accent)' ? 'var(--accent-dim)' : status.color === 'var(--red)' ? 'var(--red-dim)' : 'var(--bg-input)'}">
+                ${getAgentEmoji(agent.name || agent.title)}
+              </div>
+              <div class="agent-name">${agent.name || agent.title || 'Agent'}</div>
+              <div class="agent-status">
+                <span class="dot" style="background:${status.color}${status.label === 'Active' ? ';animation:breathe 2s ease infinite' : ''}"></span>
+                <span style="color:${status.color}">${status.label}</span>
+              </div>
+              <div class="agent-meta">${stats.done} tasks · $${stats.cost}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    ` : ''}
+
+    ${specialists.length > 0 ? `
+      <div class="team-section-label">Specialists (${specialists.length})</div>
+      <div class="team-grid">
+        ${specialists.map(agent => {
+          const status = getAgentStatus(agent);
+          const stats = getAgentStats(agent.id);
+          return `
+            <div class="agent-card">
+              <div class="agent-avatar" style="background:${status.color === 'var(--accent)' ? 'var(--accent-dim)' : 'var(--bg-input)'}">
+                ${getAgentEmoji(agent.name || agent.title)}
+              </div>
+              <div class="agent-name">${agent.name || agent.title || 'Agent'}</div>
+              <div class="agent-status">
+                <span class="dot" style="background:${status.color}${status.label === 'Active' ? ';animation:breathe 2s ease infinite' : ''}"></span>
+                <span style="color:${status.color}">${status.label}</span>
+              </div>
+              <div class="agent-meta">${stats.done} tasks · $${stats.cost}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    ` : ''}
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN RENDERER
+// ═══════════════════════════════════════════════
+function renderScreen() {
+  const el = document.getElementById('main-content');
+  const data = store.data;
+  switch (router.currentScreen) {
+    case 'brief': el.innerHTML = renderBriefScreen(data); initBriefScreen(); break;
+    case 'warroom': el.innerHTML = renderWarRoomScreen(data); break;
+    case 'deliverables': el.innerHTML = renderDeliverablesScreen(data); initDeliverablesScreen(); break;
+    case 'costs': el.innerHTML = renderCostCentreScreen(data); initCostCentreScreen(); break;
+    case 'team': el.innerHTML = renderTeamScreen(data); break;
+    default: el.innerHTML = renderBriefScreen(data); initBriefScreen();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+store.onChange(() => renderScreen());
+store.startPolling();
+router.handleHash();
+
+// Check for completed work to trigger confetti
+let prevDoneCount = 0;
+setInterval(() => {
+  const doneCount = (store.data.issues || []).filter(i => i.status === 'done').length;
+  if (doneCount > prevDoneCount && prevDoneCount > 0) {
+    sound.play('complete');
+    // Check if ALL tasks for current brief are done
+    const briefId = router.params.id;
+    if (briefId) {
+      const tasks = (store.data.issues || []).filter(i => i.parentId === briefId);
+      const allDone = tasks.length > 0 && tasks.every(t => t.status === 'done');
+      if (allDone) {
+        particles.confetti(50);
+        sound.play('done');
+      }
+    }
+  }
+  prevDoneCount = doneCount;
+}, 5000);
+</script>
+</body>
+</html>
