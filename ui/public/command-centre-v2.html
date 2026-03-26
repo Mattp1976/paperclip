@@ -1819,8 +1819,47 @@ function renderTeamScreen(data) {
 function renderScreen() {
   const el = document.getElementById('main-content');
   const data = store.data;
-  switch (router.currentScreen) {
-    case 'brief': el.innerHTML = renderBriefScreen(data); initBriefScreen(); break;
+  const screen = router.currentScreen || 'brief';
+
+  // On Brief screen, avoid destroying the form while user is typing
+  if (screen === 'brief') {
+    const activeEl = document.activeElement;
+    const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
+    const hasBriefForm = document.getElementById('brief-title');
+    if (isTyping && hasBriefForm) {
+      // Only update the sidebar (previous briefs) without touching the form
+      const sidebar = el.querySelector('.brief-history');
+      if (sidebar) {
+        const parentIssues = (data.issues || []).filter(i => !i.parentId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        sidebar.innerHTML = `<div class="brief-history-title">Previous Briefs</div>` +
+          parentIssues.slice(0, 10).map(issue => {
+            const childCount = (data.issues || []).filter(i => i.parentId === issue.id).length;
+            const doneCount = (data.issues || []).filter(i => i.parentId === issue.id && i.status === 'done').length;
+            const allDone = childCount > 0 && doneCount === childCount;
+            const statusColor = allDone ? 'var(--accent)' : childCount > 0 ? 'var(--blue)' : 'var(--orange)';
+            const statusLabel = allDone ? 'Complete' : childCount > 0 ? 'Processing' : 'Processing';
+            return `<div class="brief-history-item" data-issue-id="${issue.id}">
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:6px;height:6px;border-radius:50%;background:${statusColor}"></div>
+                ${issue.title || 'Untitled Brief'}
+              </div>
+              <div class="brief-history-meta">${statusLabel} · ${new Date(issue.createdAt).toLocaleDateString()}</div>
+            </div>`;
+          }).join('');
+        // Re-bind sidebar click handlers
+        sidebar.querySelectorAll('.brief-history-item').forEach(item => {
+          item.addEventListener('click', () => router.navigate('warroom', { id: item.dataset.issueId }));
+        });
+      }
+      return; // Don't rebuild the form
+    }
+    // Not typing — safe to do full render
+    el.innerHTML = renderBriefScreen(data);
+    initBriefScreen();
+    return;
+  }
+
+  switch (screen) {
     case 'warroom': el.innerHTML = renderWarRoomScreen(data); break;
     case 'deliverables': el.innerHTML = renderDeliverablesScreen(data); initDeliverablesScreen(); break;
     case 'costs': el.innerHTML = renderCostCentreScreen(data); initCostCentreScreen(); break;
