@@ -835,12 +835,17 @@ class DataStore {
     };
     poll();
   }
+    _getCeoAgentId() {
+      const agents = this.data.agents || [];
+      const ceo = agents.find(a => a.name === 'CEO' || a.role === 'CEO' || (a.name && a.name.toLowerCase().includes('ceo')));
+      return ceo ? ceo.id : (agents.length > 0 ? agents[0].id : undefined);
+    }
   async submitBrief(title, description, priority = 'medium') {
     try {
       const res = await fetch(buildUrl('/issues'), {
         method: 'POST',
         headers: apiHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ title, description, priority })
+        body: JSON.stringify({ title, description, priority, status: 'todo', assigneeAgentId: this._getCeoAgentId() })
       });
       if (!res.ok) throw new Error(res.status);
       const issue = await res.json();
