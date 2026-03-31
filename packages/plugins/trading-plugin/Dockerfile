@@ -2,8 +2,8 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Install jq for JSON manipulation
-RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
+# Install jq for JSON manipulation and postgresql-client for migrations
+RUN apt-get update && apt-get install -y --no-install-recommends jq postgresql-client && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package.json tsconfig.json ./
@@ -13,12 +13,14 @@ RUN jq 'del(.dependencies["@paperclipai/plugin-sdk"])' package.json > package.tm
     mv package.tmp.json package.json && \
     npm install
 
-# Copy source
+# Copy source (includes migrate.sql)
 COPY src/ src/
+
+# Create entrypoint that runs migrations then starts scheduler
+RUN printf '#!/bin/sh\necho "Running database migrations..."\npsql "$DATABASE_URL" -f /app/src/db/migrate.sql 2>&1 || echo "Migration warning (may be OK if tables exist)"\necho "Starting scheduler..."\nexec npx tsx src/scheduler.ts\n' > /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 # Expose health check port
 ENV PORT=3200
 EXPOSE 3200
 
-# Run scheduler with tsx (TypeScript execution)
-CMD ["npx", "tsx", "src/scheduler.ts"]
+CMD ["/app/entrypoint.sh"]
