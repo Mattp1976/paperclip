@@ -2,16 +2,22 @@ import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import { join, extname } from "node:path";
 import postgres from "postgres";
+import { RiskManager } from "./services/risk-manager.js";
+import { PortfolioManager } from "./services/portfolio-manager.js";
+import { EquityEngine } from "./services/equity-engine.js";
+import { LifecycleManager, alertManager } from "./services/lifecycle-manager.js";
 
 const sql = postgres(process.env.DATABASE_URL!);
+const risk = new RiskManager(sql);
+const portfolio = new PortfolioManager(sql);
+const equity = new EquityEngine(sql);
+const lifecycle = new LifecycleManager(sql);
+const alerts = alertManager(sql);
 
 const MIME: Record<string, string> = {
-  ".html": "text/html",
-  ".js": "application/javascript",
-  ".css": "text/css",
-  ".json": "application/json",
-  ".png": "image/png",
-  ".svg": "image/svg+xml",
+  ".html": "text/html", ".js": "application/javascript",
+  ".css": "text/css", ".json": "application/json",
+  ".png": "image/png", ".svg": "image/svg+xml",
 };
 
 function json(res: ServerResponse, data: unknown, status = 200): void {
@@ -24,6 +30,7 @@ function json(res: ServerResponse, data: unknown, status = 200): void {
 
 async function handleAPI(path: string, res: ServerResponse): Promise<void> {
   try {
+    // ─── Original endpoints ───
     if (path === "/api/prices") {
       const rows = await sql`
         SELECT DISTINCT ON (ta.symbol)
@@ -34,7 +41,6 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
         ORDER BY ta.symbol, ts.timestamp DESC`;
       return json(res, rows);
     }
-
     if (path === "/api/signals") {
       const rows = await sql`
         SELECT s.signal_type, s.severity, s.value, s.context, s.is_active,
@@ -44,7 +50,6 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
         ORDER BY s.detected_at DESC LIMIT 50`;
       return json(res, rows);
     }
-
     if (path === "/api/hypotheses") {
       const rows = await sql`
         SELECT h.id, h.name, h.description, h.asset_class, h.strategy_type,
@@ -52,11 +57,9 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
           h.entry_rules, h.exit_rules, h.risk_params,
           h.promoted_at, h.retired_at, h.retirement_reason,
           h.created_at, h.updated_at
-        FROM trading_hypotheses h
-        ORDER BY h.created_at DESC LIMIT 50`;
+        FROM trading_hypotheses h ORDER BY h.created_at DESC LIMIT 50`;
       return json(res, rows);
     }
-
     if (path === "/api/paper-trades") {
       const rows = await sql`
         SELECT pt.id, pt.direction, pt.entry_price, pt.exit_price,
@@ -69,29 +72,23 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
         ORDER BY pt.entry_time DESC LIMIT 100`;
       return json(res, rows);
     }
-
     if (path === "/api/backtest-results") {
       const rows = await sql`
         SELECT br.id, br.sharpe_ratio, br.win_rate, br.max_drawdown,
           br.total_trades, br.total_return, br.profit_factor,
-          br.avg_trade_return, br.period_start, br.period_end,
-          br.created_at,
-          h.name as hypothesis_name, h.status as hypothesis_status,
-          h.asset_class
+          br.avg_trade_return, br.period_start, br.period_end, br.created_at,
+          h.name as hypothesis_name, h.status as hypothesis_status, h.asset_class
         FROM trading_backtest_results br
         JOIN trading_hypotheses h ON h.id = br.hypothesis_id
         ORDER BY br.created_at DESC LIMIT 50`;
       return json(res, rows);
     }
-
     if (path === "/api/agent-logs") {
       const rows = await sql`
         SELECT agent_name, log_level, message, context, created_at
-        FROM trading_agent_logs
-        ORDER BY created_at DESC LIMIT 100`;
+        FROM trading_agent_logs ORDER BY created_at DESC LIMIT 100`;
       return json(res, rows);
     }
-
     if (path === "/api/price-history") {
       const rows = await sql`
         SELECT ta.symbol, ts.price, ts.volume_24h, ts.rsi_14, ts.timestamp
@@ -101,40 +98,6 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
         ORDER BY ta.symbol, ts.timestamp ASC`;
       return json(res, rows);
     }
-
-    if (path === "/api/portfolio") {
-      const open = await sql`
-        SELECT pt.direction, pt.entry_price, pt.quantity, pt.entry_time,
-          ta.symbol,
-          (SELECT ts.price FROM trading_snapshots ts WHERE ts.asset_id = pt.asset_id ORDER BY ts.timestamp DESC LIMIT 1) as current_price
-        FROM trading_paper_trades pt
-        JOIN trading_assets ta ON ta.id = pt.asset_id
-        WHERE pt.status = 'open'
-        ORDER BY pt.entry_time DESC`;
-
-      const closed = await sql`
-        SELECT COALESCE(SUM(pnl), 0) as total_pnl,
-          COUNT(*) as total_trades,
-          COUNT(*) FILTER (WHERE pnl > 0) as winning_trades,
-          COUNT(*) FILTER (WHERE pnl <= 0) as losing_trades,
-          COALESCE(AVG(pnl_pct), 0) as avg_pnl_pct
-        FROM trading_paper_trades
-        WHERE status = 'closed'`;
-
-      const equity = await sql`
-        SELECT DATE_TRUNC('hour', exit_time) as time,
-          SUM(pnl) OVER (ORDER BY exit_time) as cumulative_pnl
-        FROM trading_paper_trades
-        WHERE status = 'closed'
-        ORDER BY exit_time`;
-
-      return json(res, {
-        open_positions: open,
-        performance: closed[0],
-        equity_curve: equity
-      });
-    }
-
     if (path === "/api/stats") {
       const [snap] = await sql`SELECT COUNT(*)::int AS c FROM trading_snapshots`;
       const [sig] = await sql`SELECT COUNT(*)::int AS c FROM trading_signals`;
@@ -144,21 +107,84 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
       const [pt] = await sql`SELECT COUNT(*)::int AS c FROM trading_paper_trades`;
       const [bt] = await sql`SELECT COUNT(*)::int AS c FROM trading_backtest_results`;
       return json(res, {
-        total_snapshots: snap.c,
-        total_signals: sig.c,
-        total_hypotheses: hyp.c,
-        active_assets: ast.c,
-        last_scan: last.t,
-        total_paper_trades: pt.c,
-        total_backtests: bt.c
+        total_snapshots: snap.c, total_signals: sig.c, total_hypotheses: hyp.c,
+        active_assets: ast.c, last_scan: last.t,
+        total_paper_trades: pt.c, total_backtests: bt.c,
       });
     }
-
     if (path === "/api/health") {
-      return json(res, { status: "ok", timestamp: new Date().toISOString() });
+      return json(res, { status: "ok", version: "2.0", timestamp: new Date().toISOString() });
     }
 
+    // ─── Portfolio endpoints ───
+    if (path === "/api/portfolio") {
+      return json(res, await portfolio.getPortfolioState());
+    }
+    if (path === "/api/portfolio/equity") {
+      return json(res, await equity.getEquityCurve(168));
+    }
+    if (path === "/api/portfolio/drawdown") {
+      return json(res, await equity.getDrawdownSeries(168));
+    }
+    if (path === "/api/portfolio/allocation") {
+      return json(res, await portfolio.getAllocations());
+    }
+    if (path === "/api/portfolio/returns") {
+      return json(res, await equity.getReturns());
+    }
+    if (path === "/api/portfolio/contribution") {
+      return json(res, await portfolio.getStrategyContribution());
+    }
 
+    // ─── Risk endpoints ───
+    if (path === "/api/risk/status") {
+      return json(res, await risk.getRiskStatus());
+    }
+    if (path === "/api/risk/events") {
+      const rows = await sql`
+        SELECT * FROM trading_risk_events ORDER BY created_at DESC LIMIT 100`;
+      return json(res, rows);
+    }
+
+    // ─── Strategy lifecycle endpoints ───
+    if (path === "/api/strategies/lifecycle") {
+      return json(res, await lifecycle.getLifecycleHistory());
+    }
+    if (path === "/api/strategies/states") {
+      return json(res, await lifecycle.getStrategyStates());
+    }
+
+    // ─── Reports ───
+    if (path === "/api/reports/daily") {
+      return json(res, await equity.generateDailyReport());
+    }
+    if (path === "/api/reports/weekly") {
+      return json(res, await equity.generateWeeklyReport());
+    }
+
+    // ─── Alerts ───
+    if (path === "/api/alerts") {
+      return json(res, await alerts.getRecent());
+    }
+    if (path === "/api/alerts/unread") {
+      return json(res, await alerts.getUnread());
+    }
+
+    // ─── Positions ───
+    if (path === "/api/positions") {
+      const rows = await sql`
+        SELECT pt.*, ta.symbol, h.name as hypothesis_name,
+          (SELECT ts.price FROM trading_snapshots ts WHERE ts.asset_id = pt.asset_id
+           ORDER BY ts.timestamp DESC LIMIT 1) as current_price
+        FROM trading_paper_trades pt
+        JOIN trading_assets ta ON ta.id = pt.asset_id
+        LEFT JOIN trading_hypotheses h ON h.id = pt.hypothesis_id
+        WHERE pt.status = 'open'
+        ORDER BY pt.entry_time DESC`;
+      return json(res, rows);
+    }
+
+    // ─── Diagnostics ───
     if (path === "/api/diagnostics") {
       const [ptCount] = await sql`SELECT COUNT(*)::int AS c FROM trading_paper_trades`;
       const [openCount] = await sql`SELECT COUNT(*)::int AS c FROM trading_paper_trades WHERE status = 'open'`;
@@ -187,26 +213,17 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
 
 export function startAPIServer(port: number): void {
   const pubDir = join(import.meta.dirname ?? ".", "../public");
-
   const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const url = req.url ?? "/";
-
-    if (url.startsWith("/api/")) {
-      return handleAPI(url.split("?")[0], res);
-    }
-
-    const filePath = join(pubDir, url === "/" ? "index.html" : url);
+    if (url.startsWith("/api/")) return handleAPI(url.split("?")[0], res);
+    const filePath = join(pubDir, url === "/" ? "operator.html" : url);
     if (existsSync(filePath)) {
       const ext = extname(filePath);
       res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
       res.end(readFileSync(filePath));
     } else {
-      res.writeHead(404);
-      res.end("Not found");
+      res.writeHead(404); res.end("Not found");
     }
   });
-
-  server.listen(port, () => {
-    console.log("[API] Server listening on port " + port);
-  });
+  server.listen(port, () => { console.log("[API] Server v2 listening on port " + port); });
 }
