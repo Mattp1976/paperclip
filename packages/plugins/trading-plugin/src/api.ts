@@ -6,6 +6,7 @@ import { RiskManager } from "./services/risk-manager.js";
 import { PortfolioManager } from "./services/portfolio-manager.js";
 import { EquityEngine } from "./services/equity-engine.js";
 import { LifecycleManager, alertManager } from "./services/lifecycle-manager.js";
+import { ExitEngine } from "./services/exit-engine.js";
 
 const sql = postgres(process.env.DATABASE_URL!);
 const risk = new RiskManager(sql);
@@ -13,6 +14,7 @@ const portfolio = new PortfolioManager(sql);
 const equity = new EquityEngine(sql);
 const lifecycle = new LifecycleManager(sql);
 const alerts = alertManager(sql);
+const exitEngine = new ExitEngine(sql);
 
 const MIME: Record<string, string> = {
   ".html": "text/html", ".js": "application/javascript",
