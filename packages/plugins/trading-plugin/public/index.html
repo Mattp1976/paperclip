@@ -111,14 +111,14 @@ tr:hover{background:rgba(59,130,246,.05)}
   <div class="card" style="margin-bottom:16px">
     <h3>Open Positions</h3>
     <table>
-      <thead><tr><th>Symbol</th><th>Direction</th><th>Entry</th><th>Current</th><th>Unrealized P&L</th><th>Opened</th></tr></thead>
+      <thead><tr><th>Symbol</th><th>Direction</th><th>Entry</th><th>Current</th><th>Unrealized P&L</th><th>Entry Time</th></tr></thead>
       <tbody id="openPositions"></tbody>
     </table>
   </div>
   <div class="card">
     <h3>Closed Trades</h3>
     <table>
-      <thead><tr><th>Symbol</th><th>Direction</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Return</th><th>Exit Reason</th><th>Closed</th></tr></thead>
+      <thead><tr><th>Symbol</th><th>Direction</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Return</th><th>Exit Reason</th><th>Exit Time</th></tr></thead>
       <tbody id="closedTrades"></tbody>
     </table>
   </div>
@@ -139,7 +139,7 @@ tr:hover{background:rgba(59,130,246,.05)}
   </div>
   <div class="card">
     <table>
-      <thead><tr><th>Title</th><th>Symbol</th><th>Direction</th><th>Timeframe</th><th>Confidence</th><th>Status</th><th>Created</th></tr></thead>
+      <thead><tr><th>Name</th><th>Asset Class</th><th>Strategy</th><th>Generation</th><th>Confidence</th><th>Status</th><th>Created</th></tr></thead>
       <tbody id="hypTable"></tbody>
     </table>
   </div>
@@ -177,7 +177,7 @@ tr:hover{background:rgba(59,130,246,.05)}
   </div>
   <div class="card">
     <table>
-      <thead><tr><th>Hypothesis</th><th>Symbol</th><th>Sharpe</th><th>Win Rate</th><th>Max DD</th><th>Trades</th><th>Return</th><th>Status</th></tr></thead>
+      <thead><tr><th>Hypothesis</th><th>Asset Class</th><th>Sharpe</th><th>Win Rate</th><th>Max DD</th><th>Trades</th><th>Return</th><th>Status</th></tr></thead>
       <tbody id="btTable"></tbody>
     </table>
   </div>
@@ -324,7 +324,7 @@ async function loadPortfolio() {
           <td>${fmtUSD(p.entry_price)}</td>
           <td>${fmtUSD(p.current_price)}</td>
           <td class="${pnlClass(unPnl)}">${(unPnl>=0?'+':'') + fmtUSD(unPnl)}</td>
-          <td>${fmtTime(p.opened_at)}</td>
+          <td>${fmtTime(p.entry_time)}</td>
         </tr>`;
       }).join('');
 
@@ -357,7 +357,7 @@ async function loadPortfolio() {
         <td class="${pnlClass(t.pnl)}">${(Number(t.pnl)>=0?'+':'') + fmtUSD(t.pnl)}</td>
         <td class="${pnlClass(t.pnl_pct)}">${fmtPct(t.pnl_pct)}</td>
         <td>${t.exit_reason||'—'}</td>
-        <td>${fmtTime(t.closed_at)}</td>
+        <td>${fmtTime(t.exit_time)}</td>
       </tr>`).join('');
 
     // Trade distribution chart
@@ -391,11 +391,11 @@ function renderHypotheses() {
   document.getElementById('hypTable').innerHTML = rows.length === 0
     ? '<tr><td colspan="7" class="empty">No hypotheses found</td></tr>'
     : rows.map(h => `<tr>
-      <td title="${(h.entry_rules||'').substring(0,200)}">${h.title||'Untitled'}</td>
-      <td><strong>${h.symbol}</strong></td>
-      <td><span class="badge ${h.direction==='long'?'badge-green':'badge-red'}">${h.direction||'—'}</span></td>
-      <td>${h.timeframe||'—'}</td>
-      <td>${h.confidence_score ? fmt(h.confidence_score*100,0)+'%' : '—'}</td>
+      <td title="${(h.description||'').substring(0,200)}">${h.name||'Untitled'}</td>
+      <td><strong>${h.asset_class||'—'}</strong></td>
+      <td>${h.strategy_type||'—'}</td>
+      <td>${h.generation||'—'}</td>
+      <td>${h.confidence ? fmt(Number(h.confidence)*100,0)+'%' : '—'}</td>
       <td>${statusBadge(h.status)}</td>
       <td>${fmtTime(h.created_at)}</td>
     </tr>`).join('');
@@ -443,7 +443,7 @@ async function loadBacktests() {
       data:{datasets:[{label:'Backtests',data:DATA.backtests.map(b=>({x:Number(b.sharpe_ratio),y:Number(b.win_rate)*100})),
         backgroundColor:DATA.backtests.map(b=>b.hypothesis_status==='paper_trading'||b.hypothesis_status==='promoted'?'rgba(16,185,129,.8)':'rgba(100,116,139,.5)'),
         pointRadius:6}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return DATA.backtests[c.dataIndex].hypothesis_title+' ('+DATA.backtests[c.dataIndex].symbol+')'}}}},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return DATA.backtests[c.dataIndex].hypothesis_name+' ('+DATA.backtests[c.dataIndex].asset_class+')'}}}},
         scales:{x:{title:{display:true,text:'Sharpe Ratio',color:'#64748b'},grid:{color:'#1e293b'},ticks:{color:'#64748b'}},
           y:{title:{display:true,text:'Win Rate %',color:'#64748b'},grid:{color:'#1e293b'},ticks:{color:'#64748b'}}}}
     });
@@ -451,8 +451,8 @@ async function loadBacktests() {
   document.getElementById('btTable').innerHTML = DATA.backtests.length === 0
     ? '<tr><td colspan="8" class="empty">No backtest results yet</td></tr>'
     : DATA.backtests.map(b => `<tr>
-      <td title="${b.hypothesis_title}">${(b.hypothesis_title||'').substring(0,40)}</td>
-      <td><strong>${b.symbol}</strong></td>
+      <td title="${b.hypothesis_name}">${(b.hypothesis_name||'').substring(0,40)}</td>
+      <td><strong>${b.asset_class||'—'}</strong></td>
       <td class="${Number(b.sharpe_ratio)>=1.5?'pnl-pos':Number(b.sharpe_ratio)<0.5?'pnl-neg':''}">${fmt(b.sharpe_ratio,2)}</td>
       <td>${fmt(Number(b.win_rate)*100,1)}%</td>
       <td class="pnl-neg">${fmt(Number(b.max_drawdown)*100,1)}%</td>
@@ -478,12 +478,13 @@ function renderLogs() {
   document.getElementById('logEntries').innerHTML = rows.length === 0
     ? '<div class="empty">No agent logs yet</div>'
     : rows.slice(0,50).map(l => {
-      let details = '';
-      try { const d = typeof l.details === 'string' ? JSON.parse(l.details) : l.details; details = JSON.stringify(d).substring(0,200); } catch(e) { details = String(l.details||'').substring(0,200); }
+      let ctx = '';
+      try { const d = typeof l.context === 'string' ? JSON.parse(l.context) : l.context; ctx = d ? JSON.stringify(d).substring(0,200) : ''; } catch(e) { ctx = String(l.context||'').substring(0,200); }
+      const lvlBadge = l.log_level==='error'?'badge-red':l.log_level==='warn'?'badge-yellow':'badge-gray';
       return `<div class="log-entry" style="border-left-color:${l.agent_name==='scanner'?'var(--accent)':l.agent_name==='hypothesis'?'var(--purple)':l.agent_name==='backtest'?'var(--yellow)':l.agent_name==='paper_trader'?'var(--green)':'var(--muted)'}">
-        <span class="agent">${l.agent_name}</span> <span style="color:var(--text)">${l.action}</span>
+        <span class="agent">${l.agent_name}</span> <span class="badge ${lvlBadge}">${l.log_level||'info'}</span> <span style="color:var(--text)">${(l.message||'').substring(0,120)}</span>
         <span class="time">${fmtTime(l.created_at)}</span>
-        ${details ? '<div style="color:var(--muted);margin-top:4px;font-size:11px;word-break:break-all">'+details+'</div>' : ''}
+        ${ctx ? '<div style="color:var(--muted);margin-top:4px;font-size:11px;word-break:break-all">'+ctx+'</div>' : ''}
       </div>`;
     }).join('');
 }
