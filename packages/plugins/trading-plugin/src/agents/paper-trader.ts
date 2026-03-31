@@ -142,26 +142,26 @@ export class PaperTrader {
                 .limit(1);
 
               if (inserted) {
-                await this.db.execute(sql\`
+                await this.db.execute(sql`
                   UPDATE trading_paper_trades
-                  SET stop_loss = \${String(stopLoss)},
-                      take_profit = \${String(takeProfit)},
-                      trailing_stop_pct = \${String(trailingStopPct)},
-                      high_water_mark = \${String(price)},
-                      max_hold_until = \${maxHoldUntil.toISOString()}::timestamptz
-                  WHERE id = \${inserted.id}
-                \`);
+                  SET stop_loss = ${String(stopLoss)},
+                      take_profit = ${String(takeProfit)},
+                      trailing_stop_pct = ${String(trailingStopPct)},
+                      high_water_mark = ${String(price)},
+                      max_hold_until = ${maxHoldUntil.toISOString()}::timestamptz
+                  WHERE id = ${inserted.id}
+                `);
               }
             } catch (e) {
               console.error("[PaperTrader] Failed to set exit columns:", e);
             }
 
             console.log(`[PaperTrader] OPENED ${entryRules.direction.toUpperCase()} ${symbol} @ $${price.toFixed(2)} (qty: ${qty.toFixed(6)}) SL: $${stopLoss.toFixed(2)} TP: $${takeProfit.toFixed(2)} — ${hyp.name}`);
-            await this.log("info", \`Opened \${entryRules.direction} \${symbol} @ $\${price.toFixed(2)} SL:$\${stopLoss.toFixed(2)} TP:$\${takeProfit.toFixed(2)} via \${hyp.name}\`);
+            await this.log("info", `Opened ${entryRules.direction} ${symbol} @ $${price.toFixed(2)} SL:$${stopLoss.toFixed(2)} TP:$${takeProfit.toFixed(2)} via ${hyp.name}`);
           }
         }
       } catch (err) {
-        console.error(\`[PaperTrader] Entry error for \${hyp.name}:\`, err);
+        console.error(`[PaperTrader] Entry error for ${hyp.name}:`, err);
       }
     }
   }
