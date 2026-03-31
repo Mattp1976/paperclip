@@ -51,13 +51,25 @@ export async function runV2Migration(sql: any): Promise<void> {
     reason TEXT, triggered_by VARCHAR(50) DEFAULT 'system',
     context JSONB DEFAULT '{}', created_at TIMESTAMP DEFAULT NOW())`;
 
-  // Fix existing tables if they used INTEGER instead of UUID
-  await sql`ALTER TABLE trading_strategy_allocations
-    ALTER COLUMN hypothesis_id TYPE UUID USING hypothesis_id::text::uuid`.catch(() => {});
-  await sql`ALTER TABLE trading_risk_events
-    ALTER COLUMN hypothesis_id TYPE UUID USING hypothesis_id::text::uuid`.catch(() => {});
-  await sql`ALTER TABLE trading_lifecycle_transitions
-    ALTER COLUMN hypothesis_id TYPE UUID USING hypothesis_id::text::uuid`.catch(() => {});
+  // Fix existing tables if they were created with INTEGER instead of UUID
+  try {
+    await sql`ALTER TABLE trading_strategy_allocations ALTER COLUMN hypothesis_id TYPE UUID USING hypothesis_id::text::uuid`;
+    console.log("[Migration V2] Fixed strategy_allocations.hypothesis_id to UUID");
+  } catch (e: any) {
+    if (!e.message?.includes("already")) console.log("[Migration V2] strategy_allocations column ok or empty");
+  }
+  try {
+    await sql`ALTER TABLE trading_risk_events ALTER COLUMN hypothesis_id TYPE UUID USING hypothesis_id::text::uuid`;
+    console.log("[Migration V2] Fixed risk_events.hypothesis_id to UUID");
+  } catch (e: any) {
+    if (!e.message?.includes("already")) console.log("[Migration V2] risk_events column ok or empty");
+  }
+  try {
+    await sql`ALTER TABLE trading_lifecycle_transitions ALTER COLUMN hypothesis_id TYPE UUID USING hypothesis_id::text::uuid`;
+    console.log("[Migration V2] Fixed lifecycle_transitions.hypothesis_id to UUID");
+  } catch (e: any) {
+    if (!e.message?.includes("already")) console.log("[Migration V2] lifecycle_transitions column ok or empty");
+  }
 
   const existing = await sql`SELECT COUNT(*)::int AS c FROM trading_portfolio_config`;
   if (existing[0].c === 0) {
