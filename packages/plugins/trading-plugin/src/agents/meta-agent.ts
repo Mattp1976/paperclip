@@ -41,7 +41,7 @@ import type {
   RiskParams,
 } from "../types/index.js";
 
-const MODEL = "claude-sonnet-4-5-20250514";
+const MODEL = "claude-haiku-4-5-20251001";
 
 interface HypothesisWithMetrics {
   id: string;
