@@ -204,6 +204,41 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
       });
     }
 
+
+    // ─── Exit Engine Status ───
+    if (path === "/api/exits/status") {
+      const status = await exitEngine.getStatus();
+      return json(res, { ok: true, positions: status, count: status.length });
+    }
+
+    // ─── Exit Engine Summary (closed trades) ───
+    if (path === "/api/exits/history") {
+      const closed = await sql\`
+        SELECT t.id, t.direction, t.entry_price, t.exit_price, t.pnl, t.pnl_pct,
+               t.exit_reason, t.entry_time, t.exit_time, t.quantity,
+               a.symbol, t.stop_loss, t.take_profit
+        FROM trading_paper_trades t
+        JOIN trading_assets a ON a.id = t.asset_id
+        WHERE t.status = 'closed'
+        ORDER BY t.exit_time DESC
+        LIMIT 50
+      \`;
+      return json(res, {
+        ok: true, trades: closed, count: closed.length,
+        summary: {
+          totalTrades: closed.length,
+          totalPnl: closed.reduce((s: number, t: any) => s + parseFloat(t.pnl || 0), 0),
+          winners: closed.filter((t: any) => parseFloat(t.pnl || 0) > 0).length,
+          losers: closed.filter((t: any) => parseFloat(t.pnl || 0) <= 0).length,
+          byReason: {
+            stop_loss: closed.filter((t: any) => t.exit_reason === 'stop_loss').length,
+            take_profit: closed.filter((t: any) => t.exit_reason === 'take_profit').length,
+            time_limit: closed.filter((t: any) => t.exit_reason === 'time_limit').length,
+          }
+        }
+      });
+    }
+
     return json(res, { error: "Not found" }, 404);
   } catch (err: any) {
     console.error("API error:", err);
