@@ -17,7 +17,7 @@ export async function runV2Migration(sql: any): Promise<void> {
     updated_at TIMESTAMP DEFAULT NOW())`;
 
   await sql`CREATE TABLE IF NOT EXISTS trading_strategy_allocations (
-    id SERIAL PRIMARY KEY, hypothesis_id INTEGER NOT NULL,
+    id SERIAL PRIMARY KEY, hypothesis_id UUID NOT NULL,
     allocation_pct NUMERIC NOT NULL, allocated_capital NUMERIC NOT NULL,
     status VARCHAR(30) DEFAULT 'active', score NUMERIC,
     created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`;
@@ -35,7 +35,7 @@ export async function runV2Migration(sql: any): Promise<void> {
   await sql`CREATE TABLE IF NOT EXISTS trading_risk_events (
     id SERIAL PRIMARY KEY, event_type VARCHAR(50) NOT NULL,
     severity VARCHAR(20) NOT NULL DEFAULT 'info', message TEXT NOT NULL,
-    hypothesis_id INTEGER, asset_symbol VARCHAR(30),
+    hypothesis_id UUID, asset_symbol VARCHAR(30),
     context JSONB DEFAULT '{}', created_at TIMESTAMP DEFAULT NOW())`;
 
   await sql`CREATE TABLE IF NOT EXISTS trading_alerts (
@@ -46,10 +46,18 @@ export async function runV2Migration(sql: any): Promise<void> {
     context JSONB DEFAULT '{}', created_at TIMESTAMP DEFAULT NOW())`;
 
   await sql`CREATE TABLE IF NOT EXISTS trading_lifecycle_transitions (
-    id SERIAL PRIMARY KEY, hypothesis_id INTEGER NOT NULL,
+    id SERIAL PRIMARY KEY, hypothesis_id UUID NOT NULL,
     from_status VARCHAR(30) NOT NULL, to_status VARCHAR(30) NOT NULL,
     reason TEXT, triggered_by VARCHAR(50) DEFAULT 'system',
     context JSONB DEFAULT '{}', created_at TIMESTAMP DEFAULT NOW())`;
+
+  // Fix existing tables if they used INTEGER instead of UUID
+  await sql`ALTER TABLE trading_strategy_allocations
+    ALTER COLUMN hypothesis_id TYPE UUID USING hypothesis_id::text::uuid`.catch(() => {});
+  await sql`ALTER TABLE trading_risk_events
+    ALTER COLUMN hypothesis_id TYPE UUID USING hypothesis_id::text::uuid`.catch(() => {});
+  await sql`ALTER TABLE trading_lifecycle_transitions
+    ALTER COLUMN hypothesis_id TYPE UUID USING hypothesis_id::text::uuid`.catch(() => {});
 
   const existing = await sql`SELECT COUNT(*)::int AS c FROM trading_portfolio_config`;
   if (existing[0].c === 0) {
