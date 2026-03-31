@@ -31,40 +31,25 @@ const FUNDING_RATE_EXTREME = 0.001;
 
 /**
  * Mapping from our internal symbols (e.g. "XBTUSDT") to Kraken pair names.
- * Kraken's API uses its own pair naming — this map handles the translation.
+ * Kraken's API uses its own pair naming â this map handles the translation.
  * The scanner will try the symbol directly first, then fall back to this map.
  */
 const KRAKEN_PAIR_MAP: Record<string, string> = {
-  XBTUSDT: "XBTUSDT",
-  ETHUSDT: "ETHUSDT",
-  XRPUSDT: "XRPUSDT",
-  SOLUSDT: "SOLUSDT",
-  ADAUSDT: "ADAUSDT",
-  DOGEUSDT: "DOGEUSDT",
-  DOTUSDT: "DOTUSDT",
-  LINKUSDT: "LINKUSDT",
-  AVAXUSDT: "AVAXUSDT",
-  MATICUSDT: "MATICUSDT",
-  UNIUSDT: "UNIUSDT",
-  ATOMUSDT: "ATOMUSDT",
-  LTCUSDT: "LTCUSDT",
-  XLMUSDT: "XLMUSDT",
-  ETCUSDT: "ETCUSDT",
-  NEARUSDT: "NEARUSDT",
-  FILUSDT: "FILUSDT",
-  APTUSDT: "APTUSDT",
-  ARBUSDT: "ARBUSDT",
-  OPUSDT: "OPUSDT",
-  AAVEUSDT: "AAVEUSDT",
-  MKRUSDT: "MKRUSDT",
-  GRTUSDT: "GRTUSDT",
-  INJUSDT: "INJUSDT",
-  RNDRUSDT: "RNDRUSDT",
-  TIAUSDT: "TIAUSDT",
-  SUIUSDT: "SUIUSDT",
-  TRXUSDT: "TRXUSDT",
-  SHIBUSDT: "SHIBUSDT",
-  PEPEUSDT: "PEPEUSDT",
+  "BTC/USD": "XBTUSD",
+  "ETH/USD": "ETHUSD",
+  "SOL/USD": "SOLUSD",
+  "XRP/USD": "XRPUSD",
+  "ADA/USD": "ADAUSD",
+  "AVAX/USD": "AVAXUSD",
+  "DOT/USD": "DOTUSD",
+  "LINK/USD": "LINKUSD",
+  "MATIC/USD": "POLUSD",  // Polygon rebranded MATIC → POL on Kraken
+  "ATOM/USD": "ATOMUSD",
+  "UNI/USD": "UNIUSD",
+  "LTC/USD": "LTCUSD",
+  "DOGE/USD": "DOGEUSD",
+  "SHIB/USD": "SHIBUSD",
+  "FIL/USD": "FILUSD",
 };
 
 /**
@@ -72,19 +57,28 @@ const KRAKEN_PAIR_MAP: Record<string, string> = {
  * e.g. PF_XBTUSD for BTC perpetual.
  */
 const FUTURES_TICKER_MAP: Record<string, string> = {
-  XBTUSDT: "PF_XBTUSD",
-  ETHUSDT: "PF_ETHUSD",
-  XRPUSDT: "PF_XRPUSD",
-  SOLUSDT: "PF_SOLUSD",
-  ADAUSDT: "PF_ADAUSD",
-  DOGEUSDT: "PF_DOGEUSD",
-  DOTUSDT: "PF_DOTUSD",
-  LINKUSDT: "PF_LINKUSD",
-  AVAXUSDT: "PF_AVAXUSD",
-  LTCUSDT: "PF_LTCUSD",
-  ATOMUSDT: "PF_ATOMUSD",
-  MATICUSDT: "PF_MATICUSD",
+  "BTC/USD": "PF_XBTUSD",
+  "ETH/USD": "PF_ETHUSD",
+  "XRP/USD": "PF_XRPUSD",
+  "SOL/USD": "PF_SOLUSD",
+  "ADA/USD": "PF_ADAUSD",
+  "DOGE/USD": "PF_DOGEUSD",
+  "DOT/USD": "PF_DOTUSD",
+  "LINK/USD": "PF_LINKUSD",
+  "AVAX/USD": "PF_AVAXUSD",
+  "LTC/USD": "PF_LTCUSD",
+  "ATOM/USD": "PF_ATOMUSD",
+  "MATIC/USD": "PF_POLUSD",
 };
+/**
+ * Generic fallback: convert DB symbol format "BASE/QUOTE" to Kraken pair.
+ * Handles Kraken-specific naming (BTC→XBT, MATIC→POL, DOGE→DOGE).
+ */
+function dbSymbolToKrakenPair(symbol: string): string {
+  const [base, quote] = symbol.split("/");
+  const krakenBase = base === "BTC" ? "XBT" : base === "MATIC" ? "POL" : base;
+  return krakenBase + (quote || "USD");
+}
 
 export class CryptoScanner {
   constructor(
@@ -121,7 +115,7 @@ export class CryptoScanner {
     allTickers: Record<string, any>,
     allFunding: Record<string, number>
   ): Promise<void> {
-    const krakenPair = KRAKEN_PAIR_MAP[asset.symbol] ?? asset.symbol;
+    const krakenPair = KRAKEN_PAIR_MAP[asset.symbol] ?? dbSymbolToKrakenPair(asset.symbol);
 
     // Find this asset's ticker in the batch response
     const ticker = this.findTicker(krakenPair, allTickers);
@@ -130,7 +124,7 @@ export class CryptoScanner {
       return;
     }
 
-    // Fetch OHLC (klines) individually — Kraken only supports one pair per OHLC call
+    // Fetch OHLC (klines) individually â Kraken only supports one pair per OHLC call
     const klines = await this.fetchOHLC(krakenPair, 60, 168); // 60 = 1h interval
 
     const closes = klines.map((k) => k.close);
@@ -154,7 +148,7 @@ export class CryptoScanner {
     }
 
     // Funding rate from futures
-    const futuresTicker = FUTURES_TICKER_MAP[asset.symbol];
+    const futuresTicker = FUTURES_TICKER_MAP[asset.symbol] ?? undefined;
     const fundingRate = futuresTicker ? (allFunding[futuresTicker] ?? undefined) : undefined;
 
     // Write snapshot
@@ -253,11 +247,11 @@ export class CryptoScanner {
     console.log(`[Scanner] SIGNAL [${severity}] ${context.symbol}: ${signalType} = ${value}`);
   }
 
-  // ─── Kraken API calls ─────────────────────────────────────────
+  // âââ Kraken API calls âââââââââââââââââââââââââââââââââââââââââ
 
   /**
    * Fetch all tickers in one batch call.
-   * Kraken /Ticker without a pair returns all pairs — very efficient.
+   * Kraken /Ticker without a pair returns all pairs â very efficient.
    * We pass our specific pairs to reduce payload.
    */
   private async fetchAllTickers(): Promise<Record<string, any>> {
@@ -336,7 +330,7 @@ export class CryptoScanner {
 
   /**
    * Fetch funding rates from Kraken Futures.
-   * Returns a map of futures ticker → funding rate.
+   * Returns a map of futures ticker â funding rate.
    */
   private async fetchAllFundingRates(): Promise<Record<string, number>> {
     try {
@@ -357,7 +351,7 @@ export class CryptoScanner {
     }
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────
+  // âââ Helpers ââââââââââââââââââââââââââââââââââââââââââââââââââ
   private async getActiveAssets() {
     return this.db
       .select({ id: tradingAssets.id, symbol: tradingAssets.symbol })
@@ -398,7 +392,7 @@ export class CryptoScanner {
   }
 }
 
-// ─── Technical indicators ───────────────────────────────────
+// âââ Technical indicators âââââââââââââââââââââââââââââââââââ
 function computeRSI(closes: number[], period = 14): number | null {
   if (closes.length < period + 1) return null;
   const deltas = closes.slice(1).map((c, i) => c - closes[i]);
