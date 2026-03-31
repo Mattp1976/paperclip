@@ -7,13 +7,13 @@ import postgres from "postgres";
 type AllocationMethod = "equal_weight" | "sharpe_weighted" | "inverse_drawdown" | "score_weighted";
 
 interface StrategyInfo {
-  id: number; name: string; status: string; sharpe: number | null;
+  id: string; name: string; status: string; sharpe: number | null;
   winRate: number | null; maxDrawdown: number | null; totalReturn: number | null;
   tradeCount: number; openPositions: number; realisedPnl: number; unrealisedPnl: number;
 }
 
 interface Allocation {
-  hypothesisId: number; name: string; weight: number;
+  hypothesisId: string; name: string; weight: number;
   allocatedCapital: number; currentExposure: number;
 }
 
@@ -148,7 +148,7 @@ export class PortfolioManager {
     if (strategies.length === 0) return { allocations: [], method };
 
     // Calculate weights based on method
-    let weights: Map<number, number> = new Map();
+    let weights: Map<string, number> = new Map();
 
     if (method === "equal_weight") {
       const w = 1 / strategies.length;
