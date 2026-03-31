@@ -1,15 +1,14 @@
 /**
  * Standalone Scheduler — ASI Trading System
  * ==========================================
- * Runs all four agents on their respective schedules.
- * Designed to run as a standalone service alongside Paperclip,
- * sharing the same PostgreSQL database.
+ * Runs all agents on aggressive schedules for active learning.
  *
  * Schedule:
- *   - Scanner:    every 5 minutes
- *   - Hypothesis: daily at 06:00 UTC
- *   - Backtest:   daily at 07:00 UTC
- *   - Meta-agent: weekly Sunday at 08:00 UTC
+ *   - Scanner:      every 5 minutes
+ *   - Hypothesis:   every 6 hours + on startup after first scan
+ *   - Backtest:     every 6 hours (30s after hypothesis)
+ *   - Paper Trader: every 5 minutes (alongside scanner)
+ *   - Meta-agent:   weekly Sunday at 08:00 UTC
  */
 
 import postgres from "postgres";
@@ -19,6 +18,7 @@ import { CryptoScanner } from "./agents/scanner.js";
 import { HypothesisAgent } from "./agents/hypothesis.js";
 import { BacktestAgent } from "./agents/backtest.js";
 import { MetaAgent } from "./agents/meta-agent.js";
+import { PaperTrader } from "./agents/paper-trader.js";
 import { startAPIServer } from "./api.js";
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -37,6 +37,7 @@ const scanner = new CryptoScanner(db, KRAKEN_API_KEY);
 const hypothesis = new HypothesisAgent(db, ANTHROPIC_API_KEY);
 const backtest = new BacktestAgent(db, KRAKEN_API_KEY);
 const meta = new MetaAgent(db, ANTHROPIC_API_KEY);
+const paperTrader = new PaperTrader(db);
 
 function now(): string { return new Date().toISOString(); }
 
@@ -51,26 +52,25 @@ async function runSafe(name: string, fn: () => Promise<void>): Promise<void> {
   }
 }
 
-let lastHypothesisDay = -1;
-let lastBacktestDay = -1;
+let lastHypRun = 0;
 let lastMetaWeek = -1;
 
-function checkDailyAndWeeklyJobs(): void {
+async function runHypothesisAndBacktest(): Promise<void> {
+  const t = Date.now();
+  if (t - lastHypRun < 5 * 60 * 60 * 1000) return;
+  lastHypRun = t;
+  await runSafe("Hypothesis Agent", () => hypothesis.runCycle(10));
+  setTimeout(async () => {
+    await runSafe("Backtest Agent", () => backtest.runCycle());
+  }, 30_000);
+}
+
+function checkWeeklyMeta(): void {
   const utcNow = new Date();
+  const dow = utcNow.getUTCDay();
   const hour = utcNow.getUTCHours();
   const minute = utcNow.getUTCMinutes();
-  const day = utcNow.getUTCDate();
-  const dow = utcNow.getUTCDay();
   const weekNum = Math.floor(utcNow.getTime() / (7*24*60*60*1000));
-
-  if (hour === 6 && minute < 5 && lastHypothesisDay !== day) {
-    lastHypothesisDay = day;
-    runSafe("Hypothesis Agent", () => hypothesis.runCycle(10));
-  }
-  if (hour === 7 && minute < 5 && lastBacktestDay !== day) {
-    lastBacktestDay = day;
-    runSafe("Backtest Agent", () => backtest.runCycle());
-  }
   if (dow === 0 && hour === 8 && minute < 5 && lastMetaWeek !== weekNum) {
     lastMetaWeek = weekNum;
     runSafe("Meta-Agent", () => meta.runCycle());
@@ -89,10 +89,15 @@ async function main(): Promise<void> {
 
   await runSafe("Scanner (initial)", () => scanner.runCycle());
 
-  setInterval(() => { runSafe("Scanner", () => scanner.runCycle()); }, 5*60*1000);
-  setInterval(checkDailyAndWeeklyJobs, 60*1000);
+  console.log(`[${now()}] Triggering initial hypothesis generation...`);
+  await runHypothesisAndBacktest();
 
-  console.log(`[${now()}] Scheduler active`);
+  setInterval(() => { runSafe("Scanner", () => scanner.runCycle()); }, 5*60*1000);
+  setInterval(() => { runSafe("Paper Trader", () => paperTrader.runCycle()); }, 5*60*1000);
+  setInterval(() => { runHypothesisAndBacktest(); }, 6*60*60*1000);
+  setInterval(checkWeeklyMeta, 60*1000);
+
+  console.log(`[${now()}] Scheduler active — all agents armed`);
 }
 
 main().catch((err) => { console.error("[Scheduler] Fatal:", err); process.exit(1); });
