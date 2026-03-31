@@ -31,7 +31,7 @@ const FUNDING_RATE_EXTREME = 0.001;
 
 /**
  * Mapping from our internal symbols (e.g. "XBTUSDT") to Kraken pair names.
- * Kraken's API uses its own pair naming â this map handles the translation.
+ * Kraken's API uses its own pair naming Ã¢ÂÂ this map handles the translation.
  * The scanner will try the symbol directly first, then fall back to this map.
  */
 const KRAKEN_PAIR_MAP: Record<string, string> = {
@@ -43,11 +43,11 @@ const KRAKEN_PAIR_MAP: Record<string, string> = {
   "AVAX/USD": "AVAXUSD",
   "DOT/USD": "DOTUSD",
   "LINK/USD": "LINKUSD",
-  "MATIC/USD": "POLUSD",  // Polygon rebranded MATIC → POL on Kraken
+  "MATIC/USD": "POLUSD",  // Polygon rebranded MATIC â POL on Kraken
   "ATOM/USD": "ATOMUSD",
   "UNI/USD": "UNIUSD",
   "LTC/USD": "LTCUSD",
-  "DOGE/USD": "DOGEUSD",
+  "DOGE/USD": "XDGUSD",  // Kraken uses XDG internally for DOGE,
   "SHIB/USD": "SHIBUSD",
   "FIL/USD": "FILUSD",
 };
@@ -72,7 +72,7 @@ const FUTURES_TICKER_MAP: Record<string, string> = {
 };
 /**
  * Generic fallback: convert DB symbol format "BASE/QUOTE" to Kraken pair.
- * Handles Kraken-specific naming (BTC→XBT, MATIC→POL, DOGE→DOGE).
+ * Handles Kraken-specific naming (BTCâXBT, MATICâPOL, DOGEâDOGE).
  */
 function dbSymbolToKrakenPair(symbol: string): string {
   const [base, quote] = symbol.split("/");
@@ -124,7 +124,7 @@ export class CryptoScanner {
       return;
     }
 
-    // Fetch OHLC (klines) individually â Kraken only supports one pair per OHLC call
+    // Fetch OHLC (klines) individually Ã¢ÂÂ Kraken only supports one pair per OHLC call
     const klines = await this.fetchOHLC(krakenPair, 60, 168); // 60 = 1h interval
 
     const closes = klines.map((k) => k.close);
@@ -247,11 +247,11 @@ export class CryptoScanner {
     console.log(`[Scanner] SIGNAL [${severity}] ${context.symbol}: ${signalType} = ${value}`);
   }
 
-  // âââ Kraken API calls âââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Kraken API calls Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
   /**
    * Fetch all tickers in one batch call.
-   * Kraken /Ticker without a pair returns all pairs â very efficient.
+   * Kraken /Ticker without a pair returns all pairs Ã¢ÂÂ very efficient.
    * We pass our specific pairs to reduce payload.
    */
   private async fetchAllTickers(): Promise<Record<string, any>> {
@@ -278,11 +278,18 @@ export class CryptoScanner {
     // Exact match
     if (allTickers[pair]) return allTickers[pair];
 
-    // Kraken sometimes returns with different key (e.g. "XXBTZUSD" vs "XBTUSDT")
-    // Try matching by looking for keys that start with the base currency
+    // Kraken returns keys with legacy prefixes (XX, X) and suffixes (Z)
+    // e.g. XXBTZUSD for BTC, XETHZUSD for ETH, XDGUSD for DOGE
     const base = pair.replace("USDT", "").replace("USD", "");
     for (const [key, val] of Object.entries(allTickers)) {
       if (key.includes(base) && (key.includes("USDT") || key.includes("USD"))) {
+        return val;
+      }
+    }
+    // Try with X prefix (Kraken legacy: XDG for DOGE, XLTC for LTC, etc.)
+    for (const [key, val] of Object.entries(allTickers)) {
+      const keyBase = key.replace(/^X{1,2}/, "").replace(/Z?USD.*$/, "");
+      if (keyBase === base && (key.includes("USD"))) {
         return val;
       }
     }
@@ -330,7 +337,7 @@ export class CryptoScanner {
 
   /**
    * Fetch funding rates from Kraken Futures.
-   * Returns a map of futures ticker â funding rate.
+   * Returns a map of futures ticker Ã¢ÂÂ funding rate.
    */
   private async fetchAllFundingRates(): Promise<Record<string, number>> {
     try {
@@ -351,7 +358,7 @@ export class CryptoScanner {
     }
   }
 
-  // âââ Helpers ââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   private async getActiveAssets() {
     return this.db
       .select({ id: tradingAssets.id, symbol: tradingAssets.symbol })
@@ -392,7 +399,7 @@ export class CryptoScanner {
   }
 }
 
-// âââ Technical indicators âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Technical indicators Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function computeRSI(closes: number[], period = 14): number | null {
   if (closes.length < period + 1) return null;
   const deltas = closes.slice(1).map((c, i) => c - closes[i]);
