@@ -158,6 +158,26 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
       return json(res, { status: "ok", timestamp: new Date().toISOString() });
     }
 
+
+    if (path === "/api/diagnostics") {
+      const [ptCount] = await sql`SELECT COUNT(*)::int AS c FROM trading_paper_trades`;
+      const [openCount] = await sql`SELECT COUNT(*)::int AS c FROM trading_paper_trades WHERE status = 'open'`;
+      const [closedCount] = await sql`SELECT COUNT(*)::int AS c FROM trading_paper_trades WHERE status = 'closed'`;
+      const [ptLogs] = await sql`SELECT COUNT(*)::int AS c FROM trading_agent_logs WHERE agent_name = 'paper_trader'`;
+      const [lastPtLog] = await sql`SELECT message, created_at FROM trading_agent_logs WHERE agent_name = 'paper_trader' ORDER BY created_at DESC LIMIT 1`;
+      const [hypCount] = await sql`SELECT COUNT(*)::int AS c FROM trading_hypotheses WHERE status = 'paper_trading'`;
+      const recentLogs = await sql`SELECT agent_name, log_level, message, created_at FROM trading_agent_logs ORDER BY created_at DESC LIMIT 20`;
+      return json(res, {
+        paper_trader: {
+          total_trades: ptCount.c, open_positions: openCount.c,
+          closed_positions: closedCount.c, log_count: ptLogs.c,
+          last_log: lastPtLog ?? null, hypotheses_in_paper_trading: hypCount.c,
+        },
+        recent_agent_activity: recentLogs,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
     return json(res, { error: "Not found" }, 404);
   } catch (err: any) {
     console.error("API error:", err);
