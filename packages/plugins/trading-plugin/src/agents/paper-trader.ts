@@ -1,6 +1,7 @@
 /**
- * Paper Trader Agent v2 — Now integrated with Risk Manager
- * Every trade passes through pre-trade risk checks with proper position sizing.
+ * Paper Trader Agent v3 — Entry-only, exits delegated to ExitEngine
+ * Sets stop_loss, take_profit, trailing_stop_pct, high_water_mark,
+ * and max_hold_until on every new position at entry time.
  */
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import {
@@ -18,78 +19,13 @@ export class PaperTrader {
   }
 
   async runCycle(): Promise<void> {
-    console.log("[PaperTrader] Checking positions...");
+    console.log("[PaperTrader] Checking for new entries...");
     try {
-      await this.checkExits();
       await this.checkEntries();
       await this.log("info", "Cycle complete");
     } catch (err) {
       console.error("[PaperTrader] Cycle error:", err);
       await this.log("error", "Cycle failed", { error: String(err) });
-    }
-  }
-
-  private async checkExits(): Promise<void> {
-    const openTrades = await this.db
-      .select({
-        id: tradingPaperTrades.id, hypothesisId: tradingPaperTrades.hypothesisId,
-        assetId: tradingPaperTrades.assetId, direction: tradingPaperTrades.direction,
-        entryPrice: tradingPaperTrades.entryPrice, entryTime: tradingPaperTrades.entryTime,
-        quantity: tradingPaperTrades.quantity,
-      })
-      .from(tradingPaperTrades)
-      .where(eq(tradingPaperTrades.status, "open"));
-
-    if (openTrades.length === 0) return;
-
-    for (const trade of openTrades) {
-      try {
-        const [hyp] = await this.db
-          .select({ exitRules: tradingHypotheses.exitRules })
-          .from(tradingHypotheses)
-          .where(eq(tradingHypotheses.id, trade.hypothesisId)).limit(1);
-        if (!hyp) continue;
-        const exitRules = hyp.exitRules as ExitRules;
-
-        const [snap] = await this.db
-          .select({ price: tradingSnapshots.price })
-          .from(tradingSnapshots)
-          .where(eq(tradingSnapshots.assetId, trade.assetId))
-          .orderBy(desc(tradingSnapshots.timestamp)).limit(1);
-        if (!snap) continue;
-
-        const currentPrice = parseFloat(snap.price);
-        const entryPrice = parseFloat(trade.entryPrice);
-        const holdHours = (Date.now() - new Date(trade.entryTime).getTime()) / 3600000;
-        const returnPct = trade.direction === "long"
-          ? (currentPrice - entryPrice) / entryPrice * 100
-          : (entryPrice - currentPrice) / entryPrice * 100;
-
-        let exitReason: string | null = null;
-        if (returnPct >= exitRules.take_profit_pct) exitReason = "take_profit";
-        else if (returnPct <= -exitRules.stop_loss_pct) exitReason = "stop_loss";
-        else if (holdHours >= exitRules.time_limit_hours) exitReason = "time_limit";
-
-        if (exitReason) {
-          const pnl = parseFloat(trade.quantity) * (currentPrice - entryPrice) *
-            (trade.direction === "long" ? 1 : -1);
-
-          await this.db.update(tradingPaperTrades).set({
-            exitPrice: String(currentPrice), exitTime: new Date(),
-            pnl: String(Math.round(pnl * 100) / 100),
-            pnlPct: String(Math.round(returnPct * 100) / 100),
-            status: "closed", exitReason,
-          }).where(eq(tradingPaperTrades.id, trade.id));
-
-          const [asset] = await this.db.select({ symbol: tradingAssets.symbol })
-            .from(tradingAssets).where(eq(tradingAssets.id, trade.assetId));
-
-          console.log(`[PaperTrader] CLOSED ${trade.direction.toUpperCase()} ${asset?.symbol ?? "?"}: P&L $${pnl.toFixed(2)} (${returnPct.toFixed(2)}%) - ${exitReason}`);
-          await this.log("info", `Closed ${trade.direction} ${asset?.symbol}: $${pnl.toFixed(2)} (${exitReason})`);
-        }
-      } catch (err) {
-        console.error("[PaperTrader] Exit check error:", err);
-      }
     }
   }
 
@@ -150,10 +86,22 @@ export class PaperTrader {
 
           if (this.checkConditions(snap, entryRules)) {
             const price = parseFloat(snap.price);
-            const stopLossDistance = exitRules.stop_loss_pct / 100;
-            const stopLoss = entryRules.direction === 'long'
-              ? price * (1 - stopLossDistance)
-              : price * (1 + stopLossDistance);
+
+            // ─── Calculate exit levels from hypothesis exit_rules ───
+            const stopLossPct = exitRules.stop_loss_pct ?? 2;
+            const takeProfitPct = exitRules.take_profit_pct ?? 4;
+            const trailingStopPct = exitRules.trailing_stop_pct ?? 1.2;
+            const timeLimitHours = exitRules.time_limit_hours ?? 24;
+
+            const stopLoss = entryRules.direction === "long"
+              ? price * (1 - stopLossPct / 100)
+              : price * (1 + stopLossPct / 100);
+
+            const takeProfit = entryRules.direction === "long"
+              ? price * (1 + takeProfitPct / 100)
+              : price * (1 - takeProfitPct / 100);
+
+            const maxHoldUntil = new Date(Date.now() + timeLimitHours * 3600000);
 
             // ─── Risk Manager gate ───
             let qty: number;
@@ -168,24 +116,52 @@ export class PaperTrader {
               }
               qty = decision.positionSize;
             } else {
-              // Fallback: simple position sizing
               const positionPct = riskParams.max_position_pct ?? 2;
               qty = (10000 * positionPct / 100) / price;
             }
 
+            // ─── Insert trade with all exit columns set ───
             await this.db.insert(tradingPaperTrades).values({
               hypothesisId: hyp.id, assetId: asset.id,
               direction: entryRules.direction, entryPrice: String(price),
               entryTime: new Date(), quantity: String(qty), status: "open",
-              metadata: { hypothesis_name: hyp.name, stop_loss: stopLoss },
+              metadata: { hypothesis_name: hyp.name },
             });
 
-            console.log(`[PaperTrader] OPENED ${entryRules.direction.toUpperCase()} ${symbol} @ $${price.toFixed(2)} (qty: ${qty.toFixed(6)}) - ${hyp.name}`);
-            await this.log("info", `Opened ${entryRules.direction} ${symbol} @ $${price.toFixed(2)} via ${hyp.name}`);
+            // Set exit columns via raw SQL (Drizzle schema may not have them yet)
+            try {
+              const [inserted] = await this.db
+                .select({ id: tradingPaperTrades.id })
+                .from(tradingPaperTrades)
+                .where(and(
+                  eq(tradingPaperTrades.hypothesisId, hyp.id),
+                  eq(tradingPaperTrades.assetId, asset.id),
+                  eq(tradingPaperTrades.status, "open")
+                ))
+                .orderBy(desc(tradingPaperTrades.entryTime))
+                .limit(1);
+
+              if (inserted) {
+                await this.db.execute(sql\`
+                  UPDATE trading_paper_trades
+                  SET stop_loss = \${String(stopLoss)},
+                      take_profit = \${String(takeProfit)},
+                      trailing_stop_pct = \${String(trailingStopPct)},
+                      high_water_mark = \${String(price)},
+                      max_hold_until = \${maxHoldUntil.toISOString()}::timestamptz
+                  WHERE id = \${inserted.id}
+                \`);
+              }
+            } catch (e) {
+              console.error("[PaperTrader] Failed to set exit columns:", e);
+            }
+
+            console.log(`[PaperTrader] OPENED ${entryRules.direction.toUpperCase()} ${symbol} @ $${price.toFixed(2)} (qty: ${qty.toFixed(6)}) SL: $${stopLoss.toFixed(2)} TP: $${takeProfit.toFixed(2)} — ${hyp.name}`);
+            await this.log("info", \`Opened \${entryRules.direction} \${symbol} @ $\${price.toFixed(2)} SL:$\${stopLoss.toFixed(2)} TP:$\${takeProfit.toFixed(2)} via \${hyp.name}\`);
           }
         }
       } catch (err) {
-        console.error(`[PaperTrader] Entry error for ${hyp.name}:`, err);
+        console.error(\`[PaperTrader] Entry error for \${hyp.name}:\`, err);
       }
     }
   }
