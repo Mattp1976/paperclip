@@ -204,14 +204,15 @@ async function loadSignals() {
     const el = document.getElementById('signals');
     if (!data.length) { el.innerHTML = '<div class="loading">No signals yet — system is warming up</div>'; return; }
     el.innerHTML = data.slice(0, 20).map(s => {
-      const dir = (s.direction || '').toLowerCase();
-      const str = (s.strength || '').toLowerCase();
+      const stype = (s.signal_type || '').replace(/_/g, ' ');
+      const sev = (s.severity || '').toLowerCase();
+      const active = s.is_active ? 'active' : 'expired';
       return '<div class="signal-row">' +
         '<div class="sym">' + s.symbol.split('/')[0] + '</div>' +
-        '<div class="type">' + (s.signal_type || '').replace(/_/g, ' ') + '</div>' +
-        '<span class="badge ' + dir + '">' + (dir || '-') + '</span>' +
-        '<span class="badge ' + str + '">' + (str || '-') + '</span>' +
-        '<div class="signal-time">' + ago(s.created_at) + '</div>' +
+        '<div class="type">' + stype + '</div>' +
+        '<span class="badge ' + sev + '">' + (sev || '-') + '</span>' +
+        '<span class="badge ' + active + '">' + active + '</span>' +
+        '<div class="signal-time">' + ago(s.detected_at) + '</div>' +
       '</div>';
     }).join('');
   } catch(e) { console.error('signals', e); }
@@ -224,11 +225,9 @@ async function loadStats() {
     document.getElementById('stat-snapshots').textContent = fmt(d.total_snapshots);
     document.getElementById('stat-signals').textContent = fmt(d.total_signals);
     document.getElementById('stat-assets').textContent = d.active_assets;
-    const h = Math.floor(d.uptime_seconds / 3600);
-    const m = Math.floor((d.uptime_seconds % 3600) / 60);
-    document.getElementById('stat-uptime').textContent = h + 'h ' + m + 'm';
+    document.getElementById('stat-uptime').textContent = 'Live';
     document.getElementById('m-hypotheses').textContent = fmt(d.total_hypotheses);
-    document.getElementById('m-logs').textContent = fmt(d.total_agent_logs);
+    document.getElementById('m-logs').textContent = fmt(d.total_signals);
     document.getElementById('m-scan').textContent = d.last_scan ? ago(d.last_scan) : '-';
   } catch(e) { console.error('stats', e); }
 }
