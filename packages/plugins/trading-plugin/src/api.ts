@@ -35,18 +35,18 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse) {
   const url = req.url || "/";
   try {
     if (url === "/api/prices") {
-      const rows = await sql\`SELECT DISTINCT ON (a.symbol) a.symbol, a.name, s.price, s.volume_24h, s.rsi_14, s.funding_rate, s.volume_ratio, s.created_at FROM trading_assets a JOIN trading_snapshots s ON s.asset_id = a.id WHERE a.is_active = true ORDER BY a.symbol, s.created_at DESC\`;
+      const rows = await sql`SELECT DISTINCT ON (a.symbol) a.symbol, a.name, s.price, s.volume_24h, s.rsi_14, s.funding_rate, s.volume_ratio, s.created_at FROM trading_assets a JOIN trading_snapshots s ON s.asset_id = a.id WHERE a.is_active = true ORDER BY a.symbol, s.created_at DESC`;
       json(res, rows);
     } else if (url === "/api/signals") {
-      const rows = await sql\`SELECT s.signal_type, s.direction, s.strength, s.confidence, s.metadata, s.created_at, a.symbol, a.name FROM trading_signals s JOIN trading_assets a ON a.id = s.asset_id ORDER BY s.created_at DESC LIMIT 50\`;
+      const rows = await sql`SELECT s.signal_type, s.direction, s.strength, s.confidence, s.metadata, s.created_at, a.symbol, a.name FROM trading_signals s JOIN trading_assets a ON a.id = s.asset_id ORDER BY s.created_at DESC LIMIT 50`;
       json(res, rows);
     } else if (url === "/api/stats") {
-      const [sn] = await sql\`SELECT COUNT(*)::int AS c FROM trading_snapshots\`;
-      const [si] = await sql\`SELECT COUNT(*)::int AS c FROM trading_signals\`;
-      const [a2] = await sql\`SELECT COUNT(*)::int AS c FROM trading_assets WHERE is_active = true\`;
-      const [hy] = await sql\`SELECT COUNT(*)::int AS c FROM trading_hypotheses\`;
-      const [lo] = await sql\`SELECT COUNT(*)::int AS c FROM trading_agent_logs\`;
-      const [la] = await sql\`SELECT MAX(created_at) AS t FROM trading_snapshots\`;
+      const [sn] = await sql`SELECT COUNT(*)::int AS c FROM trading_snapshots`;
+      const [si] = await sql`SELECT COUNT(*)::int AS c FROM trading_signals`;
+      const [a2] = await sql`SELECT COUNT(*)::int AS c FROM trading_assets WHERE is_active = true`;
+      const [hy] = await sql`SELECT COUNT(*)::int AS c FROM trading_hypotheses`;
+      const [lo] = await sql`SELECT COUNT(*)::int AS c FROM trading_agent_logs`;
+      const [la] = await sql`SELECT MAX(created_at) AS t FROM trading_snapshots`;
       json(res, { total_snapshots: sn.c, total_signals: si.c, active_assets: a2.c, total_hypotheses: hy.c, total_agent_logs: lo.c, last_scan: la.t, uptime_seconds: Math.floor(process.uptime()) });
     } else if (url === "/api/health") {
       json(res, { service: "asi-trading-agents", status: "running", uptime: Math.floor(process.uptime()), timestamp: new Date().toISOString() });
