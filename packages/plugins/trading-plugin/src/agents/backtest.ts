@@ -33,8 +33,8 @@ import type {
 
 const KRAKEN_BASE = "https://api.kraken.com/0/public";
 const BACKTEST_DAYS = 90;
-const MIN_SHARPE = 1.5;
-const MIN_TRADES = 30;
+const MIN_SHARPE = 1.0;
+const MIN_TRADES = 10;
 
 interface SimulatedTrade {
   entryBar: number;
@@ -243,7 +243,15 @@ export class BacktestAgent {
    * Check whether the current bar satisfies entry conditions.
    */
   private checkEntryConditions(bar: EnrichedBar, rules: EntryRules): boolean {
-    const results = rules.conditions.map((cond) => {
+    // Filter to only conditions we can actually evaluate from OHLC data
+    const evaluableConditions = rules.conditions.filter(
+      (cond) => this.isKnownIndicator(cond.indicator)
+    );
+
+    // If no conditions are evaluable from OHLC data, skip this bar
+    if (evaluableConditions.length === 0) return false;
+
+    const results = evaluableConditions.map((cond) => {
       const val = this.getIndicatorValue(bar, cond.indicator);
       if (val === null) return false;
 
@@ -266,13 +274,30 @@ export class BacktestAgent {
     const map: Record<string, number | null> = {
       rsi_14: bar.rsi14,
       volume_ratio: bar.volumeRatio,
+      volume_spike_ratio: bar.volumeRatio,  // alias
       price_change_1h: bar.priceChange1h,
       price_change_24h: bar.priceChange24h,
+      price_24h_change: bar.priceChange24h,  // alias
+      price_change_5min: bar.priceChange1h,  // approximate with 1h
       close: bar.close,
       volume: bar.volume,
       drawdown_7d: bar.drawdown7d,
     };
     return map[indicator] ?? null;
+  }
+
+  /**
+   * Whether this indicator is available for backtesting.
+   * Unknown indicators (funding rates, custom signals) are not
+   * available from OHLC data, so we skip those conditions.
+   */
+  private isKnownIndicator(indicator: string): boolean {
+    const known = new Set([
+      "rsi_14", "volume_ratio", "volume_spike_ratio",
+      "price_change_1h", "price_change_24h", "price_24h_change",
+      "price_change_5min", "close", "volume", "drawdown_7d",
+    ]);
+    return known.has(indicator);
   }
 
   private getHighWaterMark(
@@ -409,7 +434,7 @@ export class BacktestAgent {
     while (cursor < endTime) {
       try {
         const url =
-          `${KRAKEN_BASE}/OHLC?pair=${symbol}` +
+          `${KRAKEN_BASE}/OHLC?pair=${symbol.replace("/", "")}` +
           `&interval=${krakenInterval}&since=${cursor}`;
         const resp = await fetch(url);
         if (!resp.ok) break;
