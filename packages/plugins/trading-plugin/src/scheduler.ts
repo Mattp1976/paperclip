@@ -1,12 +1,12 @@
 /**
- * Standalone Scheduler v2 — ASI Trading System
+ * Standalone Scheduler v3 — ASI Trading System
  * ==============================================
- * Now includes Portfolio Manager, Risk Manager, Equity Engine,
- * and Strategy Lifecycle Manager alongside the original agents.
+ * Now includes Exit Engine for automated position management.
  *
  * Schedule:
  *   - Scanner:           every 5 minutes
- *   - Paper Trader:      every 5 minutes (with risk checks)
+ *   - Paper Trader:      every 5 minutes (entries only, with risk checks)
+ *   - Exit Engine:       every 5 minutes (stop-loss, take-profit, trailing, time)
  *   - Equity Snapshot:   every 5 minutes
  *   - Hypothesis:        every 6 hours + on startup
  *   - Backtest:          every 6 hours (30s after hypothesis)
@@ -26,8 +26,10 @@ import { PaperTrader } from "./agents/paper-trader.js";
 import { RiskManager } from "./services/risk-manager.js";
 import { PortfolioManager } from "./services/portfolio-manager.js";
 import { EquityEngine } from "./services/equity-engine.js";
+import { ExitEngine } from "./services/exit-engine.js";
 import { LifecycleManager, alertManager } from "./services/lifecycle-manager.js";
 import { runV2Migration } from "./db/migrate-v2.js";
+import { runV3Migration } from "./db/migrate-v3.js";
 import { startAPIServer } from "./api.js";
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -48,10 +50,11 @@ const hypothesis = new HypothesisAgent(db, ANTHROPIC_API_KEY);
 const backtest = new BacktestAgent(db, KRAKEN_API_KEY);
 const meta = new MetaAgent(db, ANTHROPIC_API_KEY);
 
-// ─── New Services ───
+// ─── Services ───
 const riskManager = new RiskManager(sqlClient);
 const portfolioManager = new PortfolioManager(sqlClient);
 const equityEngine = new EquityEngine(sqlClient);
+const exitEngine = new ExitEngine(sqlClient);
 const lifecycleManager = new LifecycleManager(sqlClient);
 const alerts = alertManager(sqlClient);
 
@@ -85,7 +88,6 @@ async function runHypothesisAndBacktest(): Promise<void> {
   await runSafe("Hypothesis Agent", () => hypothesis.runCycle(10));
   setTimeout(async () => {
     await runSafe("Backtest Agent", () => backtest.runCycle());
-    // Rebalance portfolio after new backtests
     setTimeout(async () => {
       await runSafe("Portfolio Rebalance", () => portfolioManager.rebalance());
     }, 30_000);
@@ -107,11 +109,12 @@ function checkWeeklyMeta(): void {
 const PORT = parseInt(process.env.PORT ?? "3200", 10);
 
 async function main(): Promise<void> {
-  console.log("[ASI Trading System v2] Scheduler starting...");
+  console.log("[ASI Trading System v3] Scheduler starting...");
   console.log(`[${now()}] Database connected`);
 
-  // Run V2 migration (idempotent — uses CREATE IF NOT EXISTS)
+  // Run migrations (idempotent)
   await runV2Migration(sqlClient);
+  await runV3Migration(sqlClient);
 
   // Start API
   startAPIServer(PORT);
@@ -126,17 +129,24 @@ async function main(): Promise<void> {
     await runSafe("Portfolio Rebalance (initial)", () => portfolioManager.rebalance());
   }, 45_000);
 
-  // Paper trader starts 60s after boot
+  // Paper trader + exit engine start 60s after boot
   setTimeout(async () => {
-    console.log(`[${now()}] Running initial Paper Trader cycle...`);
+    console.log(`[${now()}] Running initial trade cycle...`);
+    await runSafe("Exit Engine (initial)", () => exitEngine.runCycle());
     await runSafe("Paper Trader (initial)", () => paperTrader.runCycle());
     await runSafe("Equity Snapshot (initial)", () => equityEngine.takeSnapshot());
   }, 60_000);
 
   // ─── Scheduled intervals ───
-  // Every 5 minutes: scan, trade, snapshot
+  // Every 5 minutes: scan, exit checks, entries, snapshot
   setInterval(() => { runSafe("Scanner", () => scanner.runCycle()); }, 5*60*1000);
-  setInterval(() => { runSafe("Paper Trader", () => paperTrader.runCycle()); }, 5*60*1000);
+
+  // Exit engine runs BEFORE paper trader so closed positions free up slots
+  setInterval(async () => {
+    await runSafe("Exit Engine", () => exitEngine.runCycle());
+    await runSafe("Paper Trader", () => paperTrader.runCycle());
+  }, 5*60*1000);
+
   setInterval(() => { runSafe("Equity Snapshot", () => equityEngine.takeSnapshot()); }, 5*60*1000);
 
   // Every hour: lifecycle checks, alert checks
@@ -151,12 +161,12 @@ async function main(): Promise<void> {
   // Weekly meta
   setInterval(checkWeeklyMeta, 60*1000);
 
-  console.log(`[${now()}] Scheduler v2 active — all agents and services armed`);
+  console.log(`[${now()}] Scheduler v3 active — all agents and services armed`);
   console.log(`[${now()}]   Agents: Scanner, Hypothesis, Backtest, PaperTrader, Meta`);
-  console.log(`[${now()}]   Services: RiskManager, PortfolioManager, EquityEngine, LifecycleManager, Alerts`);
+  console.log(`[${now()}]   Services: RiskManager, PortfolioManager, EquityEngine, ExitEngine, LifecycleManager, Alerts`);
 }
 
 // Export for API access
-export { riskManager, portfolioManager, equityEngine, lifecycleManager, alerts };
+export { riskManager, portfolioManager, equityEngine, exitEngine, lifecycleManager, alerts };
 
 main().catch((err) => { console.error("[Scheduler] Fatal:", err); process.exit(1); });
