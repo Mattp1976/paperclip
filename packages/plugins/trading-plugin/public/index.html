@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASI Trading — Autonomous Signal Intelligence</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0b1e;--surface:#12132d;--card:#1a1b3a;--border:#2a2b4a;--accent:#6366f1;--accent2:#8b5cf6;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* TICKER BAR */
+.ticker-bar{background:var(--surface);border-bottom:1px solid var(--border);overflow:hidden;height:48px;display:flex;align-items:center}
+.ticker-track{display:flex;gap:32px;animation:scroll 40s linear infinite;white-space:nowrap}
+.ticker-item{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500}
+.ticker-item .symbol{color:var(--text)}
+.ticker-item .price{color:var(--muted)}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* HERO */
+.hero{padding:80px 0 60px;text-align:center;background:linear-gradient(180deg,rgba(99,102,241,.08) 0%,transparent 100%)}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:100px;padding:6px 16px;font-size:13px;color:var(--accent);margin-bottom:24px}
+.hero-badge .dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(36px,5vw,64px);font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-bottom:16px;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:18px;color:var(--muted);max-width:600px;margin:0 auto 40px}
+.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .value{font-size:32px;font-weight:700;color:var(--text)}
+.hero-stat .label{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+
+/* SECTIONS */
+section{padding:60px 0}
+.section-title{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px}
+.section-heading{font-size:28px;font-weight:700;margin-bottom:40px}
+
+/* PIPELINE */
+.pipeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.pipe-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;transition:border-color .2s}
+.pipe-card:hover{border-color:var(--accent)}
+.pipe-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
+.pipe-card:nth-child(1) .pipe-icon{background:rgba(99,102,241,.15)}
+.pipe-card:nth-child(2) .pipe-icon{background:rgba(139,92,246,.15)}
+.pipe-card:nth-child(3) .pipe-icon{background:rgba(16,185,129,.15)}
+.pipe-card:nth-child(4) .pipe-icon{background:rgba(245,158,11,.15)}
+.pipe-card h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.pipe-card p{font-size:14px;color:var(--muted);line-height:1.5}
+.pipe-num{font-size:11px;color:var(--dim);margin-bottom:8px;font-weight:600}
+
+/* SIGNALS */
+.signals-grid{display:grid;gap:12px}
+.signal-row{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;display:grid;grid-template-columns:100px 1fr 80px 80px auto;align-items:center;gap:16px;font-size:14px}
+.signal-row .sym{font-weight:600;color:var(--text)}
+.signal-row .type{color:var(--muted);font-size:13px}
+.badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:12px;font-weight:600;text-transform:uppercase}
+.badge.long{background:rgba(16,185,129,.15);color:var(--green)}
+.badge.short{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.high{background:rgba(245,158,11,.15);color:var(--yellow)}
+.badge.medium{background:rgba(99,102,241,.15);color:var(--accent)}
+.badge.low{background:rgba(100,116,139,.15);color:var(--dim)}
+.signal-time{color:var(--dim);font-size:12px;text-align:right}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center}
+.metric-card .val{font-size:36px;font-weight:700;margin-bottom:4px}
+.metric-card .lbl{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:32px 0;text-align:center;color:var(--dim);font-size:13px}
+.footer-brand{font-weight:600;color:var(--muted)}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--dim)}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin-right:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){
+  .signal-row{grid-template-columns:80px 1fr 60px;gap:8px}
+  .signal-row .badge:nth-child(4),.signal-time{display:none}
+  .hero-stats{gap:24px}
+}
+</style>
+</head><body>
+<!-- LIVE TICKER BAR -->
+<div class="ticker-bar">
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge"><span class="dot"></span> System Active — Scanning 15 Assets</div>
+    <h1>Autonomous Signal Intelligence</h1>
+    <p>A self-improving AI agent swarm that scans crypto markets, generates hypotheses, backtests strategies, and evolves its own trading logic.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="value" id="stat-snapshots">-</div><div class="label">Data Points</div></div>
+      <div class="hero-stat"><div class="value" id="stat-signals">-</div><div class="label">Signals Detected</div></div>
+      <div class="hero-stat"><div class="value" id="stat-assets">-</div><div class="label">Assets Tracked</div></div>
+      <div class="hero-stat"><div class="value" id="stat-uptime">-</div><div class="label">Uptime</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="container">
+    <div class="section-title">Architecture</div>
+    <h2 class="section-heading">Four-Agent Pipeline</h2>
+    <div class="pipeline">
+      <div class="pipe-card">
+        <div class="pipe-num">AGENT 01</div>
+        <div class="pipe-icon">🔍</div>
+        <h3>Scanner</h3>
+        <p>Pulls live market data from Kraken every 5 minutes. Tracks price, volume, RSI-14, funding rates, and volume ratios across 15 crypto assets.</p>
+      </div>
+      <div class="pipe-card">
+        <div class="pipe-num">AGENT 02</div>
+        <div class="pipe-icon">🧠</div>
+        <h3>Hypothesis Engine</h3>
+        <p>Uses Claude to analyse patterns and generate trading hypotheses. Identifies momentum shifts, funding crowding, and volume anomalies.</p>
+      </div>
+      <div class="pipe-card">
+        <div class="pipe-num">AGENT 03</div>
+        <div class="pipe-icon">📊</div>
+        <h3>Backtester</h3>
+        <p>Validates hypotheses against historical data. Calculates expected returns, win rates, and risk metrics before any trade is considered.</p>
+      </div>
+      <div class="pipe-card">
+        <div class="pipe-num">AGENT 04</div>
+        <div class="pipe-icon">🎯</div>
+        <h3>Meta Agent</h3>
+        <p>Orchestrates the swarm. Reviews agent performance, tunes parameters, rotates strategies, and decides which signals to act on.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE SIGNALS -->
+<section>
+  <div class="container">
+    <div class="section-title">Real-Time</div>
+    <h2 class="section-heading">Live Signal Feed</h2>
+    <div class="signals-grid" id="signals">
+      <div class="loading"><div class="spinner"></div> Loading signals...</div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section>
+  <div class="container">
+    <div class="section-title">Performance</div>
+    <h2 class="section-heading">System Metrics</h2>
+    <div class="metrics-grid" id="metrics">
+      <div class="metric-card"><div class="val" id="m-hypotheses">-</div><div class="lbl">Hypotheses</div></div>
+      <div class="metric-card"><div class="val" id="m-logs">-</div><div class="lbl">Agent Actions</div></div>
+      <div class="metric-card"><div class="val" id="m-scan">-</div><div class="lbl">Last Scan</div></div>
+      <div class="metric-card"><div class="val" id="m-interval">5m</div><div class="lbl">Scan Interval</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <span class="footer-brand">ASI Trading</span> — Built by The Future Collective · Powered by Paperclip
+  </div>
+</footer>
+<script>
+const API = '';
+const fmt = n => n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
+const fmtPrice = p => {
+  const n = Number(p);
+  if (n >= 1000) return '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  if (n >= 1) return '$' + n.toFixed(4);
+  return '$' + n.toFixed(6);
+};
+const ago = iso => {
+  const s = Math.floor((Date.now() - new Date(iso).getTime())/1000);
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+};
+
+async function loadPrices() {
+  try {
+    const r = await fetch(API + '/api/prices');
+    const data = await r.json();
+    const track = document.getElementById('ticker');
+    const items = data.map(d =>
+      '<div class="ticker-item"><span class="symbol">' + d.symbol.split('/')[0] + '</span><span class="price">' + fmtPrice(d.price) + '</span></div>'
+    ).join('');
+    track.innerHTML = items + items;
+  } catch(e) { console.error('prices', e); }
+}
+
+async function loadSignals() {
+  try {
+    const r = await fetch(API + '/api/signals');
+    const data = await r.json();
+    const el = document.getElementById('signals');
+    if (!data.length) { el.innerHTML = '<div class="loading">No signals yet — system is warming up</div>'; return; }
+    el.innerHTML = data.slice(0, 20).map(s => {
+      const dir = (s.direction || '').toLowerCase();
+      const str = (s.strength || '').toLowerCase();
+      return '<div class="signal-row">' +
+        '<div class="sym">' + s.symbol.split('/')[0] + '</div>' +
+        '<div class="type">' + (s.signal_type || '').replace(/_/g, ' ') + '</div>' +
+        '<span class="badge ' + dir + '">' + (dir || '-') + '</span>' +
+        '<span class="badge ' + str + '">' + (str || '-') + '</span>' +
+        '<div class="signal-time">' + ago(s.created_at) + '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) { console.error('signals', e); }
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch(API + '/api/stats');
+    const d = await r.json();
+    document.getElementById('stat-snapshots').textContent = fmt(d.total_snapshots);
+    document.getElementById('stat-signals').textContent = fmt(d.total_signals);
+    document.getElementById('stat-assets').textContent = d.active_assets;
+    const h = Math.floor(d.uptime_seconds / 3600);
+    const m = Math.floor((d.uptime_seconds % 3600) / 60);
+    document.getElementById('stat-uptime').textContent = h + 'h ' + m + 'm';
+    document.getElementById('m-hypotheses').textContent = fmt(d.total_hypotheses);
+    document.getElementById('m-logs').textContent = fmt(d.total_agent_logs);
+    document.getElementById('m-scan').textContent = d.last_scan ? ago(d.last_scan) : '-';
+  } catch(e) { console.error('stats', e); }
+}
+
+async function refresh() {
+  await Promise.all([loadPrices(), loadSignals(), loadStats()]);
+}
+
+refresh();
+setInterval(refresh, 30000);
+</script>
+</body>
+</html>
