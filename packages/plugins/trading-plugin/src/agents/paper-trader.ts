@@ -28,8 +28,14 @@ export class PaperTrader {
 
   async runCycle(): Promise<void> {
     console.log("[PaperTrader] Checking positions...");
-    await this.checkExits();
-    await this.checkEntries();
+    try {
+      await this.checkExits();
+      await this.checkEntries();
+      await this.log("info", "Cycle complete");
+    } catch (err) {
+      console.error("[PaperTrader] Cycle error:", err);
+      await this.log("error", "Cycle failed", { error: String(err) });
+    }
   }
 
   private async checkExits(): Promise<void> {
@@ -203,7 +209,16 @@ export class PaperTrader {
   }
 
   private checkConditions(snap: any, rules: EntryRules): boolean {
-    const results = rules.conditions.map((cond) => {
+    // Only evaluate conditions we can check from snapshot data
+    const knownIndicators = new Set([
+      "rsi_14", "volume_ratio", "volume_spike_ratio",
+      "funding_rate", "price_change_1h", "price_change_24h",
+      "price_24h_change", "close", "price",
+    ]);
+    const evaluable = rules.conditions.filter(c => knownIndicators.has(c.indicator));
+    if (evaluable.length === 0) return false; // Can't evaluate anything
+
+    const results = evaluable.map((cond) => {
       const val = this.getVal(snap, cond.indicator);
       if (val === null) return false;
       switch (cond.operator) {
@@ -220,9 +235,15 @@ export class PaperTrader {
 
   private getVal(snap: any, ind: string): number | null {
     const m: Record<string, string | null> = {
-      rsi_14: snap.rsi14, volume_ratio: snap.volumeRatio,
-      funding_rate: snap.fundingRate, price_change_1h: snap.priceChange1h,
-      price_change_24h: snap.priceChange24h, close: snap.price,
+      rsi_14: snap.rsi14,
+      volume_ratio: snap.volumeRatio,
+      volume_spike_ratio: snap.volumeRatio, // alias
+      funding_rate: snap.fundingRate,
+      price_change_1h: snap.priceChange1h,
+      price_change_24h: snap.priceChange24h,
+      price_24h_change: snap.priceChange24h, // alias
+      close: snap.price,
+      price: snap.price,
     };
     const raw = m[ind];
     return raw != null ? parseFloat(raw) : null;
