@@ -8,6 +8,7 @@ import { EquityEngine } from "./services/equity-engine.js";
 import { LifecycleManager, alertManager } from "./services/lifecycle-manager.js";
 import { ExitEngine } from "./services/exit-engine.js";
 import { CorrelationEngine } from "./services/correlation-engine.js";
+import { NotificationService } from "./services/notification-service.js";
 
 const sql = postgres(process.env.DATABASE_URL!);
 const risk = new RiskManager(sql);
@@ -17,6 +18,7 @@ const lifecycle = new LifecycleManager(sql);
 const alerts = alertManager(sql);
 const exitEngine = new ExitEngine(sql);
 const correlationEngine = new CorrelationEngine(sql);
+const notifier = new NotificationService(sql);
 
 const MIME: Record<string, string> = {
   ".html": "text/html", ".js": "application/javascript",
@@ -253,6 +255,22 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
     if (path === "/api/correlation/report") {
       const report = await correlationEngine.getConcentrationReport();
       return json(res, { ok: true, ...report });
+    }
+
+
+    // ─── Notification Service ───
+    if (path === "/api/notifications/test") {
+      await notifier.notify({
+        type: "daily_summary", severity: "info",
+        title: "Test Notification",
+        message: "ASI Trading System notification test successful!",
+      });
+      return json(res, { ok: true, message: "Test notification sent" });
+    }
+
+    if (path === "/api/notifications/summary") {
+      await notifier.sendDailySummary();
+      return json(res, { ok: true, message: "Daily summary sent" });
     }
 
     return json(res, { error: "Not found" }, 404);
