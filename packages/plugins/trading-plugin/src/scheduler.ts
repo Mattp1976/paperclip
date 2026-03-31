@@ -1,5 +1,5 @@
 /**
- * Standalone Scheduler v3 — ASI Trading System
+ * Standalone Scheduler v4 — ASI Trading System
  * ==============================================
  * Now includes Exit Engine for automated position management.
  *
@@ -27,6 +27,8 @@ import { RiskManager } from "./services/risk-manager.js";
 import { PortfolioManager } from "./services/portfolio-manager.js";
 import { EquityEngine } from "./services/equity-engine.js";
 import { ExitEngine } from "./services/exit-engine.js";
+import { CorrelationEngine } from "./services/correlation-engine.js";
+import { NotificationService } from "./services/notification-service.js";
 import { LifecycleManager, alertManager } from "./services/lifecycle-manager.js";
 import { runV2Migration } from "./db/migrate-v2.js";
 import { runV3Migration } from "./db/migrate-v3.js";
@@ -55,6 +57,8 @@ const riskManager = new RiskManager(sqlClient);
 const portfolioManager = new PortfolioManager(sqlClient);
 const equityEngine = new EquityEngine(sqlClient);
 const exitEngine = new ExitEngine(sqlClient);
+const correlationEngine = new CorrelationEngine(sqlClient);
+const notifier = new NotificationService(sqlClient);
 const lifecycleManager = new LifecycleManager(sqlClient);
 const alerts = alertManager(sqlClient);
 
@@ -109,7 +113,7 @@ function checkWeeklyMeta(): void {
 const PORT = parseInt(process.env.PORT ?? "3200", 10);
 
 async function main(): Promise<void> {
-  console.log("[ASI Trading System v3] Scheduler starting...");
+  console.log("[ASI Trading System v4] Scheduler starting...");
   console.log(`[${now()}] Database connected`);
 
   // Run migrations (idempotent)
@@ -153,6 +157,9 @@ async function main(): Promise<void> {
   setInterval(async () => {
     await runSafe("Lifecycle Checks", () => lifecycleManager.runLifecycleChecks());
     await runSafe("Alert Checks", () => alerts.checkAndAlert(sqlClient));
+    // Send daily summary at ~08:00 UTC
+    const utcH = new Date().getUTCHours();
+    if (utcH === 8) await runSafe("Daily Summary", () => notifier.sendDailySummary());
   }, 60*60*1000);
 
   // Every 6 hours: hypothesis, backtest, rebalance
@@ -161,12 +168,12 @@ async function main(): Promise<void> {
   // Weekly meta
   setInterval(checkWeeklyMeta, 60*1000);
 
-  console.log(`[${now()}] Scheduler v3 active — all agents and services armed`);
+  console.log(`[${now()}] Scheduler v4 active — all agents and services armed`);
   console.log(`[${now()}]   Agents: Scanner, Hypothesis, Backtest, PaperTrader, Meta`);
-  console.log(`[${now()}]   Services: RiskManager, PortfolioManager, EquityEngine, ExitEngine, LifecycleManager, Alerts`);
+  console.log(`[${now()}]   Services: RiskManager, PortfolioManager, EquityEngine, ExitEngine, CorrelationEngine, Notifier, LifecycleManager, Alerts`);
 }
 
 // Export for API access
-export { riskManager, portfolioManager, equityEngine, exitEngine, lifecycleManager, alerts };
+export { riskManager, portfolioManager, equityEngine, exitEngine, correlationEngine, notifier, lifecycleManager, alerts };
 
 main().catch((err) => { console.error("[Scheduler] Fatal:", err); process.exit(1); });
