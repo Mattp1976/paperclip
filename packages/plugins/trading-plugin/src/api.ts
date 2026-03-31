@@ -7,6 +7,7 @@ import { PortfolioManager } from "./services/portfolio-manager.js";
 import { EquityEngine } from "./services/equity-engine.js";
 import { LifecycleManager, alertManager } from "./services/lifecycle-manager.js";
 import { ExitEngine } from "./services/exit-engine.js";
+import { CorrelationEngine } from "./services/correlation-engine.js";
 
 const sql = postgres(process.env.DATABASE_URL!);
 const risk = new RiskManager(sql);
@@ -15,6 +16,7 @@ const equity = new EquityEngine(sql);
 const lifecycle = new LifecycleManager(sql);
 const alerts = alertManager(sql);
 const exitEngine = new ExitEngine(sql);
+const correlationEngine = new CorrelationEngine(sql);
 
 const MIME: Record<string, string> = {
   ".html": "text/html", ".js": "application/javascript",
@@ -239,6 +241,18 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
           }
         }
       });
+    }
+
+
+    // ─── Correlation & Diversification ───
+    if (path === "/api/correlation/matrix") {
+      const matrix = await correlationEngine.getCorrelationMatrix(48);
+      return json(res, { ok: true, pairs: matrix, count: matrix.length });
+    }
+
+    if (path === "/api/correlation/report") {
+      const report = await correlationEngine.getConcentrationReport();
+      return json(res, { ok: true, ...report });
     }
 
     return json(res, { error: "Not found" }, 404);
