@@ -92,6 +92,12 @@ async function main(): Promise<void> {
   console.log(`[${now()}] Triggering initial hypothesis generation...`);
   await runHypothesisAndBacktest();
 
+  // Run paper trader immediately on startup (delayed 60s to allow initial data to settle)
+  setTimeout(async () => {
+    console.log(`[${now()}] Running initial Paper Trader cycle...`);
+    await runSafe("Paper Trader (initial)", () => paperTrader.runCycle());
+  }, 60_000);
+
   setInterval(() => { runSafe("Scanner", () => scanner.runCycle()); }, 5*60*1000);
   setInterval(() => { runSafe("Paper Trader", () => paperTrader.runCycle()); }, 5*60*1000);
   setInterval(() => { runHypothesisAndBacktest(); }, 6*60*60*1000);
