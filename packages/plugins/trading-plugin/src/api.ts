@@ -213,7 +213,7 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
 
     // ─── Exit Engine Summary (closed trades) ───
     if (path === "/api/exits/history") {
-      const closed = await sql\`
+      const closed = await sql`
         SELECT t.id, t.direction, t.entry_price, t.exit_price, t.pnl, t.pnl_pct,
                t.exit_reason, t.entry_time, t.exit_time, t.quantity,
                a.symbol, t.stop_loss, t.take_profit
@@ -222,7 +222,7 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
         WHERE t.status = 'closed'
         ORDER BY t.exit_time DESC
         LIMIT 50
-      \`;
+      `;
       return json(res, {
         ok: true, trades: closed, count: closed.length,
         summary: {
