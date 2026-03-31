@@ -47,12 +47,12 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
 
     if (path === "/api/hypotheses") {
       const rows = await sql`
-        SELECT h.id, h.title, h.status, h.direction, h.timeframe,
-          h.confidence_score, h.created_at, h.updated_at,
+        SELECT h.id, h.name, h.description, h.asset_class, h.strategy_type,
+          h.confidence, h.status, h.generation, h.created_by,
           h.entry_rules, h.exit_rules, h.risk_params,
-          ta.symbol
+          h.promoted_at, h.retired_at, h.retirement_reason,
+          h.created_at, h.updated_at
         FROM trading_hypotheses h
-        JOIN trading_assets ta ON ta.id = h.asset_id
         ORDER BY h.created_at DESC LIMIT 50`;
       return json(res, rows);
     }
@@ -61,12 +61,12 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
       const rows = await sql`
         SELECT pt.id, pt.direction, pt.entry_price, pt.exit_price,
           pt.quantity, pt.pnl, pt.pnl_pct, pt.status, pt.exit_reason,
-          pt.opened_at, pt.closed_at,
-          ta.symbol, h.title as hypothesis_title
+          pt.entry_time, pt.exit_time, pt.metadata,
+          ta.symbol, h.name as hypothesis_name
         FROM trading_paper_trades pt
         JOIN trading_assets ta ON ta.id = pt.asset_id
         LEFT JOIN trading_hypotheses h ON h.id = pt.hypothesis_id
-        ORDER BY pt.opened_at DESC LIMIT 100`;
+        ORDER BY pt.entry_time DESC LIMIT 100`;
       return json(res, rows);
     }
 
@@ -74,19 +74,19 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
       const rows = await sql`
         SELECT br.id, br.sharpe_ratio, br.win_rate, br.max_drawdown,
           br.total_trades, br.total_return, br.profit_factor,
-          br.avg_trade_pnl, br.created_at,
-          h.title as hypothesis_title, h.status as hypothesis_status,
-          ta.symbol
+          br.avg_trade_return, br.period_start, br.period_end,
+          br.created_at,
+          h.name as hypothesis_name, h.status as hypothesis_status,
+          h.asset_class
         FROM trading_backtest_results br
         JOIN trading_hypotheses h ON h.id = br.hypothesis_id
-        JOIN trading_assets ta ON ta.id = h.asset_id
         ORDER BY br.created_at DESC LIMIT 50`;
       return json(res, rows);
     }
 
     if (path === "/api/agent-logs") {
       const rows = await sql`
-        SELECT agent_name, action, details, created_at
+        SELECT agent_name, log_level, message, context, created_at
         FROM trading_agent_logs
         ORDER BY created_at DESC LIMIT 100`;
       return json(res, rows);
@@ -104,13 +104,13 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
 
     if (path === "/api/portfolio") {
       const open = await sql`
-        SELECT pt.direction, pt.entry_price, pt.quantity, pt.opened_at,
+        SELECT pt.direction, pt.entry_price, pt.quantity, pt.entry_time,
           ta.symbol,
           (SELECT ts.price FROM trading_snapshots ts WHERE ts.asset_id = pt.asset_id ORDER BY ts.timestamp DESC LIMIT 1) as current_price
         FROM trading_paper_trades pt
         JOIN trading_assets ta ON ta.id = pt.asset_id
         WHERE pt.status = 'open'
-        ORDER BY pt.opened_at DESC`;
+        ORDER BY pt.entry_time DESC`;
 
       const closed = await sql`
         SELECT COALESCE(SUM(pnl), 0) as total_pnl,
@@ -122,11 +122,11 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
         WHERE status = 'closed'`;
 
       const equity = await sql`
-        SELECT DATE_TRUNC('hour', closed_at) as time,
-          SUM(pnl) OVER (ORDER BY closed_at) as cumulative_pnl
+        SELECT DATE_TRUNC('hour', exit_time) as time,
+          SUM(pnl) OVER (ORDER BY exit_time) as cumulative_pnl
         FROM trading_paper_trades
         WHERE status = 'closed'
-        ORDER BY closed_at`;
+        ORDER BY exit_time`;
 
       return json(res, {
         open_positions: open,
