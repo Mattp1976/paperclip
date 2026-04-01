@@ -456,10 +456,87 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
   }
 }
 
+// Handle POST endpoints that accept a body
+async function handlePostAPI(path: string, body: string, res: ServerResponse): Promise<void> {
+  try {
+    // Configure Alpaca connector
+    if (path === "/api/connectors/alpaca/configure") {
+      const data = JSON.parse(body);
+      const { api_key, api_secret } = data;
+      if (!api_key || !api_secret) {
+        return json(res, { ok: false, error: "api_key and api_secret are required" }, 400);
+      }
+
+      // Validate keys by making a test request to Alpaca
+      try {
+        const testResp = await fetch("https://paper-api.alpaca.markets/v2/account", {
+          headers: {
+            "APCA-API-KEY-ID": api_key,
+            "APCA-API-SECRET-KEY": api_secret,
+          },
+        });
+        if (!testResp.ok) {
+          const errBody = await testResp.text();
+          return json(res, { ok: false, error: "Alpaca rejected the credentials: " + testResp.status }, 400);
+        }
+        const account = await testResp.json();
+
+        // Update connector config in DB
+        await sql`
+          UPDATE trading_connector_config
+          SET is_active = true,
+              config = jsonb_build_object('api_key', ${api_key}, 'api_secret', ${api_secret}),
+              updated_at = NOW()
+          WHERE name = 'alpaca'
+        `;
+
+        // Activate equity assets
+        await sql`
+          UPDATE trading_assets SET is_active = true WHERE asset_class = 'equity'
+        `;
+
+        return json(res, {
+          ok: true,
+          message: "Alpaca connected successfully",
+          account_id: account.id,
+          paper_trading: account.status === "ACTIVE",
+          buying_power: account.buying_power,
+        });
+      } catch (fetchErr: any) {
+        return json(res, { ok: false, error: "Could not reach Alpaca API: " + fetchErr.message }, 500);
+      }
+    }
+
+    return json(res, { error: "Not found" }, 404);
+  } catch (err: any) {
+    console.error("POST API error:", err);
+    return json(res, { error: err.message }, 500);
+  }
+}
+
 export function startAPIServer(port: number): void {
   const pubDir = join(import.meta.dirname ?? ".", "../public");
   const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const url = req.url ?? "/";
+    const method = req.method ?? "GET";
+
+    // Handle CORS preflight
+    if (method === "OPTIONS") {
+      res.writeHead(200, {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      });
+      return res.end();
+    }
+
+    if (url.startsWith("/api/") && method === "POST") {
+      // Collect POST body
+      let body = "";
+      req.on("data", (chunk: Buffer) => { body += chunk.toString(); });
+      req.on("end", () => handlePostAPI(url.split("?")[0], body, res));
+      return;
+    }
     if (url.startsWith("/api/")) return handleAPI(url.split("?")[0], res);
     const filePath = join(pubDir, url === "/" ? "operator.html" : url);
     if (existsSync(filePath)) {
