@@ -773,7 +773,7 @@ async function refreshData(){
     if(mmR&&mmR.markets){
       const m=mmR.markets;
       let h='';
-      [{key:'crypto',label:'Crypto',icon:'&#8383;',color:'var(--orange)'},{key:'equity',label:'US Equities',icon:'&#9650;',color:'var(--blue)'}].forEach(mk=>{
+      [{key:'crypto',label:'Crypto',icon:'&#8383;',color:'var(--orange)'},{key:'equity',label:'US Equities',icon:'&#9650;',color:'var(--blue)'},{key:'forex',label:'Forex',icon:'&#164;',color:'var(--green)'}].forEach(mk=>{
         const d=m[mk.key];if(!d)return;
         const active=d.active_assets>0;
         h+='<div class="market-breakdown-card">';

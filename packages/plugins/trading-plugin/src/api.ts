@@ -408,6 +408,7 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
     if (path === "/api/stats/multi-market") {
       const [cryptoAssets] = await sql`SELECT COUNT(*)::int AS c FROM trading_assets WHERE is_active = true AND asset_class = 'crypto'`;
       const [equityAssets] = await sql`SELECT COUNT(*)::int AS c FROM trading_assets WHERE is_active = true AND asset_class = 'equity'`;
+      const [forexAssets] = await sql`SELECT COUNT(*)::int AS c FROM trading_assets WHERE is_active = true AND asset_class = 'forex'`;
       const [cryptoTrades] = await sql`
         SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
         JOIN trading_assets ta ON ta.id = pt.asset_id WHERE ta.asset_class = 'crypto'
@@ -415,6 +416,10 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
       const [equityTrades] = await sql`
         SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
         JOIN trading_assets ta ON ta.id = pt.asset_id WHERE ta.asset_class = 'equity'
+      `;
+      const [forexTrades] = await sql`
+        SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
+        JOIN trading_assets ta ON ta.id = pt.asset_id WHERE ta.asset_class = 'forex'
       `;
       const [cryptoOpen] = await sql`
         SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
@@ -424,12 +429,17 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
         SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
         JOIN trading_assets ta ON ta.id = pt.asset_id WHERE ta.asset_class = 'equity' AND pt.status = 'open'
       `;
+      const [forexOpen] = await sql`
+        SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
+        JOIN trading_assets ta ON ta.id = pt.asset_id WHERE ta.asset_class = 'forex' AND pt.status = 'open'
+      `;
       const connectors = await sql`SELECT id, name, is_active, last_scan_at FROM trading_connector_config`;
       return json(res, {
         ok: true,
         markets: {
           crypto: { active_assets: cryptoAssets.c, total_trades: cryptoTrades.c, open_positions: cryptoOpen.c },
           equity: { active_assets: equityAssets.c, total_trades: equityTrades.c, open_positions: equityOpen.c },
+          forex: { active_assets: forexAssets.c, total_trades: forexTrades.c, open_positions: forexOpen.c },
         },
         connectors,
         timestamp: new Date().toISOString(),
