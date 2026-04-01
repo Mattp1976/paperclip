@@ -9,6 +9,7 @@ import { LifecycleManager, alertManager } from "./services/lifecycle-manager.js"
 import { ExitEngine } from "./services/exit-engine.js";
 import { CorrelationEngine } from "./services/correlation-engine.js";
 import { NotificationService } from "./services/notification-service.js";
+import { PerformanceAttribution } from "./services/performance-attribution.js";
 
 const sql = postgres(process.env.DATABASE_URL!);
 const risk = new RiskManager(sql);
@@ -19,6 +20,7 @@ const alerts = alertManager(sql);
 const exitEngine = new ExitEngine(sql);
 const correlationEngine = new CorrelationEngine(sql);
 const notifier = new NotificationService(sql);
+const perfAttribution = new PerformanceAttribution(sql);
 
 const MIME: Record<string, string> = {
   ".html": "text/html", ".js": "application/javascript",
@@ -271,6 +273,49 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
     if (path === "/api/notifications/summary") {
       await notifier.sendDailySummary();
       return json(res, { ok: true, message: "Daily summary sent" });
+    }
+
+
+
+    // ─── Performance Attribution ───
+    if (path === "/api/performance/full") {
+      const report = await perfAttribution.getFullReport();
+      return json(res, { ok: true, ...report });
+    }
+
+    if (path === "/api/performance/overview") {
+      const overview = await perfAttribution.getOverview();
+      return json(res, { ok: true, ...overview });
+    }
+
+    if (path === "/api/performance/by-strategy") {
+      const byStrategy = await perfAttribution.getByStrategy();
+      return json(res, { ok: true, strategies: byStrategy });
+    }
+
+    if (path === "/api/performance/by-asset") {
+      const byAsset = await perfAttribution.getByAsset();
+      return json(res, { ok: true, assets: byAsset });
+    }
+
+    if (path === "/api/performance/risk-metrics") {
+      const metrics = await perfAttribution.getRiskMetrics();
+      return json(res, { ok: true, ...metrics });
+    }
+
+    if (path === "/api/performance/equity-curve") {
+      const curve = await perfAttribution.getEquityCurve();
+      return json(res, { ok: true, curve });
+    }
+
+    if (path === "/api/performance/daily-pnl") {
+      const daily = await perfAttribution.getDailyPnl();
+      return json(res, { ok: true, daily });
+    }
+
+    if (path === "/api/performance/exit-breakdown") {
+      const breakdown = await perfAttribution.getExitBreakdown();
+      return json(res, { ok: true, breakdown });
     }
 
     return json(res, { error: "Not found" }, 404);
