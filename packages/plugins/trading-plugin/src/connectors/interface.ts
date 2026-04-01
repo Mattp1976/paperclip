@@ -6,7 +6,7 @@
  * a standardised data format regardless of the underlying exchange/broker.
  */
 
-import type { MarketSnapshot, Signal, AssetClass } from "../types/index.js";
+import type { AssetClass } from "../types/index.js";
 
 // ─── Market Connector Interface ─────────────────────────────
 export interface MarketConnector {

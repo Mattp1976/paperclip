@@ -12,7 +12,7 @@
  * Data URL:       https://data.alpaca.markets
  */
 
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import {
   tradingAssets,
   tradingSnapshots,

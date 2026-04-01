@@ -77,7 +77,7 @@ const hasAlpaca = ALPACA_API_KEY.length > 0 && ALPACA_API_SECRET.length > 0;
 let alpacaConnector: AlpacaConnector | null = null;
 
 if (hasAlpaca) {
-  alpacaConnector = new AlpacaConnector(sqlClient, ALPACA_API_KEY, ALPACA_API_SECRET);
+  alpacaConnector = new AlpacaConnector(db, ALPACA_API_KEY, ALPACA_API_SECRET);
   connectorRegistry.register(alpacaConnector);
   console.log("[Scheduler] Alpaca connector registered (US Equities)");
 } else {
@@ -165,7 +165,7 @@ async function main(): Promise<void> {
   if (alpacaConnector) {
     await runSafe("Equity Scanner (initial)", async () => {
       const result = await alpacaConnector!.runScanCycle();
-      console.log(`[${now()}] Equity scan: ${result.snapshotsWritten} snapshots, ${result.signalsDetected} signals across ${result.symbolsScanned} symbols`);
+      console.log(`[${now()}] Equity scan: ${result.assetsScanned} assets, ${result.signalsDetected} signals`);
     });
   }
 

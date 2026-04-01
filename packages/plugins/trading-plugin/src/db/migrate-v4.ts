@@ -122,10 +122,11 @@ export async function runV4Migration(sql: ReturnType<typeof postgres>): Promise<
   ];
 
   for (const eq of equitySymbols) {
+    // Use raw ON CONFLICT on the unique index columns instead of constraint name
     await sql`
       INSERT INTO trading_assets (symbol, asset_class, exchange, base_currency, quote_currency, is_active, metadata)
       VALUES (${eq.symbol}, 'equity', 'alpaca', ${eq.base}, 'USD', false, ${JSON.stringify({ name: eq.name })}::jsonb)
-      ON CONFLICT ON CONSTRAINT trading_assets_symbol_exchange DO NOTHING;
+      ON CONFLICT (symbol, exchange) DO NOTHING;
     `;
   }
 
