@@ -481,13 +481,15 @@ async function handlePostAPI(path: string, body: string, res: ServerResponse): P
         }
         const account = await testResp.json();
 
-        // Update connector config in DB
+        // Update connector config in DB (build JSON in JS to avoid pg type inference issues)
+        const configJson = JSON.stringify({ api_key, api_secret });
         await sql`
-          UPDATE trading_connector_config
-          SET is_active = true,
-              config = jsonb_build_object('api_key', ${api_key}, 'api_secret', ${api_secret}),
-              updated_at = NOW()
-          WHERE name = 'alpaca'
+          INSERT INTO trading_connector_config (name, connector_type, is_active, config, updated_at)
+          VALUES ('alpaca', 'alpaca', true, ${configJson}::jsonb, NOW())
+          ON CONFLICT (name) DO UPDATE SET
+            is_active = true,
+            config = ${configJson}::jsonb,
+            updated_at = NOW()
         `;
 
         // Activate equity assets
