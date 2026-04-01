@@ -1,3 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASI Trading System</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-0:#0a0e17;--bg-1:#111827;--bg-2:#1a2235;--bg-3:#232d42;
+  --border:#2a3550;--border-light:#334060;
+  --text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;
+  --accent:#3b82f6;--accent-dim:rgba(59,130,246,0.12);
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--purple:#a78bfa;--cyan:#06b6d4;
+}
+html,body{height:100%;background:var(--bg-0);color:var(--text-primary);font-family:'DM Sans',system-ui,sans-serif;font-size:14px}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;background:var(--bg-1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-brand{padding:20px 18px 12px;border-bottom:1px solid var(--border)}
+.sidebar-brand h1{font-size:16px;font-weight:700;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.version{font-size:11px;color:var(--text-tertiary);margin-top:2px;font-family:'IBM Plex Mono',monospace}
+.sidebar-status{padding:12px 18px;display:flex;align-items:center;gap:8px;font-size:12px;border-bottom:1px solid var(--border)}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,0.4)}50%{opacity:0.7;box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+.nav{flex:1;padding:10px 8px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--text-secondary);font-size:13px;font-weight:500;transition:all 0.15s}
+.nav-item:hover{background:var(--bg-2);color:var(--text-primary)}
+.nav-item.active{background:var(--accent-dim);color:var(--accent)}
+.nav-icon{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{padding:14px 18px;border-top:1px solid var(--border);font-size:11px;color:var(--text-tertiary);font-family:'IBM Plex Mono',monospace}
+.main{flex:1;overflow-y:auto;padding:24px 28px;background:var(--bg-0)}
+.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.main-header h2{font-size:20px;font-weight:600}
+.clock{font-size:12px;color:var(--text-tertiary);font-family:'IBM Plex Mono',monospace}
+.section{display:none}
+.section.active{display:block;animation:fadeUp 0.25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}
+.card{background:var(--bg-1);border:1px solid var(--border);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.stat-label{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:6px}
+.stat-value{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.stat-sub{font-size:11px;color:var(--text-tertiary);margin-top:3px}
+.chart-wrap{position:relative;height:260px;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;color:var(--text-tertiary);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary)}
+tr:hover td{background:var(--bg-2)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.badge-green{background:rgba(34,197,94,0.12);color:#4ade80}
+.badge-red{background:rgba(239,68,68,0.12);color:#f87171}
+.badge-amber{background:rgba(245,158,11,0.12);color:#fbbf24}
+.badge-blue{background:rgba(59,130,246,0.12);color:#60a5fa}
+.badge-purple{background:rgba(167,139,250,0.12);color:#c4b5fd}
+.badge-cyan{background:rgba(6,182,212,0.12);color:#22d3ee}
+.pnl-pos{color:var(--green)}.pnl-neg{color:var(--red)}
+.metric-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.metric-label{color:var(--text-tertiary);font-size:12px}.metric-value{font-family:'IBM Plex Mono',monospace;font-size:13px}
+.section-title{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--text-secondary)}
+@media(max-width:1200px){.g4{grid-template-columns:repeat(2,1fr)}.g5{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.sidebar{width:56px}.sidebar-brand h1,.sidebar-brand .version,.sidebar-status span,.nav-item:not(.nav-icon),.sidebar-footer{display:none}.nav-item{justify-content:center;padding:12px}}
+</style>
+</head>
+<body>
+<div class="app">
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-brand">
@@ -30,11 +97,11 @@
         Risk
       </div>
       <div class="nav-item" data-tab="strategies">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg>
         Strategies
       </div>
       <div class="nav-item" data-tab="activity">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
         Agent Activity
       </div>
       <div class="nav-item" data-tab="alerts">
@@ -42,471 +109,363 @@
         Alerts
       </div>
     </nav>
-    <div class="sidebar-footer" id="lastUpdate">—</div>
+    <div class="sidebar-footer"><span id="clock"></span></div>
   </aside>
 
-  <!-- Main Content -->
-  <div class="main">
-    <div class="topbar">
+  <!-- Main -->
+  <main class="main">
+    <div class="main-header">
       <h2 id="pageTitle">Overview</h2>
-      <div class="topbar-right">
-        <span class="mono" id="clock"></span>
+      <div class="clock" id="lastRefresh">Loading...</div>
+    </div>
+
+    <!-- Overview -->
+    <div class="section active" id="sec-overview">
+      <div class="grid g4" style="margin-bottom:18px">
+        <div class="card"><div class="stat-label">Portfolio Value</div><div class="stat-value" id="ov-equity">—</div><div class="stat-sub" id="ov-equity-change"></div></div>
+        <div class="card"><div class="stat-label">Unrealised P&L</div><div class="stat-value" id="ov-upnl">—</div><div class="stat-sub" id="ov-upnl-sub"></div></div>
+        <div class="card"><div class="stat-label">Open Positions</div><div class="stat-value" id="ov-positions">—</div><div class="stat-sub" id="ov-pos-sub"></div></div>
+        <div class="card"><div class="stat-label">System Status</div><div class="stat-value" id="ov-status">—</div><div class="stat-sub" id="ov-uptime"></div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><div class="section-title">Equity Curve</div><div class="chart-wrap"><canvas id="equityChart"></canvas></div></div>
+        <div class="card"><div class="section-title">Allocation</div><div class="chart-wrap"><canvas id="allocChart"></canvas></div></div>
       </div>
     </div>
-    <div class="page">
-      <!-- ═══ OVERVIEW ═══ -->
-      <div class="section active" id="sec-overview">
-        <div class="grid g4">
-          <div class="card">
-            <div class="card-header">Portfolio Value</div>
-            <div class="stat-value" id="ov-equity">—</div>
-            <div class="stat-sub" id="ov-return"></div>
-          </div>
-          <div class="card">
-            <div class="card-header">Unrealised P&amp;L</div>
-            <div class="stat-value" id="ov-upnl">—</div>
-            <div class="stat-sub" id="ov-rpnl"></div>
-          </div>
-          <div class="card">
-            <div class="card-header">Drawdown</div>
-            <div class="stat-value" id="ov-dd">—</div>
-            <div class="stat-sub" id="ov-peak"></div>
-          </div>
-          <div class="card">
-            <div class="card-header">Open Positions</div>
-            <div class="stat-value" id="ov-positions">—</div>
-            <div class="stat-sub" id="ov-exposure"></div>
-          </div>
-        </div>
-        <div class="grid g2 mt">
-          <div class="card"><div class="card-header">Equity Curve</div><div class="chart-wrap"><canvas id="equityChart"></canvas></div></div>
-          <div class="card"><div class="card-header">Allocation</div><div class="chart-wrap"><canvas id="allocChart"></canvas></div></div>
-        </div>
-      </div>
+    <!-- Positions -->
+    <div class="section" id="sec-positions">
+      <div class="card"><table><thead><tr><th>Symbol</th><th>Direction</th><th>Size</th><th>Entry</th><th>Current</th><th>P&L</th><th>SL</th><th>TP</th><th>Trailing</th></tr></thead><tbody id="positions-table"></tbody></table></div>
+    </div>
 
-      <!-- ═══ POSITIONS ═══ -->
-      <div class="section" id="sec-positions">
-        <div class="card">
-          <div class="card-header">Open Positions with Exit Levels</div>
-          <table>
-            <thead><tr><th>Symbol</th><th>Direction</th><th>Entry</th><th>Current</th><th>P&amp;L</th><th>Stop Loss</th><th>Take Profit</th><th>Trail %</th><th>→ SL</th><th>→ TP</th><th>Max Hold</th></tr></thead>
-            <tbody id="positionsBody"></tbody>
-          </table>
-        </div>
+    <!-- Trade History -->
+    <div class="section" id="sec-trades">
+      <div class="grid g4" style="margin-bottom:18px">
+        <div class="card"><div class="stat-label">Total Trades</div><div class="stat-value" id="th-total">—</div></div>
+        <div class="card"><div class="stat-label">Win Rate</div><div class="stat-value" id="th-winrate">—</div></div>
+        <div class="card"><div class="stat-label">Realised P&L</div><div class="stat-value" id="th-pnl">—</div></div>
+        <div class="card"><div class="stat-label">Profit Factor</div><div class="stat-value" id="th-pf">—</div></div>
       </div>
+      <div class="card"><table><thead><tr><th>Symbol</th><th>Direction</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Exit Reason</th><th>Closed</th></tr></thead><tbody id="trades-table"></tbody></table></div>
+    </div>
 
-      <!-- ═══ TRADE HISTORY ═══ -->
-      <div class="section" id="sec-trades">
-        <div class="grid g4">
-          <div class="card"><div class="card-header">Total Trades</div><div class="stat-value" id="th-total">—</div></div>
-          <div class="card"><div class="card-header">Total P&amp;L</div><div class="stat-value" id="th-pnl">—</div></div>
-          <div class="card"><div class="card-header">Win Rate</div><div class="stat-value" id="th-winrate">—</div></div>
-          <div class="card"><div class="card-header">Exit Reasons</div><div id="th-reasons" style="margin-top:8px"></div></div>
-        </div>
-        <div class="card mt">
-          <div class="card-header">Closed Trades</div>
-          <table>
-            <thead><tr><th>Symbol</th><th>Direction</th><th>Entry</th><th>Exit</th><th>P&amp;L</th><th>P&amp;L %</th><th>Exit Reason</th><th>Hold Time</th><th>Strategy</th></tr></thead>
-            <tbody id="tradesBody"></tbody>
-          </table>
-        </div>
+    <!-- Performance -->
+    <div class="section" id="sec-performance">
+      <div class="grid g5" style="margin-bottom:18px">
+        <div class="card"><div class="stat-label">Total P&L</div><div class="stat-value pnl-neg" id="perf-total-pnl">—</div><div class="stat-sub" id="perf-total-return-pct"></div></div>
+        <div class="card"><div class="stat-label">Win Rate</div><div class="stat-value" id="perf-win-rate">—</div><div class="stat-sub" id="perf-profit-factor"></div></div>
+        <div class="card"><div class="stat-label">Sharpe Ratio</div><div class="stat-value" id="perf-sharpe">—</div><div class="stat-sub" id="perf-sortino"></div></div>
+        <div class="card"><div class="stat-label">Max Drawdown</div><div class="stat-value" id="perf-max-dd">—</div><div class="stat-sub" id="perf-current-dd"></div></div>
+        <div class="card"><div class="stat-label">Avg Hold Time</div><div class="stat-value" id="perf-avg-hold">—</div><div class="stat-sub" id="perf-trade-count"></div></div>
       </div>
-      <!-- ═══ PERFORMANCE ═══ -->
-      <div class="section" id="sec-performance">
-        <div class="grid g5">
-          <div class="card"><div class="card-header">Total P&amp;L</div><div class="stat-value" id="perf-total-pnl">—</div><div class="stat-sub" id="perf-total-return-pct"></div></div>
-          <div class="card"><div class="card-header">Win Rate</div><div class="stat-value" id="perf-win-rate">—</div><div class="stat-sub" id="perf-profit-factor"></div></div>
-          <div class="card"><div class="card-header">Sharpe Ratio</div><div class="stat-value" id="perf-sharpe">—</div><div class="stat-sub" id="perf-sortino"></div></div>
-          <div class="card"><div class="card-header">Max Drawdown</div><div class="stat-value" id="perf-max-dd">—</div><div class="stat-sub" id="perf-current-dd"></div></div>
-          <div class="card"><div class="card-header">Avg Hold</div><div class="stat-value" id="perf-avg-hold">—</div><div class="stat-sub" id="perf-trade-count"></div></div>
-        </div>
-        <div class="grid g2 mt">
-          <div class="card"><div class="card-header">Equity Curve</div><div class="chart-wrap"><canvas id="perfEquityChart"></canvas></div></div>
-          <div class="card"><div class="card-header">Drawdown</div><div class="chart-wrap"><canvas id="perfDrawdownChart"></canvas></div></div>
-        </div>
-        <div class="grid g2 mt">
-          <div class="card">
-            <div class="card-header">By Strategy</div>
-            <table><thead><tr><th>Strategy</th><th>Trades</th><th>Win Rate</th><th>P&amp;L</th><th>Avg %</th><th>PF</th></tr></thead>
-            <tbody id="perf-strategy-table"></tbody></table>
-          </div>
-          <div class="card">
-            <div class="card-header">By Asset</div>
-            <table><thead><tr><th>Asset</th><th>Trades</th><th>Win Rate</th><th>P&amp;L</th><th>Long WR</th><th>Short WR</th></tr></thead>
-            <tbody id="perf-asset-table"></tbody></table>
-          </div>
-        </div>
-        <div class="grid g2 mt">
-          <div class="card"><div class="card-header">Exit Breakdown</div><div class="chart-wrap"><canvas id="perfExitChart"></canvas></div></div>
-          <div class="card">
-            <div class="card-header">Risk Metrics</div>
-            <div id="perf-risk-table"></div>
-          </div>
-        </div>
+      <div class="grid g2" style="margin-bottom:18px">
+        <div class="card"><div class="section-title">Equity Curve</div><div class="chart-wrap"><canvas id="perfEquityChart"></canvas></div></div>
+        <div class="card"><div class="section-title">Drawdown</div><div class="chart-wrap"><canvas id="perfDrawdownChart"></canvas></div></div>
       </div>
+      <div class="grid g2" style="margin-bottom:18px">
+        <div class="card"><div class="section-title">By Strategy</div><table><thead><tr><th>Strategy</th><th>Trades</th><th>Win%</th><th>P&L</th><th>Avg%</th><th>PF</th></tr></thead><tbody id="perf-strategy-table"></tbody></table></div>
+        <div class="card"><div class="section-title">By Asset</div><table><thead><tr><th>Symbol</th><th>Trades</th><th>Win%</th><th>P&L</th><th>Long WR</th><th>Short WR</th></tr></thead><tbody id="perf-asset-table"></tbody></table></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><div class="section-title">Exit Breakdown</div><div class="chart-wrap" style="height:200px"><canvas id="perfExitChart"></canvas></div></div>
+        <div class="card"><div class="section-title">Risk Metrics</div><div id="perf-risk-table"></div></div>
+      </div>
+    </div>
+    <!-- Risk -->
+    <div class="section" id="sec-risk">
+      <div class="grid g4" style="margin-bottom:18px">
+        <div class="card"><div class="stat-label">HHI Concentration</div><div class="stat-value" id="risk-hhi">—</div><div class="stat-sub" id="risk-hhi-label"></div></div>
+        <div class="card"><div class="stat-label">Diversification</div><div class="stat-value" id="risk-diversification">—</div><div class="stat-sub" id="risk-positions-count"></div></div>
+        <div class="card"><div class="stat-label">Directional Conflicts</div><div class="stat-value" id="risk-directional">—</div></div>
+        <div class="card"><div class="stat-label">Correlation Score</div><div class="stat-value" id="risk-corr-score">—</div></div>
+      </div>
+      <div class="grid g2">
+        <div class="card"><div class="section-title">Warnings</div><div id="risk-warnings"></div></div>
+        <div class="card"><div class="section-title">Correlation Matrix</div><div id="risk-matrix" style="overflow-x:auto"></div></div>
+      </div>
+    </div>
 
-      <!-- ═══ RISK ═══ -->
-      <div class="section" id="sec-risk">
-        <div class="grid g4">
-          <div class="card"><div class="card-header">Diversification</div><div class="stat-value" id="risk-divscore">—</div><div class="stat-sub">/ 100</div></div>
-          <div class="card"><div class="card-header">HHI Index</div><div class="stat-value" id="risk-hhi">—</div><div class="stat-sub" id="risk-hhi-rating"></div></div>
-          <div class="card"><div class="card-header">Active Positions</div><div class="stat-value" id="risk-poscount">—</div><div class="stat-sub" id="risk-exposure-detail"></div></div>
-          <div class="card"><div class="card-header">Conflicts</div><div class="stat-value" id="risk-conflicts">—</div><div class="stat-sub">directional</div></div>
-        </div>
-        <div class="grid g2 mt">
-          <div class="card">
-            <div class="card-header">Correlation Matrix</div>
-            <table><thead><tr><th>Pair</th><th>Correlation</th><th>Points</th></tr></thead>
-            <tbody id="corrMatrix"></tbody></table>
-          </div>
-          <div class="card">
-            <div class="card-header">Warnings</div>
-            <div id="riskWarnings" style="font-size:13px"></div>
-          </div>
-        </div>
-      </div>
-      <!-- ═══ STRATEGIES ═══ -->
-      <div class="section" id="sec-strategies">
-        <div class="card">
-          <div class="card-header">Hypothesis Pipeline</div>
-          <table>
-            <thead><tr><th>Name</th><th>Strategy</th><th>Status</th><th>Confidence</th><th>Allocated</th></tr></thead>
-            <tbody id="stratBody"></tbody>
-          </table>
-        </div>
-      </div>
+    <!-- Strategies -->
+    <div class="section" id="sec-strategies">
+      <div class="card"><table><thead><tr><th>ID</th><th>Strategy</th><th>Asset</th><th>Direction</th><th>Confidence</th><th>Status</th><th>Created</th></tr></thead><tbody id="strategies-table"></tbody></table></div>
+    </div>
 
-      <!-- ═══ AGENT ACTIVITY ═══ -->
-      <div class="section" id="sec-activity">
-        <div class="grid g3">
-          <div class="card"><div class="card-header">Paper Trader</div><div class="stat-value" id="act-pt-trades">—</div><div class="stat-sub">trades executed</div></div>
-          <div class="card"><div class="card-header">Scanner Runs</div><div class="stat-value" id="act-scanner">—</div><div class="stat-sub">snapshots collected</div></div>
-          <div class="card"><div class="card-header">Hypotheses Generated</div><div class="stat-value" id="act-hyp">—</div><div class="stat-sub">total generated</div></div>
-        </div>
-        <div class="card mt">
-          <div class="card-header">Recent Agent Logs</div>
-          <div id="actLogs" style="max-height:400px;overflow-y:auto"></div>
-        </div>
+    <!-- Agent Activity -->
+    <div class="section" id="sec-activity">
+      <div class="grid g3" style="margin-bottom:18px">
+        <div class="card"><div class="stat-label">Total Runs</div><div class="stat-value" id="agent-total-runs">—</div></div>
+        <div class="card"><div class="stat-label">Last Run</div><div class="stat-value" id="agent-last-run">—</div></div>
+        <div class="card"><div class="stat-label">Errors</div><div class="stat-value" id="agent-errors">—</div></div>
       </div>
+      <div class="card"><table><thead><tr><th>Time</th><th>Agent</th><th>Status</th><th>Duration</th><th>Result</th></tr></thead><tbody id="agent-logs"></tbody></table></div>
+    </div>
 
-      <!-- ═══ ALERTS ═══ -->
-      <div class="section" id="sec-alerts">
-        <div class="card">
-          <div class="card-header">Active Alerts</div>
-          <table>
-            <thead><tr><th>Time</th><th>Type</th><th>Severity</th><th>Title</th><th>Message</th></tr></thead>
-            <tbody id="alertsBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-    </div><!-- /page -->
-  </div><!-- /main -->
-</div><!-- /layout -->
+    <!-- Alerts -->
+    <div class="section" id="sec-alerts">
+      <div class="card"><table><thead><tr><th>Time</th><th>Severity</th><th>Type</th><th>Message</th></tr></thead><tbody id="alerts-table"></tbody></table></div>
+    </div>
+  </main>
+</div>
 <script>
-  // ─── Helpers ───
-  const $ = id => document.getElementById(id);
-  const setText = (id, t) => { const el=$(id); if(el) el.textContent=t; };
-  const setHTML = (id, h) => { const el=$(id); if(el) el.innerHTML=h; };
-  const setClass = (id, c) => { const el=$(id); if(el) el.className=c; };
-  const pnlColor = v => v >= 0 ? 'positive' : 'negative';
-  const fmtUSD = v => '$' + Number(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-  const fmtPct = v => (v>=0?'+':'') + Number(v).toFixed(2) + '%';
+const BASE='';
+const $=s=>document.getElementById(s);
+const setText=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+const setHTML=(id,v)=>{const e=$(id);if(e)e.innerHTML=v;};
+const setClass=(id,c)=>{const e=$(id);if(e)e.className=c;};
+const pnlColor=v=>v>=0?'pnl-pos':'pnl-neg';
+const fmtUSD=v=>'$'+Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtPct=v=>Number(v).toFixed(2)+'%';
 
-  const charts = {};
-  function mkChart(id, type, labels, datasets, extra={}) {
-    const ctx = $(id); if(!ctx) return;
-    if(charts[id]) charts[id].destroy();
-    const isDoughnut = type==='doughnut';
-    const opts = isDoughnut
-      ? {responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'right',labels:{color:'#8b95a8',font:{family:'DM Sans',size:11},padding:12,usePointStyle:true,pointStyle:'circle'}}}}
-      : {responsive:true,maintainAspectRatio:false,
-         interaction:{mode:'index',intersect:false},
-         scales:{
-           x:{ticks:{color:'#5a6478',maxTicksLimit:8,font:{family:'DM Sans',size:10}},grid:{color:'rgba(255,255,255,0.03)',drawBorder:false},border:{display:false}},
-           y:{ticks:{color:'#5a6478',font:{family:'DM Sans',size:10},callback:function(v){return type==='bar'?v:v.toLocaleString()}},grid:{color:'rgba(255,255,255,0.04)',drawBorder:false},border:{display:false}}
-         },
-         plugins:{legend:{display:false},tooltip:{backgroundColor:'#171d2a',titleColor:'#f0f2f5',bodyColor:'#8b95a8',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,padding:10,cornerRadius:8,titleFont:{family:'DM Sans',weight:'600'},bodyFont:{family:'IBM Plex Mono',size:12}}}
-        };
-    Object.assign(opts, extra);
-    charts[id] = new Chart(ctx, {type,data:{labels,datasets},options:opts});
+const charts={};
+function mkChart(id,type,labels,datasets){
+  if(charts[id]){charts[id].destroy();}
+  const el=$(id);if(!el)return;
+  const cfg={type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type==='doughnut',position:'right',labels:{color:'#94a3b8',font:{family:'DM Sans',size:11},padding:10}}},scales:{}}};
+  if(type==='line'){
+    cfg.options.scales.x={ticks:{color:'#64748b',font:{size:10},maxTicksLimit:8},grid:{color:'rgba(42,53,80,0.4)'}};
+    cfg.options.scales.y={ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(42,53,80,0.4)'}};
   }
+  charts[id]=new Chart(el,cfg);
+}
 
-  // ─── Navigation ───
-  const titles = {overview:'Overview',positions:'Positions',trades:'Trade History',performance:'Performance',risk:'Risk & Correlation',strategies:'Strategies',activity:'Agent Activity',alerts:'Alerts'};
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-      item.classList.add('active');
-      const tab = item.dataset.tab;
-      const sec = $('sec-'+tab); if(sec) sec.classList.add('active');
-      setText('pageTitle', titles[tab]||tab);
-    });
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    item.classList.add('active');
+    const tab=item.dataset.tab;
+    document.querySelectorAll('.section').forEach(s=>{s.classList.remove('active');});
+    const sec=$('sec-'+tab);if(sec){sec.classList.add('active');}
+    const titles={overview:'Overview',positions:'Positions',trades:'Trade History',performance:'Performance Attribution',risk:'Risk & Correlation',strategies:'Strategy Pipeline',activity:'Agent Activity',alerts:'Alerts'};
+    setText('pageTitle',titles[tab]||tab);
   });
+});
 
-  // ─── Clock ───
-  setInterval(()=>{ setText('clock', new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})); }, 1000);
+// Clock
+setInterval(()=>{const d=new Date();$('clock').textContent=d.toLocaleTimeString('en-GB');},1000);
+async function refreshData(){
+  try{
+    const [healthR,equityR,posR,tradesR,perfR,corrR,corrM,stratR,agentR,alertR]=await Promise.all([
+      fetch(BASE+'/api/health').then(r=>r.json()).catch(()=>null),
+      fetch(BASE+'/api/portfolio/equity').then(r=>r.json()).catch(()=>null),
+      fetch(BASE+'/api/positions').then(r=>r.json()).catch(()=>null),
+      fetch(BASE+'/api/trades').then(r=>r.json()).catch(()=>null),
+      fetch(BASE+'/api/performance/full').then(r=>r.json()).catch(()=>null),
+      fetch(BASE+'/api/correlation/report').then(r=>r.json()).catch(()=>null),
+      fetch(BASE+'/api/correlation/matrix').then(r=>r.json()).catch(()=>null),
+      fetch(BASE+'/api/strategies').then(r=>r.json()).catch(()=>null),
+      fetch(BASE+'/api/agents/logs').then(r=>r.json()).catch(()=>null),
+      fetch(BASE+'/api/alerts').then(r=>r.json()).catch(()=>null)
+    ]);
+    $('lastRefresh').textContent='Updated '+new Date().toLocaleTimeString('en-GB');
 
-  // ─── Data Loading ───
-  async function refreshData() {
-    try {
-      const [healthR, equityR, posR, tradesR, corrR, stratR, logsR, alertsR, perfR] = await Promise.all([
-        fetch('/api/health').then(r=>r.json()).catch(()=>null),
-        fetch('/api/portfolio/equity?limit=200').then(r=>r.json()).catch(()=>null),
-        fetch('/api/exits/status').then(r=>r.json()).catch(()=>null),
-        fetch('/api/exits/history').then(r=>r.json()).catch(()=>null),
-        fetch('/api/correlation/report').then(r=>r.json()).catch(()=>null),
-        fetch('/api/strategies').then(r=>r.json()).catch(()=>null),
-        fetch('/api/agents/logs?limit=30').then(r=>r.json()).catch(()=>null),
-        fetch('/api/alerts').then(r=>r.json()).catch(()=>null),
-        fetch('/api/performance/full').then(r=>r.json()).catch(()=>null),
-      ]);
-
-      // Health
-      if (healthR && healthR.status==='ok') {
-        setText('statusText','Live'); $('statusDot').style.background='var(--green)';
-      } else {
-        setText('statusText','Offline'); $('statusDot').style.background='var(--red)';
-      }
-      $('lastUpdate').textContent = 'Updated ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-
-      // Overview — equity
-      if (equityR && equityR.ok && equityR.snapshots && equityR.snapshots.length) {
-        const snaps = equityR.snapshots;
-        const latest = snaps[snaps.length-1];
-        setText('ov-equity', fmtUSD(latest.total_equity||latest.totalEquity));
-        const startEq = snaps[0].total_equity||snaps[0].totalEquity||100000;
-        const curEq = latest.total_equity||latest.totalEquity||100000;
-        const retPct = ((curEq-startEq)/startEq*100);
-        setText('ov-return', fmtPct(retPct)+' return');
-        setText('ov-upnl', fmtUSD(latest.unrealised_pnl||latest.unrealisedPnl||0));
-        setClass('ov-upnl', 'stat-value '+pnlColor(latest.unrealised_pnl||latest.unrealisedPnl||0));
-        setText('ov-rpnl', 'Realised: '+fmtUSD(latest.realised_pnl||latest.realisedPnl||0));
-        setText('ov-dd', (Math.abs(latest.drawdown_pct||latest.drawdownPct||0)).toFixed(2)+'%');
-        setText('ov-peak', 'Peak: '+fmtUSD(latest.peak_equity||latest.peakEquity||curEq));
-        setText('ov-positions', latest.open_positions||latest.openPositions||'0');
-        setText('ov-exposure', 'Exposure: '+(latest.exposure_pct||latest.exposurePct||0).toFixed(1)+'%');
-
-        // Equity chart
-        const eqLabels = snaps.map(s=>new Date(s.timestamp).toLocaleString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}));
-        const eqData = snaps.map(s=>Number(s.total_equity||s.totalEquity));
-        mkChart('equityChart','line',eqLabels,[{
-          label:'Equity',data:eqData,
-          borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,0.08)',
-          fill:true,tension:0.4,pointRadius:0,borderWidth:2
-        }]);
-      }
-
-      // Positions
-      if (posR && posR.ok && posR.positions) {
-        let html = '';
-        const allocLabels = [], allocData = [], allocColors = ['#2563eb','#22c55e','#f59e0b','#a78bfa','#22d3ee','#ec4899'];
-        posR.positions.forEach((p,i) => {
-          const pc = pnlColor(p.pnlPct);
-          const dirBadge = p.direction==='long' ? '<span class="badge badge-green">LONG</span>' : '<span class="badge badge-red">SHORT</span>';
-          const holdStr = p.maxHoldUntil ? new Date(p.maxHoldUntil).toLocaleString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-          html += '<tr><td style="font-weight:600">'+p.symbol+'</td><td>'+dirBadge+'</td>'
-            +'<td>'+fmtUSD(p.entryPrice)+'</td><td>'+fmtUSD(p.currentPrice)+'</td>'
-            +'<td class="'+pc+'">'+fmtPct(p.pnlPct)+'</td>'
-            +'<td>'+fmtUSD(p.stopLoss||0)+'</td><td>'+fmtUSD(p.takeProfit||0)+'</td>'
-            +'<td>'+(p.trailingStopPct||'—')+'%</td>'
-            +'<td class="negative">'+(p.distanceToSL!=null?p.distanceToSL.toFixed(2)+'%':'—')+'</td>'
-            +'<td class="positive">'+(p.distanceToTP!=null?p.distanceToTP.toFixed(2)+'%':'—')+'</td>'
-            +'<td>'+holdStr+'</td></tr>';
-          allocLabels.push(p.symbol); allocData.push(Math.abs(Number(p.entryPrice)*Number(p.quantity||1)));
-        });
-        setHTML('positionsBody', html || '<tr><td colspan="11" style="color:var(--text-tertiary);text-align:center;padding:30px">No open positions</td></tr>');
-        if(allocLabels.length) mkChart('allocChart','doughnut',allocLabels,[{data:allocData,backgroundColor:allocColors.slice(0,allocLabels.length),borderWidth:0}]);
-      }
-
-      // Trades
-      if (tradesR && tradesR.ok) {
-        setText('th-total', String(tradesR.totalTrades||0));
-        setText('th-pnl', fmtUSD(tradesR.totalPnl||0));
-        setClass('th-pnl','stat-value '+pnlColor(tradesR.totalPnl||0));
-        setText('th-winrate', (tradesR.winRate||0)+'%');
-        // Exit reasons
-        const reasons = tradesR.exitReasons||{};
-        let rHtml='';
-        for(const[k,v] of Object.entries(reasons)){
-          const cls = k==='stop_loss'?'badge-red':k==='take_profit'?'badge-green':k==='trailing_stop'?'badge-amber':'badge-blue';
-          rHtml+='<span class="badge '+cls+'" style="margin:2px">'+k+': '+v+'</span> ';
-        }
-        setHTML('th-reasons',rHtml||'<span style="color:var(--text-tertiary)">No exits yet</span>');
-        // Trade rows
-        let tHtml='';
-        (tradesR.trades||[]).forEach(t=>{
-          const pc=pnlColor(t.pnlPct);
-          const dirBadge = t.direction==='long' ? '<span class="badge badge-green">LONG</span>' : '<span class="badge badge-red">SHORT</span>';
-          const exitBadge = t.exitReason==='stop_loss'?'badge-red':t.exitReason==='take_profit'?'badge-green':'badge-amber';
-          const holdH = t.holdHours?t.holdHours.toFixed(1)+'h':'—';
-          tHtml+='<tr><td style="font-weight:600">'+t.symbol+'</td><td>'+dirBadge+'</td><td>'+fmtUSD(t.entryPrice)+'</td><td>'+fmtUSD(t.exitPrice)+'</td><td class="'+pc+'">'+fmtUSD(t.pnl)+'</td><td class="'+pc+'">'+fmtPct(t.pnlPct)+'</td><td><span class="badge '+exitBadge+'">'+t.exitReason+'</span></td><td>'+holdH+'</td><td><span class="badge badge-purple">'+(t.strategy||'—')+'</span></td></tr>';
-        });
-        setHTML('tradesBody', tHtml||'<tr><td colspan="9" style="color:var(--text-tertiary);text-align:center;padding:30px">No closed trades yet</td></tr>');
-      }
-
-      // Performance
-      if (perfR && perfR.ok) {
-        const ov = perfR.overview||{};
-        const rm = perfR.riskMetrics||{};
-        setText('perf-total-pnl', fmtUSD(ov.totalPnl||0));
-        setClass('perf-total-pnl','stat-value '+pnlColor(ov.totalPnl||0));
-        setText('perf-total-return-pct', fmtPct(rm.totalReturnPct||0)+' total');
-        setText('perf-win-rate', (ov.winRate||0)+'%');
-        setText('perf-profit-factor', 'PF: '+(ov.profitFactor||0));
-        setText('perf-sharpe', rm.sharpeRatio!=null?Number(rm.sharpeRatio).toFixed(2):'N/A');
-        setText('perf-sortino', 'Sortino: '+(rm.sortinoRatio!=null?Number(rm.sortinoRatio).toFixed(2):'N/A'));
-        setText('perf-max-dd', (rm.maxDrawdownPct||0).toFixed(2)+'%');
-        setText('perf-current-dd', 'Current: '+(rm.currentDrawdownPct||0).toFixed(2)+'%');
-        setText('perf-avg-hold', (ov.avgHoldHours||0).toFixed(1)+'h');
-        setText('perf-trade-count', (ov.closedTrades||0)+' closed trades');
-
-        // Equity curve
-        const ec = perfR.equityCurve||[];
-        if(ec.length>1){
-          const eqL=ec.map(p=>new Date(p.timestamp).toLocaleString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}));
-          mkChart('perfEquityChart','line',eqL,[{data:ec.map(p=>p.totalEquity),borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,0.06)',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]);
-          mkChart('perfDrawdownChart','line',eqL,[{data:ec.map(p=>-Math.abs(p.drawdownPct)),borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,0.06)',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]);
-        }
-
-        // Strategy table
-        let sH='';
-        (perfR.byStrategy||[]).forEach(s=>{
-          const pc=pnlColor(s.totalPnl);
-          sH+='<tr><td><span class="badge badge-cyan">'+s.strategy+'</span></td><td>'+s.totalTrades+'</td><td>'+s.winRate+'%</td><td class="'+pc+'">'+fmtUSD(s.totalPnl)+'</td><td class="'+pc+'">'+fmtPct(s.avgPnlPct)+'</td><td>'+s.profitFactor+'</td></tr>';
-        });
-        setHTML('perf-strategy-table',sH||'<tr><td colspan="6" style="color:var(--text-tertiary)">No data</td></tr>');
-
-        // Asset table
-        let aH='';
-        (perfR.byAsset||[]).forEach(a=>{
-          const pc=pnlColor(a.totalPnl);
-          aH+='<tr><td>'+a.symbol+'</td><td>'+a.totalTrades+'</td><td>'+a.winRate+'%</td><td class="'+pc+'">'+fmtUSD(a.totalPnl)+'</td><td>'+a.longWinRate+'%</td><td>'+a.shortWinRate+'%</td></tr>';
-        });
-        setHTML('perf-asset-table',aH||'<tr><td colspan="6" style="color:var(--text-tertiary)">No data</td></tr>');
-
-        // Exit chart
-        const eb=perfR.exitBreakdown||{};
-        const eKeys=Object.keys(eb);
-        if(eKeys.length){
-          const eColors=eKeys.map(k=>k==='stop_loss'?'#ef4444':k==='take_profit'?'#22c55e':k==='trailing_stop'?'#f59e0b':'#a78bfa');
-          mkChart('perfExitChart','doughnut',eKeys,[{data:eKeys.map(k=>eb[k].count),backgroundColor:eColors,borderWidth:0}]);
-        }
-
-        // Risk metrics
-        let rH='';
-        [['Starting Equity',fmtUSD(rm.startingEquity||0)],['Current Equity',fmtUSD(rm.currentEquity||0)],['Peak Equity',fmtUSD(rm.peakEquity||0)],
-         ['Total Return',fmtPct(rm.totalReturnPct||0)],['Max Drawdown',(rm.maxDrawdownPct||0).toFixed(2)+'%'],
-         ['Sharpe',rm.sharpeRatio!=null?Number(rm.sharpeRatio).toFixed(2):'N/A'],['Sortino',rm.sortinoRatio!=null?Number(rm.sortinoRatio).toFixed(2):'N/A'],
-         ['Calmar',rm.calmarRatio!=null?Number(rm.calmarRatio).toFixed(2):'N/A'],['Data Points',String(rm.equityDataPoints||0)]
-        ].forEach(([k,v])=>{ rH+='<div class="metric-row"><span class="metric-label">'+k+'</span><span class="metric-value">'+v+'</span></div>'; });
-        setHTML('perf-risk-table',rH);
-      }
-
-      // Risk / Correlation
-      if (corrR) {
-        const rep = corrR.report || corrR;
-        setText('risk-hhi', rep.hhi != null ? rep.hhi : 'N/A');
-        setText('risk-hhi-label', rep.concentrationLevel || '');
-        setText('risk-diversification', rep.diversificationScore != null ? rep.diversificationScore + '/100' : 'N/A');
-        setText('risk-positions-count', rep.positionCount != null ? rep.positionCount + ' positions' : '');
-        setText('risk-directional', rep.directionalConflicts && rep.directionalConflicts.length ? rep.directionalConflicts.length + ' conflicts' : 'None');
-
-        // Warnings
-        let wH = '';
-        (rep.warnings || []).forEach(w => {
-          wH += '<div class="card" style="border-left:3px solid #f59e0b;padding:10px 14px;margin-bottom:8px"><span style="color:#f59e0b;font-weight:600">&#9888;</span> ' + w + '</div>';
-        });
-        if (rep.directionalConflicts && rep.directionalConflicts.length) {
-          rep.directionalConflicts.forEach(c => {
-            wH += '<div class="card" style="border-left:3px solid #ef4444;padding:10px 14px;margin-bottom:8px"><span style="color:#ef4444;font-weight:600">&#9888;</span> Directional conflict: ' + c.assets.join(' vs ') + ' (correlation: ' + c.correlation.toFixed(2) + ')</div>';
-          });
-        }
-        setHTML('risk-warnings', wH || '<div style="color:var(--text-tertiary);padding:16px">No warnings</div>');
-
-        // Correlation matrix
-        if (corrM) {
-          const assets = corrM.assets || [];
-          const matrix = corrM.matrix || [];
-          let mH = '<table style="width:100%;font-size:12px"><thead><tr><th></th>';
-          assets.forEach(a => { mH += '<th style="padding:6px;text-align:center">' + a + '</th>'; });
-          mH += '</tr></thead><tbody>';
-          matrix.forEach((row, i) => {
-            mH += '<tr><td style="font-weight:600;padding:6px">' + assets[i] + '</td>';
-            row.forEach(val => {
-              const v = Number(val);
-              const bg = v > 0.7 ? 'rgba(239,68,68,0.15)' : v < -0.3 ? 'rgba(34,197,94,0.15)' : 'transparent';
-              mH += '<td style="text-align:center;padding:6px;background:' + bg + '">' + v.toFixed(2) + '</td>';
-            });
-            mH += '</tr>';
-          });
-          mH += '</tbody></table>';
-          setHTML('risk-matrix', mH);
-        }
-      }
-
-      // Strategies
-      if (stratR) {
-        let sH = '';
-        (Array.isArray(stratR) ? stratR : []).forEach(h => {
-          const stBadge = h.status === 'active' ? 'badge-green' : h.status === 'backtesting' ? 'badge-amber' : h.status === 'pending_backtest' ? 'badge-blue' : 'badge-purple';
-          sH += '<tr><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (h.id||'').slice(0,8) + '</td>';
-          sH += '<td><span class="badge badge-cyan">' + (h.strategyType||'') + '</span></td>';
-          sH += '<td>' + (h.asset||'') + '</td>';
-          sH += '<td>' + (h.direction||'') + '</td>';
-          sH += '<td>' + (h.confidence||0) + '%</td>';
-          sH += '<td><span class="badge ' + stBadge + '">' + (h.status||'') + '</span></td>';
-          sH += '<td>' + (h.createdAt ? new Date(h.createdAt).toLocaleDateString('en-GB') : '') + '</td></tr>';
-        });
-        setHTML('strategies-table', sH || '<tr><td colspan="7" style="color:var(--text-tertiary)">No hypotheses</td></tr>');
-      }
-
-      // Agent Activity
-      if (agentR) {
-        const runs = agentR.recentRuns || agentR.runs || [];
-        setText('agent-total-runs', runs.length);
-        const lastRun = runs.length ? runs[0] : null;
-        setText('agent-last-run', lastRun ? new Date(lastRun.startedAt||lastRun.timestamp).toLocaleTimeString('en-GB') : 'N/A');
-        const errors = runs.filter(r => r.status === 'error' || r.error);
-        setText('agent-errors', errors.length);
-
-        let lH = '';
-        runs.slice(0, 30).forEach(r => {
-          const stBadge = r.status === 'completed' ? 'badge-green' : r.status === 'error' ? 'badge-red' : 'badge-amber';
-          const time = r.startedAt || r.timestamp || '';
-          lH += '<tr><td>' + (time ? new Date(time).toLocaleString('en-GB', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '') + '</td>';
-          lH += '<td>' + (r.agent||r.agentType||'') + '</td>';
-          lH += '<td><span class="badge ' + stBadge + '">' + (r.status||'') + '</span></td>';
-          lH += '<td>' + (r.duration ? (r.duration/1000).toFixed(1)+'s' : '') + '</td>';
-          lH += '<td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (r.result||r.error||'') + '</td></tr>';
-        });
-        setHTML('agent-logs', lH || '<tr><td colspan="5" style="color:var(--text-tertiary)">No recent runs</td></tr>');
-      }
-
-      // Alerts
-      if (alertR) {
-        const alerts = Array.isArray(alertR) ? alertR : alertR.alerts || [];
-        let aH = '';
-        alerts.slice(0, 40).forEach(a => {
-          const sevBadge = a.severity === 'critical' ? 'badge-red' : a.severity === 'warning' ? 'badge-amber' : 'badge-blue';
-          const time = a.timestamp || a.createdAt || '';
-          aH += '<tr><td>' + (time ? new Date(time).toLocaleString('en-GB', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '') + '</td>';
-          aH += '<td><span class="badge ' + sevBadge + '">' + (a.severity||'info') + '</span></td>';
-          aH += '<td>' + (a.type||a.category||'') + '</td>';
-          aH += '<td>' + (a.message||'') + '</td></tr>';
-        });
-        setHTML('alerts-table', aH || '<tr><td colspan="4" style="color:var(--text-tertiary)">No alerts</td></tr>');
-      }
-
-    } catch(e) {
-      console.error('Refresh error:', e);
+    // Health status
+    if(healthR){
+      $('statusDot').style.background=healthR.status==='healthy'?'var(--green)':'var(--red)';
+      setText('statusText',healthR.status==='healthy'?'System Online':'Degraded');
+      setText('ov-status',healthR.status==='healthy'?'Online':'Degraded');
+      setText('ov-uptime',healthR.uptime?Math.floor(healthR.uptime/3600)+'h uptime':'');
     }
-  }
 
-  // Auto-refresh every 30s
-  refreshData();
-  setInterval(refreshData, 30000);
+    // Overview equity
+    if(equityR){
+      const eq=equityR.current||equityR;
+      setText('ov-equity',fmtUSD(eq.totalEquity||eq.total_equity||10000));
+      const pnl=eq.unrealisedPnl||eq.unrealised_pnl||0;
+      setText('ov-upnl',fmtUSD(pnl));
+      setClass('ov-upnl','stat-value '+pnlColor(pnl));
+    }
+
+    // Positions
+    if(posR){
+      const positions=Array.isArray(posR)?posR:posR.positions||[];
+      setText('ov-positions',positions.length);
+      setText('ov-pos-sub',positions.length+' active');
+      let pH='';
+      positions.forEach(p=>{
+        const pnl=p.unrealisedPnl||p.unrealised_pnl||0;
+        const pc=pnlColor(pnl);
+        pH+='<tr><td><strong>'+p.symbol+'</strong></td><td><span class="badge '+(p.direction==='long'?'badge-green':'badge-red')+'">'+p.direction+'</span></td>';
+        pH+='<td>'+fmtUSD(p.positionSize||p.size||0)+'</td><td>'+fmtUSD(p.entryPrice||0)+'</td><td>'+fmtUSD(p.currentPrice||0)+'</td>';
+        pH+='<td class="'+pc+'">'+fmtUSD(pnl)+'</td>';
+        pH+='<td>'+(p.stopLoss?fmtUSD(p.stopLoss):'—')+'</td><td>'+(p.takeProfit?fmtUSD(p.takeProfit):'—')+'</td>';
+        pH+='<td>'+(p.trailingStop?fmtUSD(p.trailingStop):'—')+'</td></tr>';
+      });
+      setHTML('positions-table',pH||'<tr><td colspan="9" style="color:var(--text-tertiary)">No open positions</td></tr>');
+
+      // Allocation chart
+      if(positions.length){
+        const syms=positions.map(p=>p.symbol);
+        const sizes=positions.map(p=>Math.abs(p.positionSize||p.size||0));
+        const colors=['#3b82f6','#22c55e','#f59e0b','#ef4444','#a78bfa','#06b6d4','#ec4899','#84cc16'];
+        mkChart('allocChart','doughnut',syms,[{data:sizes,backgroundColor:colors.slice(0,syms.length),borderWidth:0}]);
+      }
+    }
+
+    // Equity chart
+    if(perfR&&perfR.equityCurve&&perfR.equityCurve.length>1){
+      const ec=perfR.equityCurve;
+      const labels=ec.map(p=>new Date(p.timestamp).toLocaleString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}));
+      mkChart('equityChart','line',labels,[{data:ec.map(p=>p.totalEquity),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.06)',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]);
+    }
+    // Trade History
+    if(tradesR){
+      const trades=Array.isArray(tradesR)?tradesR:tradesR.trades||[];
+      const closed=trades.filter(t=>t.status==='closed');
+      const wins=closed.filter(t=>(t.realisedPnl||t.realised_pnl||0)>0);
+      setText('th-total',closed.length);
+      setText('th-winrate',closed.length?(wins.length/closed.length*100).toFixed(0)+'%':'N/A');
+      const totalPnl=closed.reduce((s,t)=>s+(t.realisedPnl||t.realised_pnl||0),0);
+      setText('th-pnl',fmtUSD(totalPnl));
+      setClass('th-pnl','stat-value '+pnlColor(totalPnl));
+      const grossProfit=closed.filter(t=>(t.realisedPnl||t.realised_pnl||0)>0).reduce((s,t)=>s+(t.realisedPnl||t.realised_pnl||0),0);
+      const grossLoss=Math.abs(closed.filter(t=>(t.realisedPnl||t.realised_pnl||0)<0).reduce((s,t)=>s+(t.realisedPnl||t.realised_pnl||0),0));
+      setText('th-pf',grossLoss>0?(grossProfit/grossLoss).toFixed(2):'N/A');
+      let tH='';
+      closed.slice(0,30).forEach(t=>{
+        const pnl=t.realisedPnl||t.realised_pnl||0;
+        const pc=pnlColor(pnl);
+        tH+='<tr><td><strong>'+t.symbol+'</strong></td><td><span class="badge '+(t.direction==='long'?'badge-green':'badge-red')+'">'+t.direction+'</span></td>';
+        tH+='<td>'+fmtUSD(t.entryPrice||0)+'</td><td>'+fmtUSD(t.exitPrice||0)+'</td>';
+        tH+='<td class="'+pc+'">'+fmtUSD(pnl)+'</td>';
+        tH+='<td><span class="badge badge-purple">'+(t.exitReason||'')+'</span></td>';
+        tH+='<td>'+(t.closedAt?new Date(t.closedAt).toLocaleDateString('en-GB'):'')+'</td></tr>';
+      });
+      setHTML('trades-table',tH||'<tr><td colspan="7" style="color:var(--text-tertiary)">No closed trades</td></tr>');
+    }
+    // Performance
+    if(perfR){
+      const ov=perfR.overview||{};
+      const rm=perfR.riskMetrics||{};
+      setText('perf-total-pnl',fmtUSD(ov.totalPnl||0));
+      setClass('perf-total-pnl','stat-value '+pnlColor(ov.totalPnl||0));
+      setText('perf-total-return-pct',fmtPct(rm.totalReturnPct||0)+' total');
+      setText('perf-win-rate',(ov.winRate||0)+'%');
+      setText('perf-profit-factor','PF: '+(ov.profitFactor||0));
+      setText('perf-sharpe',rm.sharpeRatio!=null?Number(rm.sharpeRatio).toFixed(2):'N/A');
+      setText('perf-sortino','Sortino: '+(rm.sortinoRatio!=null?Number(rm.sortinoRatio).toFixed(2):'N/A'));
+      setText('perf-max-dd',(rm.maxDrawdownPct||0).toFixed(2)+'%');
+      setText('perf-current-dd','Current: '+(rm.currentDrawdownPct||0).toFixed(2)+'%');
+      setText('perf-avg-hold',(ov.avgHoldHours||0).toFixed(1)+'h');
+      setText('perf-trade-count',(ov.closedTrades||0)+' closed trades');
+
+      const ec=perfR.equityCurve||[];
+      if(ec.length>1){
+        const eqL=ec.map(p=>new Date(p.timestamp).toLocaleString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}));
+        mkChart('perfEquityChart','line',eqL,[{data:ec.map(p=>p.totalEquity),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.06)',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]);
+        mkChart('perfDrawdownChart','line',eqL,[{data:ec.map(p=>-Math.abs(p.drawdownPct)),borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,0.06)',fill:true,tension:0.35,pointRadius:0,borderWidth:2}]);
+      }
+
+      let sH='';
+      (perfR.byStrategy||[]).forEach(s=>{
+        const pc=pnlColor(s.totalPnl);
+        sH+='<tr><td><span class="badge badge-cyan">'+s.strategy+'</span></td><td>'+s.totalTrades+'</td><td>'+s.winRate+'%</td><td class="'+pc+'">'+fmtUSD(s.totalPnl)+'</td><td class="'+pc+'">'+fmtPct(s.avgPnlPct)+'</td><td>'+s.profitFactor+'</td></tr>';
+      });
+      setHTML('perf-strategy-table',sH||'<tr><td colspan="6" style="color:var(--text-tertiary)">No data</td></tr>');
+      let aH='';
+      (perfR.byAsset||[]).forEach(a=>{
+        const pc=pnlColor(a.totalPnl);
+        aH+='<tr><td>'+a.symbol+'</td><td>'+a.totalTrades+'</td><td>'+a.winRate+'%</td><td class="'+pc+'">'+fmtUSD(a.totalPnl)+'</td><td>'+a.longWinRate+'%</td><td>'+a.shortWinRate+'%</td></tr>';
+      });
+      setHTML('perf-asset-table',aH||'<tr><td colspan="6" style="color:var(--text-tertiary)">No data</td></tr>');
+
+      const eb=perfR.exitBreakdown||{};
+      const eKeys=Object.keys(eb);
+      if(eKeys.length){
+        const eColors=eKeys.map(k=>k==='stop_loss'?'#ef4444':k==='take_profit'?'#22c55e':k==='trailing_stop'?'#f59e0b':'#a78bfa');
+        mkChart('perfExitChart','doughnut',eKeys,[{data:eKeys.map(k=>eb[k].count),backgroundColor:eColors,borderWidth:0}]);
+      }
+
+      let rH='';
+      [['Starting Equity',fmtUSD(rm.startingEquity||0)],['Current Equity',fmtUSD(rm.currentEquity||0)],['Peak Equity',fmtUSD(rm.peakEquity||0)],
+       ['Total Return',fmtPct(rm.totalReturnPct||0)],['Max Drawdown',(rm.maxDrawdownPct||0).toFixed(2)+'%'],
+       ['Sharpe',rm.sharpeRatio!=null?Number(rm.sharpeRatio).toFixed(2):'N/A'],['Sortino',rm.sortinoRatio!=null?Number(rm.sortinoRatio).toFixed(2):'N/A'],
+       ['Calmar',rm.calmarRatio!=null?Number(rm.calmarRatio).toFixed(2):'N/A'],['Data Points',String(rm.equityDataPoints||0)]
+      ].forEach(([k,v])=>{rH+='<div class="metric-row"><span class="metric-label">'+k+'</span><span class="metric-value">'+v+'</span></div>';});
+      setHTML('perf-risk-table',rH);
+    }
+    // Risk / Correlation
+    if(corrR){
+      const rep=corrR.report||corrR;
+      setText('risk-hhi',rep.hhi!=null?rep.hhi:'N/A');
+      setText('risk-hhi-label',rep.concentrationLevel||'');
+      setText('risk-diversification',rep.diversificationScore!=null?rep.diversificationScore+'/100':'N/A');
+      setText('risk-positions-count',rep.positionCount!=null?rep.positionCount+' positions':'');
+      setText('risk-directional',rep.directionalConflicts&&rep.directionalConflicts.length?rep.directionalConflicts.length+' conflicts':'None');
+      let wH='';
+      (rep.warnings||[]).forEach(w=>{
+        wH+='<div class="card" style="border-left:3px solid var(--amber);padding:10px 14px;margin-bottom:8px"><span style="color:var(--amber);font-weight:600">&#9888;</span> '+w+'</div>';
+      });
+      if(rep.directionalConflicts&&rep.directionalConflicts.length){
+        rep.directionalConflicts.forEach(c=>{
+          wH+='<div class="card" style="border-left:3px solid var(--red);padding:10px 14px;margin-bottom:8px"><span style="color:var(--red);font-weight:600">&#9888;</span> Directional conflict: '+c.assets.join(' vs ')+' (corr: '+c.correlation.toFixed(2)+')</div>';
+        });
+      }
+      setHTML('risk-warnings',wH||'<div style="color:var(--text-tertiary);padding:16px">No warnings</div>');
+      if(corrM){
+        const assets=corrM.assets||[];const matrix=corrM.matrix||[];
+        let mH='<table style="width:100%;font-size:12px"><thead><tr><th></th>';
+        assets.forEach(a=>{mH+='<th style="padding:6px;text-align:center">'+a+'</th>';});
+        mH+='</tr></thead><tbody>';
+        matrix.forEach((row,i)=>{
+          mH+='<tr><td style="font-weight:600;padding:6px">'+assets[i]+'</td>';
+          row.forEach(val=>{const v=Number(val);const bg=v>0.7?'rgba(239,68,68,0.15)':v<-0.3?'rgba(34,197,94,0.15)':'transparent';mH+='<td style="text-align:center;padding:6px;background:'+bg+'">'+v.toFixed(2)+'</td>';});
+          mH+='</tr>';
+        });
+        mH+='</tbody></table>';setHTML('risk-matrix',mH);
+      }
+    }
+    // Strategies
+    if(stratR){
+      let sH='';
+      (Array.isArray(stratR)?stratR:stratR.hypotheses||[]).forEach(h=>{
+        const stBadge=h.status==='active'?'badge-green':h.status==='backtesting'?'badge-amber':h.status==='pending_backtest'?'badge-blue':'badge-purple';
+        sH+='<tr><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:IBM Plex Mono,monospace;font-size:12px">'+(h.id||'').slice(0,8)+'</td>';
+        sH+='<td><span class="badge badge-cyan">'+(h.strategyType||h.strategy_type||'')+'</span></td>';
+        sH+='<td>'+(h.asset||h.symbol||'')+'</td><td>'+(h.direction||'')+'</td>';
+        sH+='<td>'+(h.confidence||0)+'%</td>';
+        sH+='<td><span class="badge '+stBadge+'">'+(h.status||'')+'</span></td>';
+        sH+='<td>'+(h.createdAt||h.created_at?new Date(h.createdAt||h.created_at).toLocaleDateString('en-GB'):'')+'</td></tr>';
+      });
+      setHTML('strategies-table',sH||'<tr><td colspan="7" style="color:var(--text-tertiary)">No hypotheses</td></tr>');
+    }
+
+    // Agent Activity
+    if(agentR){
+      const runs=agentR.recentRuns||agentR.runs||[];
+      setText('agent-total-runs',runs.length);
+      const lastRun=runs.length?runs[0]:null;
+      setText('agent-last-run',lastRun?new Date(lastRun.startedAt||lastRun.timestamp).toLocaleTimeString('en-GB'):'N/A');
+      setText('agent-errors',runs.filter(r=>r.status==='error'||r.error).length);
+      let lH='';
+      runs.slice(0,30).forEach(r=>{
+        const stBadge=r.status==='completed'?'badge-green':r.status==='error'?'badge-red':'badge-amber';
+        const time=r.startedAt||r.timestamp||'';
+        lH+='<tr><td>'+(time?new Date(time).toLocaleString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'')+'</td>';
+        lH+='<td>'+(r.agent||r.agentType||'')+'</td><td><span class="badge '+stBadge+'">'+(r.status||'')+'</span></td>';
+        lH+='<td>'+(r.duration?(r.duration/1000).toFixed(1)+'s':'')+'</td>';
+        lH+='<td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(r.result||r.error||'')+'</td></tr>';
+      });
+      setHTML('agent-logs',lH||'<tr><td colspan="5" style="color:var(--text-tertiary)">No recent runs</td></tr>');
+    }
+    // Alerts
+    if(alertR){
+      const alerts=Array.isArray(alertR)?alertR:alertR.alerts||[];
+      let aH='';
+      alerts.slice(0,40).forEach(a=>{
+        const sevBadge=a.severity==='critical'?'badge-red':a.severity==='warning'?'badge-amber':'badge-blue';
+        const time=a.timestamp||a.createdAt||'';
+        aH+='<tr><td>'+(time?new Date(time).toLocaleString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'')+'</td>';
+        aH+='<td><span class="badge '+sevBadge+'">'+(a.severity||'info')+'</span></td>';
+        aH+='<td>'+(a.type||a.category||'')+'</td><td>'+(a.message||'')+'</td></tr>';
+      });
+      setHTML('alerts-table',aH||'<tr><td colspan="4" style="color:var(--text-tertiary)">No alerts</td></tr>');
+    }
+
+  }catch(e){console.error('Refresh error:',e);}
+}
+
+refreshData();
+setInterval(refreshData,30000);
 </script>
 </body>
 </html>
