@@ -288,7 +288,7 @@ async function refreshData(){
       const startEq=parseFloat(first.total_equity||10000);
       const returnPct=((equity-startEq)/startEq*100);
       $('heroValue').textContent=fmtUSD(equity);
-      $('heroValue').style.color=returnPct>=0?'var(--text)':'var(--red)';
+      $('heroValue').style.color='var(--text)';
       const rEl=$('heroReturn');
       rEl.textContent=(returnPct>=0?'+':'')+returnPct.toFixed(2)+'%';
       rEl.style.color=returnPct>=0?'var(--green)':'var(--red)';
