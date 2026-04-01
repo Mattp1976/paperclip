@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends jq postgresql-c
 
 COPY package.json tsconfig.json ./
 
-RUN jq 'del(.dependencies["@paperclipai/plugin-sdk"])' package.json > package.tmp.json && \
+RUN jq 'del(.dependencies["@traider/plugin-sdk"])' package.json > package.tmp.json && \
     mv package.tmp.json package.json && \
     npm install
 
