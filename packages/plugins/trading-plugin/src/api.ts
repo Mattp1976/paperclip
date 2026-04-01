@@ -318,6 +318,137 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
       return json(res, { ok: true, breakdown });
     }
 
+    // ─── Multi-Market Endpoints ───
+
+    // Connector status — health of all registered market connectors
+    if (path === "/api/connectors") {
+      const rows = await sql`
+        SELECT id, name, asset_class, is_active, last_scan_at, last_error,
+               scan_count, error_count, created_at, updated_at
+        FROM trading_connector_config
+        ORDER BY asset_class, name
+      `;
+      return json(res, { ok: true, connectors: rows });
+    }
+
+    // Cross-market signals
+    if (path === "/api/cross-market/signals") {
+      const rows = await sql`
+        SELECT id, signal_type, severity, markets, description, context,
+               detected_at, expires_at, is_active
+        FROM trading_cross_market_signals
+        WHERE is_active = true
+        ORDER BY detected_at DESC
+        LIMIT 50
+      `;
+      return json(res, { ok: true, signals: rows });
+    }
+
+    // Market-filtered prices (crypto or equity)
+    if (path === "/api/prices/crypto") {
+      const rows = await sql`
+        SELECT DISTINCT ON (ta.symbol)
+          ta.symbol, ts.price, ts.price_change_1h,
+          ts.price_change_24h, ts.volume_24h, ts.rsi_14, ts.timestamp
+        FROM trading_snapshots ts
+        JOIN trading_assets ta ON ta.id = ts.asset_id
+        WHERE ta.asset_class = 'crypto'
+        ORDER BY ta.symbol, ts.timestamp DESC
+      `;
+      return json(res, rows);
+    }
+
+    if (path === "/api/prices/equity") {
+      const rows = await sql`
+        SELECT DISTINCT ON (ta.symbol)
+          ta.symbol, ts.price, ts.price_change_1h,
+          ts.price_change_24h, ts.volume_24h, ts.rsi_14, ts.timestamp,
+          ta.metadata->>'name' as company_name
+        FROM trading_snapshots ts
+        JOIN trading_assets ta ON ta.id = ts.asset_id
+        WHERE ta.asset_class = 'equity'
+        ORDER BY ta.symbol, ts.timestamp DESC
+      `;
+      return json(res, rows);
+    }
+
+    // Market-filtered trades
+    if (path === "/api/paper-trades/crypto") {
+      const rows = await sql`
+        SELECT pt.id, pt.direction, pt.entry_price, pt.exit_price,
+          pt.quantity, pt.pnl, pt.pnl_pct, pt.status, pt.exit_reason,
+          pt.entry_time, pt.exit_time, pt.metadata,
+          ta.symbol, h.name as hypothesis_name
+        FROM trading_paper_trades pt
+        JOIN trading_assets ta ON ta.id = pt.asset_id
+        LEFT JOIN trading_hypotheses h ON h.id = pt.hypothesis_id
+        WHERE ta.asset_class = 'crypto'
+        ORDER BY pt.entry_time DESC LIMIT 100
+      `;
+      return json(res, rows);
+    }
+
+    if (path === "/api/paper-trades/equity") {
+      const rows = await sql`
+        SELECT pt.id, pt.direction, pt.entry_price, pt.exit_price,
+          pt.quantity, pt.pnl, pt.pnl_pct, pt.status, pt.exit_reason,
+          pt.entry_time, pt.exit_time, pt.metadata,
+          ta.symbol, h.name as hypothesis_name,
+          ta.metadata->>'name' as company_name
+        FROM trading_paper_trades pt
+        JOIN trading_assets ta ON ta.id = pt.asset_id
+        LEFT JOIN trading_hypotheses h ON h.id = pt.hypothesis_id
+        WHERE ta.asset_class = 'equity'
+        ORDER BY pt.entry_time DESC LIMIT 100
+      `;
+      return json(res, rows);
+    }
+
+    // Multi-market stats summary
+    if (path === "/api/stats/multi-market") {
+      const [cryptoAssets] = await sql`SELECT COUNT(*)::int AS c FROM trading_assets WHERE is_active = true AND asset_class = 'crypto'`;
+      const [equityAssets] = await sql`SELECT COUNT(*)::int AS c FROM trading_assets WHERE is_active = true AND asset_class = 'equity'`;
+      const [cryptoTrades] = await sql`
+        SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
+        JOIN trading_assets ta ON ta.id = pt.asset_id WHERE ta.asset_class = 'crypto'
+      `;
+      const [equityTrades] = await sql`
+        SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
+        JOIN trading_assets ta ON ta.id = pt.asset_id WHERE ta.asset_class = 'equity'
+      `;
+      const [cryptoOpen] = await sql`
+        SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
+        JOIN trading_assets ta ON ta.id = pt.asset_id WHERE ta.asset_class = 'crypto' AND pt.status = 'open'
+      `;
+      const [equityOpen] = await sql`
+        SELECT COUNT(*)::int AS c FROM trading_paper_trades pt
+        JOIN trading_assets ta ON ta.id = pt.asset_id WHERE ta.asset_class = 'equity' AND pt.status = 'open'
+      `;
+      const connectors = await sql`SELECT id, name, is_active, last_scan_at FROM trading_connector_config`;
+      return json(res, {
+        ok: true,
+        markets: {
+          crypto: { active_assets: cryptoAssets.c, total_trades: cryptoTrades.c, open_positions: cryptoOpen.c },
+          equity: { active_assets: equityAssets.c, total_trades: equityTrades.c, open_positions: equityOpen.c },
+        },
+        connectors,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // Market-filtered signals
+    if (path === "/api/signals/equity") {
+      const rows = await sql`
+        SELECT s.signal_type, s.severity, s.value, s.context, s.is_active,
+          s.detected_at, ta.symbol, ta.metadata->>'name' as company_name
+        FROM trading_signals s
+        JOIN trading_assets ta ON ta.id = s.asset_id
+        WHERE ta.asset_class = 'equity'
+        ORDER BY s.detected_at DESC LIMIT 50
+      `;
+      return json(res, rows);
+    }
+
     return json(res, { error: "Not found" }, 404);
   } catch (err: any) {
     console.error("API error:", err);

@@ -92,6 +92,40 @@ body{max-width:720px;margin:0 auto;padding:40px 24px 80px}
 /* Empty state */
 .empty{padding:40px 0;text-align:center;color:var(--tertiary);font-size:14px}
 
+/* Market cards */
+.market-card{padding:20px;border:1px solid var(--border);border-radius:12px;margin-bottom:12px}
+.market-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.market-card-title{font-size:15px;font-weight:600;letter-spacing:-0.2px}
+.market-card-badge{font-size:11px;padding:2px 10px;border-radius:12px;font-weight:500}
+.market-card-badge.active{background:rgba(52,199,89,0.1);color:var(--green)}
+.market-card-badge.inactive{background:#f5f5f7;color:var(--tertiary)}
+.market-card-stats{display:flex;gap:24px}
+.market-card-stat{text-align:center}
+.market-card-stat-value{font-size:20px;font-weight:500;font-family:var(--mono)}
+.market-card-stat-label{font-size:11px;color:var(--tertiary);text-transform:uppercase;letter-spacing:0.3px;margin-top:2px}
+
+/* Connector row */
+.connector-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.connector-row:last-child{border-bottom:none}
+.connector-info{display:flex;align-items:center;gap:10px}
+.connector-dot{width:8px;height:8px;border-radius:50%}
+.connector-dot.on{background:var(--green)}
+.connector-dot.off{background:var(--tertiary)}
+.connector-name{font-size:14px;font-weight:500}
+.connector-class{font-size:12px;color:var(--secondary)}
+.connector-meta{font-size:12px;color:var(--tertiary);font-family:var(--mono)}
+
+/* Signal row */
+.signal-row{padding:12px 0;border-bottom:1px solid var(--border)}
+.signal-row:last-child{border-bottom:none}
+.signal-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.signal-type{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding:2px 8px;border-radius:4px}
+.signal-type.high{background:rgba(255,59,48,0.1);color:var(--red)}
+.signal-type.medium{background:rgba(255,149,0,0.1);color:var(--orange)}
+.signal-type.low{background:rgba(0,122,255,0.1);color:var(--blue)}
+.signal-symbol{font-size:14px;font-weight:600}
+.signal-detail{font-size:13px;color:var(--secondary)}
+
 /* Subtle fade */
 .fade-in{animation:fadeIn 0.3s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -133,6 +167,7 @@ body{max-width:720px;margin:0 auto;padding:40px 24px 80px}
 <!-- Navigation -->
 <nav class="nav">
   <button class="nav-btn active" data-view="now">Now</button>
+  <button class="nav-btn" data-view="markets">Markets</button>
   <button class="nav-btn" data-view="mind">Mind</button>
   <button class="nav-btn" data-view="history">History</button>
 </nav>
@@ -146,6 +181,16 @@ body{max-width:720px;margin:0 auto;padding:40px 24px 80px}
   <div id="positionsList"></div>
   <div class="section-header">Recent Activity</div>
   <ul class="timeline" id="activityTimeline"></ul>
+</div>
+
+<!-- Markets view -->
+<div class="view" id="view-markets">
+  <div class="section-header">Connectors</div>
+  <div id="connectorList"></div>
+  <div class="section-header">Market Breakdown</div>
+  <div id="marketBreakdown"></div>
+  <div class="section-header">Equity Signals</div>
+  <div id="equitySignals"></div>
 </div>
 
 <!-- Mind view -->
@@ -262,7 +307,7 @@ function logNarrative(log){
 
 async function refreshData(){
   try{
-    const [healthR,equityR,posR,tradesR,perfR,corrR,hypR,logsR,riskR]=await Promise.all([
+    const [healthR,equityR,posR,tradesR,perfR,corrR,hypR,logsR,riskR,mmR,connR,eqSigR]=await Promise.all([
       fetch('/api/health').then(r=>r.json()).catch(()=>null),
       fetch('/api/portfolio/equity').then(r=>r.json()).catch(()=>null),
       fetch('/api/paper-trades').then(r=>r.json()).catch(()=>null),
@@ -272,6 +317,9 @@ async function refreshData(){
       fetch('/api/hypotheses').then(r=>r.json()).catch(()=>null),
       fetch('/api/agent-logs').then(r=>r.json()).catch(()=>null),
       fetch('/api/performance/risk-metrics').then(r=>r.json()).catch(()=>null),
+      fetch('/api/stats/multi-market').then(r=>r.json()).catch(()=>null),
+      fetch('/api/connectors').then(r=>r.json()).catch(()=>null),
+      fetch('/api/signals/equity').then(r=>r.json()).catch(()=>null),
     ]);
     // Status
     if(healthR){
@@ -320,8 +368,10 @@ async function refreshData(){
       positions.forEach(p=>{
         const n=positionNarrative(p);
         const pnlClass=n.pnl>=0?'pos':'neg';
+        const market=p.market||'crypto';
+        const marketBadge=market==='equity'?'<span class="hyp-tag" style="margin-left:6px">equity</span>':'';
         pH+='<div class="position">';
-        pH+='<div class="pos-header"><span class="pos-symbol">'+p.symbol+' <span style="font-weight:400;font-size:13px;color:var(--secondary)">'+p.direction+'</span></span>';
+        pH+='<div class="pos-header"><span class="pos-symbol">'+p.symbol+' <span style="font-weight:400;font-size:13px;color:var(--secondary)">'+p.direction+'</span>'+marketBadge+'</span>';
         pH+='<span class="pos-pnl timeline-pnl '+pnlClass+'">'+n.pnlFormatted+'</span></div>';
         pH+='<div class="pos-detail">Entry '+fmtUSD(p.entry_price)+' → Current '+fmtUSD(p.current_price||0);
         if(p.stop_loss) pH+=' · SL '+fmtUSD(p.stop_loss);
@@ -403,6 +453,72 @@ async function refreshData(){
         cH+='</li>';
       });
       $('historyTimeline').innerHTML=cH;
+    }
+
+    // Markets view — Connectors
+    if(connR&&connR.connectors){
+      let cHTML='';
+      connR.connectors.forEach(c=>{
+        const active=c.is_active;
+        const lastScan=c.last_scan_at?timeAgo(c.last_scan_at):'never';
+        cHTML+='<div class="connector-row">';
+        cHTML+='<div class="connector-info"><div class="connector-dot '+(active?'on':'off')+'"></div>';
+        cHTML+='<div><div class="connector-name">'+c.name+'</div>';
+        cHTML+='<div class="connector-class">'+c.asset_class+'</div></div></div>';
+        cHTML+='<div class="connector-meta">';
+        if(active) cHTML+=c.scan_count+' scans · last '+lastScan;
+        else cHTML+='inactive';
+        if(c.last_error) cHTML+=' · <span style="color:var(--red)">error</span>';
+        cHTML+='</div></div>';
+      });
+      $('connectorList').innerHTML=cHTML||'<div class="empty">No connectors configured</div>';
+    }
+
+    // Markets view — Market breakdown cards
+    if(mmR&&mmR.markets){
+      const m=mmR.markets;
+      let mHTML='';
+      const mkts=[
+        {key:'crypto',label:'Crypto',icon:'₿'},
+        {key:'equity',label:'US Equities',icon:'📈'}
+      ];
+      mkts.forEach(mk=>{
+        const d=m[mk.key];
+        if(!d) return;
+        const hasAssets=d.active_assets>0;
+        mHTML+='<div class="market-card">';
+        mHTML+='<div class="market-card-header">';
+        mHTML+='<span class="market-card-title">'+mk.icon+' '+mk.label+'</span>';
+        mHTML+='<span class="market-card-badge '+(hasAssets?'active':'inactive')+'">'+(hasAssets?'active':'inactive')+'</span>';
+        mHTML+='</div>';
+        mHTML+='<div class="market-card-stats">';
+        mHTML+='<div class="market-card-stat"><div class="market-card-stat-value">'+d.active_assets+'</div><div class="market-card-stat-label">Assets</div></div>';
+        mHTML+='<div class="market-card-stat"><div class="market-card-stat-value">'+d.total_trades+'</div><div class="market-card-stat-label">Trades</div></div>';
+        mHTML+='<div class="market-card-stat"><div class="market-card-stat-value">'+d.open_positions+'</div><div class="market-card-stat-label">Open</div></div>';
+        mHTML+='</div></div>';
+      });
+      $('marketBreakdown').innerHTML=mHTML||'<div class="empty">No market data available</div>';
+    }
+
+    // Markets view — Equity signals
+    if(eqSigR){
+      const sigs=Array.isArray(eqSigR)?eqSigR:[];
+      let sHTML='';
+      if(!sigs.length){
+        sHTML='<div class="empty">No equity signals yet. Activate Alpaca to start scanning US markets.</div>';
+      }
+      sigs.slice(0,20).forEach(s=>{
+        const sevClass=s.severity==='high'?'high':s.severity==='medium'?'medium':'low';
+        sHTML+='<div class="signal-row">';
+        sHTML+='<div class="signal-header">';
+        sHTML+='<span class="signal-type '+sevClass+'">'+s.signal_type.replace(/_/g,' ')+'</span>';
+        sHTML+='<span class="signal-symbol">'+s.symbol+(s.company_name?' · '+s.company_name:'')+'</span>';
+        sHTML+='<span style="font-size:12px;color:var(--tertiary);margin-left:auto">'+timeAgo(s.detected_at)+'</span>';
+        sHTML+='</div>';
+        sHTML+='<div class="signal-detail">Value: '+Number(s.value).toFixed(4)+' · Severity: '+s.severity+'</div>';
+        sHTML+='</div>';
+      });
+      $('equitySignals').innerHTML=sHTML;
     }
 
   }catch(e){console.error('Refresh error:',e);}

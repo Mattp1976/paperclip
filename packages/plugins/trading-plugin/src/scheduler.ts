@@ -1,14 +1,15 @@
 /**
- * Standalone Scheduler v4 — ASI Trading System
- * ==============================================
- * Now includes Exit Engine for automated position management.
+ * Standalone Scheduler v5 — ASI Multi-Market Trading System
+ * ===========================================================
+ * Now supports multiple market connectors (crypto + equities + more).
  *
  * Schedule:
- *   - Scanner:           every 5 minutes
+ *   - Crypto Scanner:    every 5 minutes
+ *   - Equity Scanner:    every 5 minutes (when Alpaca keys present)
  *   - Paper Trader:      every 5 minutes (entries only, with risk checks)
  *   - Exit Engine:       every 5 minutes (stop-loss, take-profit, trailing, time)
  *   - Equity Snapshot:   every 5 minutes
- *   - Hypothesis:        every 6 hours + on startup
+ *   - Hypothesis:        every 6 hours + on startup (cross-market aware)
  *   - Backtest:          every 6 hours (30s after hypothesis)
  *   - Lifecycle checks:  every 1 hour
  *   - Portfolio rebalance: every 6 hours
@@ -32,11 +33,16 @@ import { NotificationService } from "./services/notification-service.js";
 import { LifecycleManager, alertManager } from "./services/lifecycle-manager.js";
 import { runV2Migration } from "./db/migrate-v2.js";
 import { runV3Migration } from "./db/migrate-v3.js";
+import { runV4Migration } from "./db/migrate-v4.js";
 import { startAPIServer } from "./api.js";
+import { ConnectorRegistry } from "./connectors/interface.js";
+import { AlpacaConnector } from "./connectors/alpaca.js";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
 const KRAKEN_API_KEY = process.env.KRAKEN_API_KEY ?? "";
+const ALPACA_API_KEY = process.env.ALPACA_API_KEY ?? "";
+const ALPACA_API_SECRET = process.env.ALPACA_API_SECRET ?? "";
 
 if (!DATABASE_URL) {
   console.error("[Scheduler] DATABASE_URL is required");
@@ -64,6 +70,19 @@ const alerts = alertManager(sqlClient);
 
 // ─── Paper Trader with Risk Manager ───
 const paperTrader = new PaperTrader(db, riskManager);
+
+// ─── Multi-Market Connectors ───
+const connectorRegistry = new ConnectorRegistry();
+const hasAlpaca = ALPACA_API_KEY.length > 0 && ALPACA_API_SECRET.length > 0;
+let alpacaConnector: AlpacaConnector | null = null;
+
+if (hasAlpaca) {
+  alpacaConnector = new AlpacaConnector(sqlClient, ALPACA_API_KEY, ALPACA_API_SECRET);
+  connectorRegistry.register(alpacaConnector);
+  console.log("[Scheduler] Alpaca connector registered (US Equities)");
+} else {
+  console.log("[Scheduler] No Alpaca keys — equity scanning disabled");
+}
 
 function now(): string { return new Date().toISOString(); }
 
@@ -113,18 +132,43 @@ function checkWeeklyMeta(): void {
 const PORT = parseInt(process.env.PORT ?? "3200", 10);
 
 async function main(): Promise<void> {
-  console.log("[ASI Trading System v4] Scheduler starting...");
+  console.log("[ASI Trading System v5] Multi-Market Scheduler starting...");
   console.log(`[${now()}] Database connected`);
 
   // Run migrations (idempotent)
   await runV2Migration(sqlClient);
   await runV3Migration(sqlClient);
+  await runV4Migration(sqlClient);
+
+  // Seed equity assets if Alpaca is configured
+  if (alpacaConnector) {
+    await runSafe("Alpaca Asset Seeding", () => alpacaConnector!.seedAssets());
+    // Activate equity assets in DB
+    await sqlClient`
+      UPDATE trading_assets SET is_active = true
+      WHERE asset_class = 'equity' AND exchange = 'alpaca'
+    `;
+    // Mark Alpaca connector as active
+    await sqlClient`
+      UPDATE trading_connector_config SET is_active = true WHERE id = 'alpaca'
+    `;
+    console.log(`[${now()}] Alpaca equity assets activated`);
+  }
 
   // Start API
   startAPIServer(PORT);
 
-  // Initial runs
-  await runSafe("Scanner (initial)", () => scanner.runCycle());
+  // ─── Initial runs: Crypto ───
+  await runSafe("Crypto Scanner (initial)", () => scanner.runCycle());
+
+  // ─── Initial runs: Equities ───
+  if (alpacaConnector) {
+    await runSafe("Equity Scanner (initial)", async () => {
+      const result = await alpacaConnector!.runScanCycle();
+      console.log(`[${now()}] Equity scan: ${result.snapshotsWritten} snapshots, ${result.signalsDetected} signals across ${result.symbolsScanned} symbols`);
+    });
+  }
+
   console.log(`[${now()}] Triggering initial hypothesis generation...`);
   await runHypothesisAndBacktest();
 
@@ -142,8 +186,24 @@ async function main(): Promise<void> {
   }, 60_000);
 
   // ─── Scheduled intervals ───
-  // Every 5 minutes: scan, exit checks, entries, snapshot
-  setInterval(() => { runSafe("Scanner", () => scanner.runCycle()); }, 5*60*1000);
+
+  // Every 5 minutes: crypto scan
+  setInterval(() => { runSafe("Crypto Scanner", () => scanner.runCycle()); }, 5*60*1000);
+
+  // Every 5 minutes: equity scan (when Alpaca keys present)
+  if (alpacaConnector) {
+    setInterval(async () => {
+      await runSafe("Equity Scanner", async () => {
+        const result = await alpacaConnector!.runScanCycle();
+        // Update connector stats
+        await sqlClient`
+          UPDATE trading_connector_config
+          SET last_scan_at = NOW(), scan_count = scan_count + 1, updated_at = NOW()
+          WHERE id = 'alpaca'
+        `;
+      });
+    }, 5*60*1000);
+  }
 
   // Exit engine runs BEFORE paper trader so closed positions free up slots
   setInterval(async () => {
@@ -168,12 +228,35 @@ async function main(): Promise<void> {
   // Weekly meta
   setInterval(checkWeeklyMeta, 60*1000);
 
-  console.log(`[${now()}] Scheduler v4 active — all agents and services armed`);
+  // ─── Connector health checks (every 30 min) ───
+  setInterval(async () => {
+    for (const conn of connectorRegistry.getAll()) {
+      try {
+        const healthy = await conn.isHealthy();
+        if (!healthy) {
+          console.warn(`[${now()}] Connector ${conn.id} health check FAILED`);
+          await sqlClient`
+            UPDATE trading_connector_config
+            SET last_error = 'Health check failed', error_count = error_count + 1, updated_at = NOW()
+            WHERE id = ${conn.id}
+          `;
+        }
+      } catch (err) {
+        console.error(`[${now()}] Connector ${conn.id} health check error:`, err);
+      }
+    }
+  }, 30*60*1000);
+
+  const markets = ["crypto"];
+  if (hasAlpaca) markets.push("equity");
+  console.log(`[${now()}] Scheduler v5 active — multi-market system armed`);
+  console.log(`[${now()}]   Markets: ${markets.join(", ")}`);
   console.log(`[${now()}]   Agents: Scanner, Hypothesis, Backtest, PaperTrader, Meta`);
   console.log(`[${now()}]   Services: RiskManager, PortfolioManager, EquityEngine, ExitEngine, CorrelationEngine, Notifier, LifecycleManager, Alerts`);
+  console.log(`[${now()}]   Connectors: ${connectorRegistry.getAll().map(c => c.name).join(", ") || "crypto (built-in)"}`);
 }
 
 // Export for API access
-export { riskManager, portfolioManager, equityEngine, exitEngine, correlationEngine, notifier, lifecycleManager, alerts };
+export { riskManager, portfolioManager, equityEngine, exitEngine, correlationEngine, notifier, lifecycleManager, alerts, connectorRegistry, alpacaConnector };
 
 main().catch((err) => { console.error("[Scheduler] Fatal:", err); process.exit(1); });
