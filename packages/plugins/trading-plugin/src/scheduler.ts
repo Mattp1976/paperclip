@@ -369,8 +369,8 @@ async function main(): Promise<void> {
 
   const markets = ["crypto"];
   if (hasAlpaca) markets.push("equity");
-  if (hasOanda) markets.push("forex");
-  if (hasIBKR) markets.push("futures");
+  if (oandaConnector) markets.push("forex");
+  if (ibkrConnector) markets.push("futures");
   console.log(`[${now()}] Scheduler v6 active — multi-market system armed`);
   console.log(`[${now()}]   Markets: ${markets.join(", ")}`);
   console.log(`[${now()}]   Agents: Scanner, Hypothesis, Backtest, PaperTrader, Meta`);
