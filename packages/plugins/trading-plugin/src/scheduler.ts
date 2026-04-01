@@ -37,12 +37,19 @@ import { runV4Migration } from "./db/migrate-v4.js";
 import { startAPIServer } from "./api.js";
 import { ConnectorRegistry } from "./connectors/interface.js";
 import { AlpacaConnector } from "./connectors/alpaca.js";
+import { OandaConnector } from "./connectors/oanda.js";
+import { IBKRConnector } from "./connectors/ibkr.js";
+import { runV5Migration } from "./db/migrate-v5.js";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
 const KRAKEN_API_KEY = process.env.KRAKEN_API_KEY ?? "";
 const ALPACA_API_KEY = process.env.ALPACA_API_KEY ?? "";
 const ALPACA_API_SECRET = process.env.ALPACA_API_SECRET ?? "";
+const OANDA_API_KEY = process.env.OANDA_API_KEY ?? "";
+const OANDA_ACCOUNT_ID = process.env.OANDA_ACCOUNT_ID ?? "";
+const IBKR_GATEWAY_URL = process.env.IBKR_GATEWAY_URL ?? "";
+const IBKR_ACCOUNT_ID = process.env.IBKR_ACCOUNT_ID ?? "";
 
 if (!DATABASE_URL) {
   console.error("[Scheduler] DATABASE_URL is required");
@@ -82,6 +89,28 @@ if (hasAlpaca) {
   console.log("[Scheduler] Alpaca connector registered (US Equities)");
 } else {
   console.log("[Scheduler] No Alpaca keys — equity scanning disabled");
+}
+
+// OANDA (Forex)
+const hasOanda = OANDA_API_KEY.length > 0 && OANDA_ACCOUNT_ID.length > 0;
+let oandaConnector: OandaConnector | null = null;
+if (hasOanda) {
+  oandaConnector = new OandaConnector(db, OANDA_API_KEY, OANDA_ACCOUNT_ID);
+  connectorRegistry.register(oandaConnector);
+  console.log("[Scheduler] OANDA connector registered (Forex & Metals)");
+} else {
+  console.log("[Scheduler] No OANDA keys — forex scanning disabled");
+}
+
+// Interactive Brokers (Futures)
+const hasIBKR = IBKR_GATEWAY_URL.length > 0 && IBKR_ACCOUNT_ID.length > 0;
+let ibkrConnector: IBKRConnector | null = null;
+if (hasIBKR) {
+  ibkrConnector = new IBKRConnector(db, IBKR_GATEWAY_URL, IBKR_ACCOUNT_ID);
+  connectorRegistry.register(ibkrConnector);
+  console.log("[Scheduler] IBKR connector registered (Futures & Commodities)");
+} else {
+  console.log("[Scheduler] No IBKR config — futures scanning disabled");
 }
 
 function now(): string { return new Date().toISOString(); }
@@ -139,6 +168,7 @@ async function main(): Promise<void> {
   await runV2Migration(sqlClient);
   await runV3Migration(sqlClient);
   await runV4Migration(sqlClient);
+  await runV5Migration(sqlClient);
 
   // Seed equity assets if Alpaca is configured
   if (alpacaConnector) {
@@ -166,6 +196,38 @@ async function main(): Promise<void> {
     await runSafe("Equity Scanner (initial)", async () => {
       const result = await alpacaConnector!.runScanCycle();
       console.log(`[${now()}] Equity scan: ${result.assetsScanned} assets, ${result.signalsDetected} signals`);
+    });
+  }
+
+  // ─── Initial runs: Forex ───
+  if (oandaConnector) {
+    await runSafe("OANDA Asset Seeding", () => oandaConnector!.seedAssets());
+    await sqlClient`
+      UPDATE trading_assets SET is_active = true WHERE asset_class = 'forex' AND exchange = 'oanda'
+    `;
+    await sqlClient`
+      UPDATE trading_connector_config SET is_active = true WHERE id = 'oanda'
+    `;
+    console.log(`[${now()}] OANDA forex assets activated`);
+    await runSafe("Forex Scanner (initial)", async () => {
+      const result = await oandaConnector!.runScanCycle();
+      console.log(`[${now()}] Forex scan: ${result.assetsScanned} pairs, ${result.signalsDetected} signals`);
+    });
+  }
+
+  // ─── Initial runs: Futures ───
+  if (ibkrConnector) {
+    await runSafe("IBKR Asset Seeding", () => ibkrConnector!.seedAssets());
+    await sqlClient`
+      UPDATE trading_assets SET is_active = true WHERE asset_class = 'commodity' AND exchange = 'ibkr'
+    `;
+    await sqlClient`
+      UPDATE trading_connector_config SET is_active = true WHERE id = 'ibkr'
+    `;
+    console.log(`[${now()}] IBKR futures assets activated`);
+    await runSafe("Futures Scanner (initial)", async () => {
+      const result = await ibkrConnector!.runScanCycle();
+      console.log(`[${now()}] Futures scan: ${result.assetsScanned} contracts, ${result.signalsDetected} signals`);
     });
   }
 
@@ -200,6 +262,34 @@ async function main(): Promise<void> {
           UPDATE trading_connector_config
           SET last_scan_at = NOW(), scan_count = scan_count + 1, updated_at = NOW()
           WHERE id = 'alpaca'
+        `;
+      });
+    }, 5*60*1000);
+  }
+
+  // Every 5 minutes: forex scan (when OANDA keys present)
+  if (oandaConnector) {
+    setInterval(async () => {
+      await runSafe("Forex Scanner", async () => {
+        const result = await oandaConnector!.runScanCycle();
+        await sqlClient`
+          UPDATE trading_connector_config
+          SET last_scan_at = NOW(), scan_count = scan_count + 1, updated_at = NOW()
+          WHERE id = 'oanda'
+        `;
+      });
+    }, 5*60*1000);
+  }
+
+  // Every 5 minutes: futures scan (when IBKR is connected)
+  if (ibkrConnector) {
+    setInterval(async () => {
+      await runSafe("Futures Scanner", async () => {
+        const result = await ibkrConnector!.runScanCycle();
+        await sqlClient`
+          UPDATE trading_connector_config
+          SET last_scan_at = NOW(), scan_count = scan_count + 1, updated_at = NOW()
+          WHERE id = 'ibkr'
         `;
       });
     }, 5*60*1000);
@@ -249,7 +339,9 @@ async function main(): Promise<void> {
 
   const markets = ["crypto"];
   if (hasAlpaca) markets.push("equity");
-  console.log(`[${now()}] Scheduler v5 active — multi-market system armed`);
+  if (hasOanda) markets.push("forex");
+  if (hasIBKR) markets.push("futures");
+  console.log(`[${now()}] Scheduler v6 active — multi-market system armed`);
   console.log(`[${now()}]   Markets: ${markets.join(", ")}`);
   console.log(`[${now()}]   Agents: Scanner, Hypothesis, Backtest, PaperTrader, Meta`);
   console.log(`[${now()}]   Services: RiskManager, PortfolioManager, EquityEngine, ExitEngine, CorrelationEngine, Notifier, LifecycleManager, Alerts`);
@@ -257,6 +349,6 @@ async function main(): Promise<void> {
 }
 
 // Export for API access
-export { riskManager, portfolioManager, equityEngine, exitEngine, correlationEngine, notifier, lifecycleManager, alerts, connectorRegistry, alpacaConnector };
+export { riskManager, portfolioManager, equityEngine, exitEngine, correlationEngine, notifier, lifecycleManager, alerts, connectorRegistry, alpacaConnector, oandaConnector, ibkrConnector };
 
 main().catch((err) => { console.error("[Scheduler] Fatal:", err); process.exit(1); });

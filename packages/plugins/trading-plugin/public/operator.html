@@ -452,26 +452,60 @@ body{display:flex;min-height:100vh}
       </div>
 
       <!-- OANDA -->
-      <div class="platform-card" id="platform-oanda">
+      <div class="platform-card" id="platform-oanda" onclick="togglePlatformExpand('oanda')">
         <div class="platform-header">
           <div class="platform-icon oanda" style="color:#fff;font-weight:700">O</div>
           <div class="platform-info">
             <div class="platform-name">OANDA</div>
-            <div class="platform-desc">Forex &mdash; EUR/USD, GBP/USD, USD/JPY and more</div>
+            <div class="platform-desc">Forex &mdash; EUR/USD, GBP/USD, USD/JPY + 17 more pairs</div>
           </div>
-          <span class="platform-status coming">Coming Soon</span>
+          <span class="platform-status inactive" id="oanda-status">Not Connected</span>
+        </div>
+        <div class="platform-form" onclick="event.stopPropagation()">
+          <div class="form-group">
+            <label class="form-label">API Token</label>
+            <input class="form-input" type="password" id="oandaKey" placeholder="Your OANDA API token">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account ID</label>
+            <input class="form-input" type="text" id="oandaAccountId" placeholder="101-001-XXXXXXX-XXX">
+          </div>
+          <div style="font-size:11px;color:var(--secondary);margin-bottom:12px">
+            Get free practice account at <a href="https://www.oanda.com/apply/demo" target="_blank" style="color:var(--blue)">oanda.com</a>. Find your API token in Manage API Access settings.
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="saveOandaKeys()" id="oandaSaveBtn">Connect OANDA</button>
+            <button class="btn btn-secondary" onclick="togglePlatformExpand('oanda');event.stopPropagation()">Cancel</button>
+          </div>
         </div>
       </div>
 
       <!-- IBKR -->
-      <div class="platform-card" id="platform-ibkr">
+      <div class="platform-card" id="platform-ibkr" onclick="togglePlatformExpand('ibkr')">
         <div class="platform-header">
           <div class="platform-icon" style="background:linear-gradient(135deg,#d32f2f,#e53935);color:#fff;font-weight:700">IB</div>
           <div class="platform-info">
             <div class="platform-name">Interactive Brokers</div>
-            <div class="platform-desc">Futures &mdash; ES, NQ, CL, GC and more</div>
+            <div class="platform-desc">Futures &mdash; ES, NQ, CL, GC, SI, ZB + 14 more</div>
           </div>
-          <span class="platform-status coming">Coming Soon</span>
+          <span class="platform-status inactive" id="ibkr-status">Not Connected</span>
+        </div>
+        <div class="platform-form" onclick="event.stopPropagation()">
+          <div class="form-group">
+            <label class="form-label">Gateway URL</label>
+            <input class="form-input" type="text" id="ibkrGateway" placeholder="https://localhost:5000/v1/api">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account ID</label>
+            <input class="form-input" type="text" id="ibkrAccountId" placeholder="DU1234567">
+          </div>
+          <div style="font-size:11px;color:var(--secondary);margin-bottom:12px">
+            Requires <a href="https://www.interactivebrokers.com/en/trading/ib-api.php" target="_blank" style="color:var(--blue)">IBKR Client Portal Gateway</a> running locally. Paper account recommended.
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="saveIBKRKeys()" id="ibkrSaveBtn">Connect IBKR</button>
+            <button class="btn btn-secondary" onclick="togglePlatformExpand('ibkr');event.stopPropagation()">Cancel</button>
+          </div>
         </div>
       </div>
     </div>
@@ -563,15 +597,85 @@ async function saveAlpacaKeys(){
   }
 }
 
+// Save OANDA keys via API
+async function saveOandaKeys(){
+  const key=$('oandaKey').value.trim();
+  const accountId=$('oandaAccountId').value.trim();
+  if(!key||!accountId){alert('Please enter both API token and account ID');return;}
+  const btn=$('oandaSaveBtn');
+  btn.textContent='Connecting...';btn.disabled=true;
+  try{
+    const r=await fetch('/api/connectors/oanda/configure',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({api_key:key,account_id:accountId})
+    });
+    const data=await r.json();
+    if(data.ok){
+      btn.textContent='Connected!';
+      $('oanda-status').textContent='Connected';
+      $('oanda-status').className='platform-status active';
+      $('platform-oanda').classList.remove('expanded');
+      $('platform-oanda').classList.add('connected');
+      setTimeout(()=>{closeConnectModal();refreshData();},1000);
+    }else{
+      btn.textContent='Connect OANDA';btn.disabled=false;
+      alert('Error: '+(data.error||'Unknown error'));
+    }
+  }catch(e){
+    btn.textContent='Connect OANDA';btn.disabled=false;
+    alert('Connection failed: '+e.message);
+  }
+}
+
+// Save IBKR gateway config via API
+async function saveIBKRKeys(){
+  const gateway=$('ibkrGateway').value.trim();
+  const accountId=$('ibkrAccountId').value.trim();
+  if(!gateway||!accountId){alert('Please enter both Gateway URL and Account ID');return;}
+  const btn=$('ibkrSaveBtn');
+  btn.textContent='Connecting...';btn.disabled=true;
+  try{
+    const r=await fetch('/api/connectors/ibkr/configure',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({gateway_url:gateway,account_id:accountId})
+    });
+    const data=await r.json();
+    if(data.ok){
+      btn.textContent='Connected!';
+      $('ibkr-status').textContent='Connected';
+      $('ibkr-status').className='platform-status active';
+      $('platform-ibkr').classList.remove('expanded');
+      $('platform-ibkr').classList.add('connected');
+      setTimeout(()=>{closeConnectModal();refreshData();},1000);
+    }else{
+      btn.textContent='Connect IBKR';btn.disabled=false;
+      alert('Error: '+(data.error||'Unknown error'));
+    }
+  }catch(e){
+    btn.textContent='Connect IBKR';btn.disabled=false;
+    alert('Connection failed: '+e.message);
+  }
+}
+
 async function refreshConnectorStatuses(){
   try{
     const r=await fetch('/api/connectors').then(r=>r.json()).catch(()=>null);
     if(!r||!r.connectors)return;
     r.connectors.forEach(c=>{
-      if(c.name==='alpaca'&&c.is_active){
+      if(c.id==='alpaca'&&c.is_active){
         $('alpaca-status').textContent='Connected';
         $('alpaca-status').className='platform-status active';
         $('platform-alpaca').classList.add('connected');
+      }
+      if(c.id==='oanda'&&c.is_active){
+        $('oanda-status').textContent='Connected';
+        $('oanda-status').className='platform-status active';
+        $('platform-oanda').classList.add('connected');
+      }
+      if(c.id==='ibkr'&&c.is_active){
+        $('ibkr-status').textContent='Connected';
+        $('ibkr-status').className='platform-status active';
+        $('platform-ibkr').classList.add('connected');
       }
     });
   }catch(e){}

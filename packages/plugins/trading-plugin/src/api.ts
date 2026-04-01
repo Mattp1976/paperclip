@@ -508,6 +508,99 @@ async function handlePostAPI(path: string, body: string, res: ServerResponse): P
       }
     }
 
+    // Configure OANDA connector (Forex)
+    if (path === "/api/connectors/oanda/configure") {
+      const data = JSON.parse(body);
+      const { api_key, account_id } = data;
+      if (!api_key || !account_id) {
+        return json(res, { ok: false, error: "api_key and account_id are required" }, 400);
+      }
+
+      try {
+        // Validate keys by making a test request to OANDA practice API
+        const testResp = await fetch(`https://api-fxpractice.oanda.com/v3/accounts/${account_id}/summary`, {
+          headers: { Authorization: `Bearer ${api_key}`, "Content-Type": "application/json" },
+        });
+        if (!testResp.ok) {
+          return json(res, { ok: false, error: "OANDA rejected the credentials: " + testResp.status }, 400);
+        }
+        const accountData = await testResp.json() as any;
+
+        // Update connector config in DB
+        const configJson = JSON.stringify({ api_key, account_id });
+        await sql`
+          UPDATE trading_connector_config
+          SET is_active = true,
+              config = ${configJson}::jsonb,
+              updated_at = NOW()
+          WHERE id = 'oanda'
+        `;
+
+        // Activate forex assets
+        await sql`
+          UPDATE trading_assets SET is_active = true WHERE asset_class = 'forex' AND exchange = 'oanda'
+        `;
+
+        return json(res, {
+          ok: true,
+          message: "OANDA connected successfully",
+          account_id: accountData.account?.id,
+          currency: accountData.account?.currency,
+          balance: accountData.account?.balance,
+        });
+      } catch (fetchErr: any) {
+        return json(res, { ok: false, error: "Could not reach OANDA API: " + fetchErr.message }, 500);
+      }
+    }
+
+    // Configure Interactive Brokers connector (Futures)
+    if (path === "/api/connectors/ibkr/configure") {
+      const data = JSON.parse(body);
+      const { gateway_url, account_id } = data;
+      if (!gateway_url || !account_id) {
+        return json(res, { ok: false, error: "gateway_url and account_id are required" }, 400);
+      }
+
+      try {
+        // Validate by checking IBKR Gateway auth status
+        const testResp = await fetch(`${gateway_url}/iserver/auth/status`, {
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!testResp.ok) {
+          return json(res, { ok: false, error: "Could not reach IBKR Gateway: " + testResp.status }, 400);
+        }
+        const authData = await testResp.json() as any;
+
+        if (!authData.authenticated) {
+          return json(res, { ok: false, error: "IBKR Gateway is not authenticated. Please log in to your Client Portal Gateway first." }, 400);
+        }
+
+        // Update connector config in DB
+        const configJson = JSON.stringify({ gateway_url, account_id });
+        await sql`
+          UPDATE trading_connector_config
+          SET is_active = true,
+              config = ${configJson}::jsonb,
+              updated_at = NOW()
+          WHERE id = 'ibkr'
+        `;
+
+        // Activate futures assets
+        await sql`
+          UPDATE trading_assets SET is_active = true WHERE asset_class = 'commodity' AND exchange = 'ibkr'
+        `;
+
+        return json(res, {
+          ok: true,
+          message: "Interactive Brokers connected successfully",
+          account_id: account_id,
+          authenticated: true,
+        });
+      } catch (fetchErr: any) {
+        return json(res, { ok: false, error: "Could not reach IBKR Gateway: " + fetchErr.message }, 500);
+      }
+    }
+
     return json(res, { error: "Not found" }, 404);
   } catch (err: any) {
     console.error("POST API error:", err);
