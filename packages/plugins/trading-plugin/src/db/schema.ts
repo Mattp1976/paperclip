@@ -1,7 +1,7 @@
 /**
- * Paperclip Trading Plugin — Database Schema (Drizzle ORM)
+ * trAIder Trading Plugin — Database Schema (Drizzle ORM)
  * =========================================================
- * Integrates with Paperclip's existing PostgreSQL via Drizzle.
+ * Integrates with trAIder's existing PostgreSQL via Drizzle.
  * All tables prefixed with `trading_` to avoid conflicts.
  */
 

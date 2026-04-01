@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>trAIder — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;
+  --border:#2a2a3a;--text:#e8e8f0;--secondary:#8888a0;
+  --green:#00d68f;--blue:#4f8eff;--orange:#ffb74d;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+html{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-container{width:100%;max-width:420px;text-align:center}
+.brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:48px}
+.brand-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#0a0a0f;letter-spacing:-0.5px}
+.brand-name{font-size:32px;font-weight:700;letter-spacing:-1px}
+.brand-name .ai{color:var(--green)}
+.tagline{color:var(--secondary);font-size:15px;margin-bottom:40px;line-height:1.5}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 32px;margin-bottom:24px}
+.card h2{font-size:18px;font-weight:600;margin-bottom:8px}
+.card p{color:var(--secondary);font-size:13px;margin-bottom:24px}
+.form-group{margin-bottom:16px;text-align:left}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input{width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:border-color 0.2s}
+.form-group input:focus{border-color:var(--blue)}
+.form-group input::placeholder{color:var(--secondary)}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:8px}
+.btn-primary{background:linear-gradient(135deg,var(--green),var(--blue));color:#0a0a0f}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,214,143,0.25)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);margin-top:12px}
+.btn-secondary:hover{border-color:var(--blue);background:var(--surface)}
+.divider{display:flex;align-items:center;margin:20px 0;color:var(--secondary);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{padding:0 12px}
+.social-buttons{display:flex;gap:12px;margin-bottom:4px}
+.social-btn{flex:1;padding:11px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.15s}
+.social-btn:hover{border-color:var(--blue);background:var(--surface)}
+.social-btn svg{width:18px;height:18px}
+.footer-links{color:var(--secondary);font-size:13px}
+.footer-links a{color:var(--blue);text-decoration:none}
+.footer-links a:hover{text-decoration:underline}
+.features{display:flex;gap:20px;margin-top:32px;text-align:left}
+.feature{flex:1;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.feature .icon{font-size:20px;margin-bottom:8px}
+.feature h3{font-size:13px;font-weight:600;margin-bottom:4px}
+.feature p{font-size:12px;color:var(--secondary);line-height:1.4}
+.toggle-mode{color:var(--secondary);font-size:13px;margin-top:20px}
+.toggle-mode a{color:var(--green);cursor:pointer;text-decoration:none;font-weight:500}
+.toggle-mode a:hover{text-decoration:underline}
+.error-msg{color:#ff4757;font-size:13px;margin-top:8px;display:none}
+.success-msg{color:var(--green);font-size:13px;margin-top:8px;display:none}
+</style>
+</head>
+<body>
+<div class="login-container">
+  <div class="brand">
+    <div class="brand-icon">tA</div>
+    <div class="brand-name">tr<span class="ai">AI</span>der</div>
+  </div>
+  <p class="tagline">AI-powered multi-market trading signals.<br>Crypto. Equities. Forex. One platform.</p>
+
+  <div class="card">
+    <div id="signin-view">
+      <h2>Welcome back</h2>
+      <p>Sign in to your trAIder dashboard</p>
+      <div class="social-buttons">
+        <button class="social-btn" onclick="socialLogin('google')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.24 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button class="social-btn" onclick="socialLogin('github')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          GitHub
+        </button>
+      </div>
+      <div class="divider"><span>or continue with email</span></div>
+      <form id="signin-form" onsubmit="handleSignIn(event)">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="signin-email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signin-password" placeholder="Enter your password" required>
+        </div>
+        <div class="error-msg" id="signin-error"></div>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+      <div class="toggle-mode">
+        Don't have an account? <a onclick="toggleView('signup')">Create one</a>
+      </div>
+    </div>
+
+    <div id="signup-view" style="display:none">
+      <h2>Get started</h2>
+      <p>Create your trAIder account — free forever for paper trading</p>
+      <div class="social-buttons">
+        <button class="social-btn" onclick="socialLogin('google')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.24 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button class="social-btn" onclick="socialLogin('github')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          GitHub
+        </button>
+      </div>
+      <div class="divider"><span>or sign up with email</span></div>
+      <form id="signup-form" onsubmit="handleSignUp(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="signup-name" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signup-password" placeholder="Choose a password (8+ chars)" required minlength="8">
+        </div>
+        <div class="error-msg" id="signup-error"></div>
+        <div class="success-msg" id="signup-success"></div>
+        <button type="submit" class="btn btn-primary">Create Account</button>
+      </form>
+      <div class="toggle-mode">
+        Already have an account? <a onclick="toggleView('signin')">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature">
+      <div class="icon">&#9889;</div>
+      <h3>3 Markets</h3>
+      <p>Crypto, equities, forex — all scanned by AI every 5 minutes</p>
+    </div>
+    <div class="feature">
+      <div class="icon">&#9881;</div>
+      <h3>Your Brokers</h3>
+      <p>Connect your own Kraken, Alpaca, or OANDA account</p>
+    </div>
+    <div class="feature">
+      <div class="icon">&#128202;</div>
+      <h3>AI Signals</h3>
+      <p>Hypothesis engine generates and backtests strategies autonomously</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Clerk will be initialized here once CLERK_PUBLISHABLE_KEY is set
+// For now, use simple JWT auth with the backend
+const API_BASE = '';
+
+function toggleView(view) {
+  document.getElementById('signin-view').style.display = view === 'signin' ? 'block' : 'none';
+  document.getElementById('signup-view').style.display = view === 'signup' ? 'block' : 'none';
+}
+
+async function handleSignIn(e) {
+  e.preventDefault();
+  const email = document.getElementById('signin-email').value;
+  const password = document.getElementById('signin-password').value;
+  const errEl = document.getElementById('signin-error');
+  errEl.style.display = 'none';
+
+  try {
+    const resp = await fetch(API_BASE + '/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) {
+      errEl.textContent = data.error || 'Invalid credentials';
+      errEl.style.display = 'block';
+      return;
+    }
+    // Store token and redirect to dashboard
+    localStorage.setItem('traider_token', data.token);
+    localStorage.setItem('traider_user', JSON.stringify(data.user));
+    window.location.href = '/operator.html';
+  } catch (err) {
+    errEl.textContent = 'Connection error — please try again';
+    errEl.style.display = 'block';
+  }
+}
+
+async function handleSignUp(e) {
+  e.preventDefault();
+  const name = document.getElementById('signup-name').value;
+  const email = document.getElementById('signup-email').value;
+  const password = document.getElementById('signup-password').value;
+  const errEl = document.getElementById('signup-error');
+  const successEl = document.getElementById('signup-success');
+  errEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  try {
+    const resp = await fetch(API_BASE + '/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) {
+      errEl.textContent = data.error || 'Could not create account';
+      errEl.style.display = 'block';
+      return;
+    }
+    // Store token and redirect to onboarding for new users
+    localStorage.setItem('traider_token', data.token);
+    localStorage.setItem('traider_user', JSON.stringify(data.user));
+    window.location.href = '/onboarding.html';
+  } catch (err) {
+    errEl.textContent = 'Connection error — please try again';
+    errEl.style.display = 'block';
+  }
+}
+
+function socialLogin(provider) {
+  // Will redirect to Clerk OAuth flow once configured
+  alert('Social login (' + provider + ') will be enabled once Clerk is configured. Use email for now.');
+}
+
+// Check if already authenticated
+const token = localStorage.getItem('traider_token');
+if (token) {
+  // Verify token is still valid
+  fetch(API_BASE + '/api/auth/me', {
+    headers: { Authorization: 'Bearer ' + token }
+  }).then(r => r.json()).then(data => {
+    if (data.ok) window.location.href = '/operator.html';
+  }).catch(() => {});
+}
+</script>
+</body>
+</html>

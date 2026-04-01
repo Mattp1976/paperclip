@@ -1,5 +1,5 @@
 {
-  "name": "@paperclipai/plugin-trading",
+  "name": "@traider/plugin-trading",
   "version": "0.1.0",
   "description": "ASI Trading System — self-improving agent swarm for market signal detection, hypothesis generation, backtesting, and automated trading",
   "type": "module",
@@ -14,7 +14,7 @@
     "db:migrate": "drizzle-kit push:pg"
   },
   "dependencies": {
-    "@paperclipai/plugin-sdk": "workspace:*",
+    "@traider/plugin-sdk": "workspace:*",
     "@anthropic-ai/sdk": "^0.40.0",
     "drizzle-orm": "^0.36.0",
     "postgres": "^3.4.0",

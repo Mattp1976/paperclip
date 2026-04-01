@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>trAIder — Get Started</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--surface3:#22222e;
+  --border:#2a2a3a;--border-hover:#3a3a4f;
+  --text:#e8e8f0;--secondary:#8888a0;--tertiary:#5a5a70;
+  --green:#00d68f;--green-bg:rgba(0,214,143,0.08);--green-border:rgba(0,214,143,0.2);
+  --red:#ff4757;--blue:#4f8eff;--blue-bg:rgba(79,142,255,0.08);--blue-border:rgba(79,142,255,0.2);
+  --orange:#ffb74d;--orange-bg:rgba(255,183,77,0.08);
+  --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --radius:12px;--radius-sm:8px;
+}
+html{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;font-size:14px}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+
+.wizard{max-width:640px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.wizard-header{padding:32px 40px 0;text-align:center}
+.wizard-brand{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px}
+.wizard-brand .icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#0a0a0f}
+.wizard-brand .name{font-size:20px;font-weight:700;letter-spacing:-0.5px}
+.wizard-brand .name .ai{color:var(--green)}
+
+/* Steps indicator */
+.steps{display:flex;justify-content:center;gap:8px;margin-bottom:32px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all 0.3s}
+.step-dot.active{background:var(--green);box-shadow:0 0 8px rgba(0,214,143,0.4)}
+.step-dot.done{background:var(--green)}
+
+/* Wizard content area */
+.wizard-body{padding:0 40px 32px}
+.wizard-title{font-size:22px;font-weight:700;margin-bottom:8px;letter-spacing:-0.5px}
+.wizard-subtitle{color:var(--secondary);font-size:14px;margin-bottom:28px;line-height:1.6}
+
+/* Step panels */
+.step-panel{display:none}
+.step-panel.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Market selection grid */
+.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.market-card{padding:20px;border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all 0.2s;text-align:center}
+.market-card:hover{border-color:var(--border-hover);background:var(--surface2)}
+.market-card.selected{border-color:var(--green);background:var(--green-bg)}
+.market-card .market-emoji{font-size:28px;margin-bottom:8px}
+.market-card .market-name{font-size:15px;font-weight:600;margin-bottom:4px}
+.market-card .market-desc{font-size:12px;color:var(--secondary)}
+
+/* Broker selection */
+.broker-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.broker-card{display:flex;align-items:center;gap:14px;padding:16px 18px;border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all 0.2s}
+.broker-card:hover{border-color:var(--border-hover);background:var(--surface2)}
+.broker-card.selected{border-color:var(--blue);background:var(--blue-bg)}
+.broker-card .broker-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+.broker-card .broker-info{flex:1}
+.broker-card .broker-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.broker-card .broker-desc{font-size:12px;color:var(--secondary)}
+.broker-card .broker-check{width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all 0.2s}
+.broker-card.selected .broker-check{border-color:var(--blue);background:var(--blue);color:#fff}
+
+/* Form elements */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.form-input{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--blue)}
+.form-input::placeholder{color:var(--tertiary)}
+.form-hint{font-size:11px;color:var(--tertiary);margin-top:4px}
+
+/* Risk preferences */
+.risk-options{display:flex;gap:10px;margin-bottom:24px}
+.risk-card{flex:1;padding:16px;border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;transition:all 0.2s}
+.risk-card:hover{border-color:var(--border-hover)}
+.risk-card.selected{border-color:var(--green);background:var(--green-bg)}
+.risk-card .risk-emoji{font-size:24px;margin-bottom:6px}
+.risk-card .risk-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.risk-card .risk-desc{font-size:11px;color:var(--secondary)}
+
+/* Buttons */
+.wizard-actions{display:flex;gap:12px;justify-content:flex-end;padding:24px 40px;border-top:1px solid var(--border);background:var(--surface)}
+.btn{padding:10px 24px;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 0.15s}
+.btn-primary{background:var(--green);color:#0a0a0f}
+.btn-primary:hover{box-shadow:0 0 16px rgba(0,214,143,0.3)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none}
+.btn-secondary{background:var(--surface2);color:var(--secondary);border:1px solid var(--border)}
+.btn-secondary:hover{color:var(--text)}
+.btn-skip{background:transparent;color:var(--tertiary);border:none;font-size:13px}
+.btn-skip:hover{color:var(--secondary)}
+
+/* Status messages */
+.status-msg{padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;margin-top:12px;display:none}
+.status-msg.success{display:block;background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)}
+.status-msg.error{display:block;background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.2);color:var(--red)}
+
+/* Summary */
+.summary-list{list-style:none;margin-bottom:24px}
+.summary-list li{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.summary-list li:last-child{border-bottom:none}
+.summary-check{color:var(--green);font-size:16px}
+.summary-label{color:var(--secondary);font-size:13px;flex:1}
+.summary-value{font-weight:600;font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="wizard">
+  <div class="wizard-header">
+    <div class="wizard-brand">
+      <div class="icon">tA</div>
+      <span class="name">tr<span class="ai">AI</span>der</span>
+    </div>
+    <div class="steps">
+      <div class="step-dot active" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+  </div>
+
+  <!-- Step 0: Choose markets -->
+  <div class="wizard-body">
+    <div class="step-panel active" id="step-0">
+      <div class="wizard-title">What do you want to trade?</div>
+      <div class="wizard-subtitle">Select the markets you're interested in. You can add more later.</div>
+      <div class="market-grid">
+        <div class="market-card" data-market="crypto" onclick="toggleMarket(this)">
+          <div class="market-emoji">&#x20BF;</div>
+          <div class="market-name">Crypto</div>
+          <div class="market-desc">BTC, ETH, SOL + 50 more via Kraken</div>
+        </div>
+        <div class="market-card" data-market="equity" onclick="toggleMarket(this)">
+          <div class="market-emoji">&#128200;</div>
+          <div class="market-name">Stocks</div>
+          <div class="market-desc">AAPL, TSLA, NVDA + 5000 via Alpaca</div>
+        </div>
+        <div class="market-card" data-market="forex" onclick="toggleMarket(this)">
+          <div class="market-emoji">&#128177;</div>
+          <div class="market-name">Forex</div>
+          <div class="market-desc">EUR/USD, GBP/JPY + 20 pairs via OANDA</div>
+        </div>
+        <div class="market-card" data-market="futures" onclick="toggleMarket(this)">
+          <div class="market-emoji">&#9981;</div>
+          <div class="market-name">Futures</div>
+          <div class="market-desc">ES, NQ, Gold, Oil via IBKR</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1: Connect broker -->
+    <div class="step-panel" id="step-1">
+      <div class="wizard-title">Connect your broker</div>
+      <div class="wizard-subtitle">Paper trading is enabled by default. Connect API keys from your broker to get started. All keys are encrypted and stored on your server.</div>
+      <div id="brokerContent"></div>
+      <div class="status-msg" id="brokerStatus"></div>
+    </div>
+
+    <!-- Step 2: Risk preferences -->
+    <div class="step-panel" id="step-2">
+      <div class="wizard-title">Set your risk level</div>
+      <div class="wizard-subtitle">This controls position sizing, maximum open trades, and stop-loss distances. You can fine-tune later.</div>
+      <div class="risk-options">
+        <div class="risk-card" data-risk="conservative" onclick="selectRisk(this)">
+          <div class="risk-emoji">&#x1F6E1;&#xFE0F;</div>
+          <div class="risk-name">Conservative</div>
+          <div class="risk-desc">Small positions, tight stops, max 3 trades</div>
+        </div>
+        <div class="risk-card selected" data-risk="moderate" onclick="selectRisk(this)">
+          <div class="risk-emoji">&#x2696;&#xFE0F;</div>
+          <div class="risk-name">Moderate</div>
+          <div class="risk-desc">Balanced sizing, standard stops, max 5 trades</div>
+        </div>
+        <div class="risk-card" data-risk="aggressive" onclick="selectRisk(this)">
+          <div class="risk-emoji">&#x1F525;</div>
+          <div class="risk-name">Aggressive</div>
+          <div class="risk-desc">Larger positions, wider stops, max 10 trades</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Max open positions</label>
+        <input class="form-input" type="number" id="maxPositions" value="5" min="1" max="20">
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="autoTrade"> Enable auto-trading
+        </label>
+        <div class="form-hint">When enabled, trAIder will automatically execute trades on confirmed signals. Disabled = paper trading only.</div>
+      </div>
+    </div>
+
+    <!-- Step 3: Summary -->
+    <div class="step-panel" id="step-3">
+      <div class="wizard-title">You're all set!</div>
+      <div class="wizard-subtitle">Here's a summary of your setup. You can change any of these in Settings later.</div>
+      <ul class="summary-list" id="summaryList"></ul>
+    </div>
+  </div>
+
+  <div class="wizard-actions">
+    <button class="btn btn-secondary" id="btnBack" onclick="prevStep()" style="display:none">Back</button>
+    <button class="btn btn-skip" id="btnSkip" onclick="skipOnboarding()">Skip for now</button>
+    <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Next</button>
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem('traider_token');
+if (!token) { window.location.href = '/login.html'; }
+
+let currentStep = 0;
+const totalSteps = 4;
+let selectedMarkets = [];
+let selectedBroker = null;
+let selectedRisk = 'moderate';
+let brokerConnected = false;
+
+function toggleMarket(el) {
+  el.classList.toggle('selected');
+  selectedMarkets = [...document.querySelectorAll('.market-card.selected')].map(c => c.dataset.market);
+}
+
+function selectRisk(el) {
+  document.querySelectorAll('.risk-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRisk = el.dataset.risk;
+  const posMap = { conservative: 3, moderate: 5, aggressive: 10 };
+  document.getElementById('maxPositions').value = posMap[selectedRisk] || 5;
+}
+
+function updateSteps() {
+  for (let i = 0; i < totalSteps; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.remove('active', 'done');
+    if (i < currentStep) dot.classList.add('done');
+    if (i === currentStep) dot.classList.add('active');
+  }
+  document.querySelectorAll('.step-panel').forEach((p, i) => {
+    p.classList.toggle('active', i === currentStep);
+  });
+  document.getElementById('btnBack').style.display = currentStep > 0 ? '' : 'none';
+  document.getElementById('btnNext').textContent = currentStep === totalSteps - 1 ? 'Launch Dashboard' : 'Next';
+  document.getElementById('btnSkip').style.display = currentStep === totalSteps - 1 ? 'none' : '';
+}
+
+function buildBrokerUI() {
+  const content = document.getElementById('brokerContent');
+  const brokers = [];
+
+  if (selectedMarkets.includes('crypto')) {
+    brokers.push({ id: 'kraken', name: 'Kraken', desc: 'Built-in — no API keys needed for paper trading', icon: 'K', iconBg: 'linear-gradient(135deg,#7b4bff,#5233cc)', builtin: true });
+  }
+  if (selectedMarkets.includes('equity')) {
+    brokers.push({ id: 'alpaca', name: 'Alpaca', desc: 'US Stocks — Free paper trading account', icon: 'A', iconBg: 'linear-gradient(135deg,#f7d44c,#e8b80e)' });
+  }
+  if (selectedMarkets.includes('forex')) {
+    brokers.push({ id: 'oanda', name: 'OANDA', desc: 'Forex — Practice account available', icon: 'O', iconBg: 'linear-gradient(135deg,#1e88e5,#1565c0)' });
+  }
+  if (selectedMarkets.includes('futures')) {
+    brokers.push({ id: 'ibkr', name: 'Interactive Brokers', desc: 'Futures — Requires Client Portal Gateway', icon: 'IB', iconBg: 'linear-gradient(135deg,#d32f2f,#e53935)' });
+  }
+
+  if (brokers.length === 0) {
+    content.innerHTML = '<p style="color:var(--secondary)">Go back and select at least one market first.</p>';
+    return;
+  }
+
+  let html = '<div class="broker-list">';
+  for (const b of brokers) {
+    html += `<div class="broker-card${b.builtin ? ' selected' : ''}" data-broker="${b.id}" onclick="selectBroker('${b.id}', this)">
+      <div class="broker-icon" style="background:${b.iconBg};color:#fff">${b.icon}</div>
+      <div class="broker-info">
+        <div class="broker-name">${b.name}</div>
+        <div class="broker-desc">${b.desc}</div>
+      </div>
+      <div class="broker-check">&#10003;</div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Config forms for each broker
+  html += `<div id="broker-form-alpaca" style="display:none">
+    <div class="form-group"><label class="form-label">API Key</label><input class="form-input" type="text" id="onb-alpaca-key" placeholder="PK..."></div>
+    <div class="form-group"><label class="form-label">API Secret</label><input class="form-input" type="password" id="onb-alpaca-secret" placeholder="Your Alpaca secret key"></div>
+    <div class="form-hint">Get keys from <a href="https://app.alpaca.markets" target="_blank" style="color:var(--blue)">app.alpaca.markets</a> — Paper trading keys work great.</div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="connectBroker('alpaca')">Connect Alpaca</button>
+  </div>`;
+
+  html += `<div id="broker-form-oanda" style="display:none">
+    <div class="form-group"><label class="form-label">API Token</label><input class="form-input" type="password" id="onb-oanda-key" placeholder="Bearer token from OANDA"></div>
+    <div class="form-group"><label class="form-label">Account ID</label><input class="form-input" type="text" id="onb-oanda-account" placeholder="101-004-..."></div>
+    <div class="form-hint">Get from <a href="https://www.oanda.com/account/tools" target="_blank" style="color:var(--blue)">oanda.com/account/tools</a> — Practice account recommended.</div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="connectBroker('oanda')">Connect OANDA</button>
+  </div>`;
+
+  html += `<div id="broker-form-ibkr" style="display:none">
+    <div class="form-group"><label class="form-label">Gateway URL</label><input class="form-input" type="text" id="onb-ibkr-gateway" placeholder="https://localhost:5000/v1/api"></div>
+    <div class="form-group"><label class="form-label">Account ID</label><input class="form-input" type="text" id="onb-ibkr-account" placeholder="DU1234567"></div>
+    <div class="form-hint">Requires <a href="https://www.interactivebrokers.com/en/trading/ib-api.php" target="_blank" style="color:var(--blue)">IBKR Client Portal Gateway</a> running locally.</div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="connectBroker('ibkr')">Connect IBKR</button>
+  </div>`;
+
+  content.innerHTML = html;
+
+  // Auto-select Kraken if present (built-in)
+  if (selectedMarkets.includes('crypto')) {
+    selectedBroker = 'kraken';
+    brokerConnected = true;
+  }
+}
+
+function selectBroker(id, el) {
+  document.querySelectorAll('.broker-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedBroker = id;
+
+  // Show the right config form
+  document.querySelectorAll('[id^="broker-form-"]').forEach(f => f.style.display = 'none');
+  const form = document.getElementById('broker-form-' + id);
+  if (form) form.style.display = 'block';
+
+  if (id === 'kraken') {
+    brokerConnected = true;
+    showBrokerStatus('Kraken is built-in — ready to go!', 'success');
+  }
+}
+
+async function connectBroker(brokerId) {
+  const status = document.getElementById('brokerStatus');
+  status.className = 'status-msg';
+  status.style.display = 'none';
+
+  let endpoint, payload;
+  if (brokerId === 'alpaca') {
+    const key = document.getElementById('onb-alpaca-key').value.trim();
+    const secret = document.getElementById('onb-alpaca-secret').value.trim();
+    if (!key || !secret) { showBrokerStatus('Please enter both API key and secret.', 'error'); return; }
+    endpoint = '/api/connectors/alpaca/configure';
+    payload = { api_key: key, api_secret: secret };
+  } else if (brokerId === 'oanda') {
+    const key = document.getElementById('onb-oanda-key').value.trim();
+    const account = document.getElementById('onb-oanda-account').value.trim();
+    if (!key || !account) { showBrokerStatus('Please enter both API token and account ID.', 'error'); return; }
+    endpoint = '/api/connectors/oanda/configure';
+    payload = { api_key: key, account_id: account };
+  } else if (brokerId === 'ibkr') {
+    const gateway = document.getElementById('onb-ibkr-gateway').value.trim();
+    const account = document.getElementById('onb-ibkr-account').value.trim();
+    if (!gateway || !account) { showBrokerStatus('Please enter both gateway URL and account ID.', 'error'); return; }
+    endpoint = '/api/connectors/ibkr/configure';
+    payload = { gateway_url: gateway, account_id: account };
+  }
+
+  try {
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      brokerConnected = true;
+      showBrokerStatus(data.message || 'Connected successfully!', 'success');
+    } else {
+      showBrokerStatus(data.error || 'Connection failed.', 'error');
+    }
+  } catch (e) {
+    showBrokerStatus('Network error — check your connection.', 'error');
+  }
+}
+
+function showBrokerStatus(msg, type) {
+  const el = document.getElementById('brokerStatus');
+  el.textContent = msg;
+  el.className = 'status-msg ' + type;
+}
+
+function buildSummary() {
+  const list = document.getElementById('summaryList');
+  const items = [
+    { label: 'Markets', value: selectedMarkets.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', ') || 'None' },
+    { label: 'Broker', value: selectedBroker ? selectedBroker.charAt(0).toUpperCase() + selectedBroker.slice(1) : 'None' },
+    { label: 'Risk Level', value: selectedRisk.charAt(0).toUpperCase() + selectedRisk.slice(1) },
+    { label: 'Max Positions', value: document.getElementById('maxPositions').value },
+    { label: 'Auto-Trading', value: document.getElementById('autoTrade').checked ? 'Enabled' : 'Off (Paper only)' },
+  ];
+  list.innerHTML = items.map(i => `<li><span class="summary-check">&#10003;</span><span class="summary-label">${i.label}</span><span class="summary-value">${i.value}</span></li>`).join('');
+}
+
+async function saveSettings() {
+  try {
+    await fetch('/api/user/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({
+        risk_level: selectedRisk,
+        max_open_positions: parseInt(document.getElementById('maxPositions').value) || 5,
+        auto_trade: document.getElementById('autoTrade').checked,
+        preferred_markets: selectedMarkets,
+      }),
+    });
+  } catch (e) {
+    console.error('Failed to save settings:', e);
+  }
+}
+
+function nextStep() {
+  if (currentStep === 0 && selectedMarkets.length === 0) {
+    // Allow proceeding but with crypto as default
+    selectedMarkets = ['crypto'];
+    document.querySelector('.market-card[data-market="crypto"]').classList.add('selected');
+  }
+  if (currentStep === 1) buildBrokerUI(); // refresh if going back and forth
+  if (currentStep === totalSteps - 1) {
+    // Final step — save and launch
+    saveSettings();
+    window.location.href = '/operator.html';
+    return;
+  }
+  currentStep++;
+  if (currentStep === 1) buildBrokerUI();
+  if (currentStep === 3) buildSummary();
+  updateSteps();
+}
+
+function prevStep() {
+  if (currentStep > 0) currentStep--;
+  updateSteps();
+}
+
+function skipOnboarding() {
+  saveSettings();
+  window.location.href = '/operator.html';
+}
+
+updateSteps();
+</script>
+</body>
+</html>

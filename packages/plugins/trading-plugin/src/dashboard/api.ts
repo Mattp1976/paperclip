@@ -2,7 +2,7 @@
  * Dashboard API Routes
  * ====================
  * Express-style route handlers for the trading dashboard.
- * Register these with Paperclip's HTTP adapter or plugin router.
+ * Register these with trAIder's HTTP adapter or plugin router.
  *
  * Endpoints:
  *   GET /trading/status        — System overview

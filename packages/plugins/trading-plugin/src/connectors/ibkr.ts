@@ -10,7 +10,7 @@
  * Gateway URL (cloud): configured per-account
  *
  * NOTE: IBKR requires their Client Portal Gateway running locally or
- * IBKR's Web API with OAuth. For Paperclip, we use their Web API
+ * IBKR's Web API with OAuth. For trAIder, we use their Web API
  * with a simplified REST interface.
  */
 

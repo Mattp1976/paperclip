@@ -3,7 +3,7 @@
  * ====================
  * Monitors top 30 crypto assets on Kraken every 5 minutes.
  * Detects: drawdowns, volume spikes, RSI extremes, funding rate anomalies.
- * Writes snapshots and signals to Paperclip's PostgreSQL via Drizzle.
+ * Writes snapshots and signals to trAIder's PostgreSQL via Drizzle.
  *
  * Uses Kraken REST API (UK-accessible):
  *   - Spot: https://api.kraken.com/0/public/

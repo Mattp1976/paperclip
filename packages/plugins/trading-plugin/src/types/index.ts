@@ -1,5 +1,5 @@
 /**
- * Paperclip Trading Plugin — Type Definitions
+ * trAIder Trading Plugin — Type Definitions
  */
 
 // ─── Signal Types ───────────────────────────────────────────

@@ -10,8 +10,10 @@ import { ExitEngine } from "./services/exit-engine.js";
 import { CorrelationEngine } from "./services/correlation-engine.js";
 import { NotificationService } from "./services/notification-service.js";
 import { PerformanceAttribution } from "./services/performance-attribution.js";
+import { createAuthHandlers, getUserFromToken } from "./auth.js";
 
 const sql = postgres(process.env.DATABASE_URL!);
+const auth = createAuthHandlers(sql);
 const risk = new RiskManager(sql);
 const portfolio = new PortfolioManager(sql);
 const equity = new EquityEngine(sql);
@@ -32,12 +34,42 @@ function json(res: ServerResponse, data: unknown, status = 200): void {
   res.writeHead(status, {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   });
   res.end(JSON.stringify(data));
 }
 
-async function handleAPI(path: string, res: ServerResponse): Promise<void> {
+async function handleAPI(path: string, req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
+    // ─── Auth endpoints ───
+    if (path === "/api/auth/me") {
+      const result = await auth.me(req.headers.authorization);
+      return json(res, result.data, result.status);
+    }
+
+    // ─── User settings (GET) ───
+    if (path === "/api/user/settings") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const [settings] = await sql`
+        SELECT risk_level, max_open_positions, auto_trade,
+               notifications_email, notifications_push, preferred_markets, settings
+        FROM trading_user_settings WHERE user_id = ${user.id}
+      `;
+      return json(res, { ok: true, settings: settings ?? {} });
+    }
+
+    // ─── User's connected brokers ───
+    if (path === "/api/user/brokers") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const rows = await sql`
+        SELECT connector_id, is_active, last_validated_at, created_at, updated_at
+        FROM trading_user_api_keys WHERE user_id = ${user.id} ORDER BY connector_id
+      `;
+      return json(res, { ok: true, brokers: rows });
+    }
+
     // ─── Original endpoints ───
     if (path === "/api/prices") {
       const rows = await sql`
@@ -467,10 +499,40 @@ async function handleAPI(path: string, res: ServerResponse): Promise<void> {
 }
 
 // Handle POST endpoints that accept a body
-async function handlePostAPI(path: string, body: string, res: ServerResponse): Promise<void> {
+async function handlePostAPI(path: string, body: string, req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
+    // ─── Auth endpoints (no token required) ───
+    if (path === "/api/auth/signup") {
+      const result = await auth.signup(body);
+      return json(res, result.data, result.status);
+    }
+    if (path === "/api/auth/signin") {
+      const result = await auth.signin(body);
+      return json(res, result.data, result.status);
+    }
+
+    // ─── User settings (token required) ───
+    if (path === "/api/user/settings") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const data = JSON.parse(body);
+      await sql`
+        UPDATE trading_user_settings
+        SET risk_level = COALESCE(${data.risk_level ?? null}, risk_level),
+            max_open_positions = COALESCE(${data.max_open_positions ?? null}, max_open_positions),
+            auto_trade = COALESCE(${data.auto_trade ?? null}, auto_trade),
+            notifications_email = COALESCE(${data.notifications_email ?? null}, notifications_email),
+            notifications_push = COALESCE(${data.notifications_push ?? null}, notifications_push),
+            preferred_markets = COALESCE(${data.preferred_markets ? JSON.stringify(data.preferred_markets) : null}::jsonb, preferred_markets),
+            updated_at = NOW()
+        WHERE user_id = ${user.id}
+      `;
+      return json(res, { ok: true, message: "Settings updated" });
+    }
+
     // Configure Alpaca connector
     if (path === "/api/connectors/alpaca/configure") {
+      const user = getUserFromToken(req.headers.authorization);
       const data = JSON.parse(body);
       const { api_key, api_secret } = data;
       if (!api_key || !api_secret) {
@@ -491,15 +553,27 @@ async function handlePostAPI(path: string, body: string, res: ServerResponse): P
         }
         const account = await testResp.json();
 
-        // Update connector config in DB (build JSON in JS to avoid pg type inference issues)
+        // Update global connector config
         const configJson = JSON.stringify({ api_key, api_secret });
         await sql`
           UPDATE trading_connector_config
           SET is_active = true,
               config = ${configJson}::jsonb,
+              user_id = ${user?.id ?? null},
               updated_at = NOW()
           WHERE id = 'alpaca'
         `;
+
+        // Store per-user API keys if authenticated
+        if (user) {
+          const credsJson = JSON.stringify({ api_key, api_secret });
+          await sql`
+            INSERT INTO trading_user_api_keys (user_id, connector_id, credentials, is_active, last_validated_at)
+            VALUES (${user.id}, 'alpaca', ${credsJson}::jsonb, true, NOW())
+            ON CONFLICT (user_id, connector_id)
+            DO UPDATE SET credentials = ${credsJson}::jsonb, is_active = true, last_validated_at = NOW(), updated_at = NOW()
+          `;
+        }
 
         // Activate equity assets
         await sql`
@@ -520,6 +594,7 @@ async function handlePostAPI(path: string, body: string, res: ServerResponse): P
 
     // Configure OANDA connector (Forex)
     if (path === "/api/connectors/oanda/configure") {
+      const user = getUserFromToken(req.headers.authorization);
       const data = JSON.parse(body);
       const { api_key, account_id } = data;
       if (!api_key || !account_id) {
@@ -536,15 +611,27 @@ async function handlePostAPI(path: string, body: string, res: ServerResponse): P
         }
         const accountData = await testResp.json() as any;
 
-        // Update connector config in DB
+        // Update global connector config
         const configJson = JSON.stringify({ api_key, account_id });
         await sql`
           UPDATE trading_connector_config
           SET is_active = true,
               config = ${configJson}::jsonb,
+              user_id = ${user?.id ?? null},
               updated_at = NOW()
           WHERE id = 'oanda'
         `;
+
+        // Store per-user API keys if authenticated
+        if (user) {
+          const credsJson = JSON.stringify({ api_key, account_id });
+          await sql`
+            INSERT INTO trading_user_api_keys (user_id, connector_id, credentials, is_active, last_validated_at)
+            VALUES (${user.id}, 'oanda', ${credsJson}::jsonb, true, NOW())
+            ON CONFLICT (user_id, connector_id)
+            DO UPDATE SET credentials = ${credsJson}::jsonb, is_active = true, last_validated_at = NOW(), updated_at = NOW()
+          `;
+        }
 
         // Activate forex assets
         await sql`
@@ -565,6 +652,7 @@ async function handlePostAPI(path: string, body: string, res: ServerResponse): P
 
     // Configure Interactive Brokers connector (Futures)
     if (path === "/api/connectors/ibkr/configure") {
+      const user = getUserFromToken(req.headers.authorization);
       const data = JSON.parse(body);
       const { gateway_url, account_id } = data;
       if (!gateway_url || !account_id) {
@@ -585,15 +673,27 @@ async function handlePostAPI(path: string, body: string, res: ServerResponse): P
           return json(res, { ok: false, error: "IBKR Gateway is not authenticated. Please log in to your Client Portal Gateway first." }, 400);
         }
 
-        // Update connector config in DB
+        // Update global connector config
         const configJson = JSON.stringify({ gateway_url, account_id });
         await sql`
           UPDATE trading_connector_config
           SET is_active = true,
               config = ${configJson}::jsonb,
+              user_id = ${user?.id ?? null},
               updated_at = NOW()
           WHERE id = 'ibkr'
         `;
+
+        // Store per-user API keys if authenticated
+        if (user) {
+          const credsJson = JSON.stringify({ gateway_url, account_id });
+          await sql`
+            INSERT INTO trading_user_api_keys (user_id, connector_id, credentials, is_active, last_validated_at)
+            VALUES (${user.id}, 'ibkr', ${credsJson}::jsonb, true, NOW())
+            ON CONFLICT (user_id, connector_id)
+            DO UPDATE SET credentials = ${credsJson}::jsonb, is_active = true, last_validated_at = NOW(), updated_at = NOW()
+          `;
+        }
 
         // Activate futures assets
         await sql`
@@ -629,7 +729,7 @@ export function startAPIServer(port: number): void {
       res.writeHead(200, {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
       });
       return res.end();
     }
@@ -638,10 +738,33 @@ export function startAPIServer(port: number): void {
       // Collect POST body
       let body = "";
       req.on("data", (chunk: Buffer) => { body += chunk.toString(); });
-      req.on("end", () => handlePostAPI(url.split("?")[0], body, res));
+      req.on("end", () => handlePostAPI(url.split("?")[0], body, req, res));
       return;
     }
-    if (url.startsWith("/api/")) return handleAPI(url.split("?")[0], res);
+    if (url.startsWith("/api/")) return handleAPI(url.split("?")[0], req, res);
+    // Static file serving — login.html and onboarding.html are always accessible
+    if (url === "/login" || url === "/login.html") {
+      const loginPath = join(pubDir, "login.html");
+      if (existsSync(loginPath)) {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        return res.end(readFileSync(loginPath));
+      }
+    }
+    if (url === "/onboarding" || url === "/onboarding.html") {
+      const obPath = join(pubDir, "onboarding.html");
+      if (existsSync(obPath)) {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        return res.end(readFileSync(obPath));
+      }
+    }
+    if (url === "/landing" || url === "/landing.html") {
+      const landingPath = join(pubDir, "landing.html");
+      if (existsSync(landingPath)) {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        return res.end(readFileSync(landingPath));
+      }
+    }
+
     const filePath = join(pubDir, url === "/" ? "operator.html" : url);
     if (existsSync(filePath)) {
       const ext = extname(filePath);

@@ -40,6 +40,7 @@ import { AlpacaConnector } from "./connectors/alpaca.js";
 import { OandaConnector } from "./connectors/oanda.js";
 import { IBKRConnector } from "./connectors/ibkr.js";
 import { runV5Migration } from "./db/migrate-v5.js";
+import { runV6Migration } from "./db/migrate-v6.js";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
@@ -188,7 +189,7 @@ function checkWeeklyMeta(): void {
 const PORT = parseInt(process.env.PORT ?? "3200", 10);
 
 async function main(): Promise<void> {
-  console.log("[ASI Trading System v6] Multi-Market Scheduler starting...");
+  console.log("[trAIder v6] Multi-Market Scheduler starting...");
   console.log(`[${now()}] Database connected`);
 
   // Run migrations (idempotent)
@@ -196,6 +197,7 @@ async function main(): Promise<void> {
   await runV3Migration(sqlClient);
   await runV4Migration(sqlClient);
   await runV5Migration(sqlClient);
+  await runV6Migration(sqlClient);
 
   // Load OANDA/IBKR connectors from DB if not set via env vars
   await loadConnectorsFromDB();

@@ -1,7 +1,7 @@
 /**
- * Paperclip Trading Plugin — Main Entry Point
+ * trAIder Trading Plugin — Main Entry Point
  * =============================================
- * Registers the ASI Trading System as a Paperclip plugin.
+ * Registers the ASI Trading System as a trAIder plugin.
  *
  * Agents:
  *   - Scanner: Monitors 30 crypto assets every 5 min, detects signals
@@ -9,7 +9,7 @@
  *   - Backtest: Runs hypotheses against 90 days of historical data
  *   - Meta-Agent: Weekly review — promotes, retires, evolves hypotheses
  *
- * Integrates with Paperclip's:
+ * Integrates with trAIder's:
  *   - Plugin SDK for worker registration and lifecycle
  *   - PostgreSQL via Drizzle ORM (shared database)
  *   - Task system for scheduling agent cycles
@@ -23,7 +23,7 @@ import { MetaAgent } from "./agents/meta-agent.js";
 import { DEFAULT_CONFIG, type TradingPluginConfig } from "./types/index.js";
 
 export interface TradingPluginContext {
-  db: any;  // Drizzle database instance from Paperclip
+  db: any;  // Drizzle database instance from trAIder
   anthropicApiKey: string;
   krakenApiKey: string;
   krakenApiSecret: string;
@@ -50,7 +50,7 @@ export class TradingPlugin {
   /**
    * Start the trading plugin — begins the scanner loop.
    * Hypothesis, backtest, and meta cycles are triggered separately
-   * via Paperclip's task scheduler or cron.
+   * via trAIder's task scheduler or cron.
    */
   async start(): Promise<void> {
     console.log("[Trading Plugin] Starting ASI Trading System...");
@@ -82,7 +82,7 @@ export class TradingPlugin {
 
   /**
    * Run a hypothesis generation cycle.
-   * Call daily via Paperclip's cron/task system.
+   * Call daily via trAIder's cron/task system.
    */
   async runHypothesisCycle(): Promise<void> {
     await this.hypothesisAgent.runCycle(this.config.maxActiveHypotheses);
@@ -90,7 +90,7 @@ export class TradingPlugin {
 
   /**
    * Run a backtest cycle on all testable hypotheses.
-   * Call daily via Paperclip's cron/task system.
+   * Call daily via trAIder's cron/task system.
    */
   async runBacktestCycle(): Promise<void> {
     await this.backtestAgent.runCycle();
@@ -98,7 +98,7 @@ export class TradingPlugin {
 
   /**
    * Run the meta-agent review.
-   * Call weekly via Paperclip's cron/task system.
+   * Call weekly via trAIder's cron/task system.
    */
   async runMetaCycle(): Promise<void> {
     await this.metaAgent.runCycle();
@@ -129,7 +129,7 @@ export class TradingPlugin {
 }
 
 // ─── Plugin Registration ────────────────────────────────────
-// This is the shape Paperclip expects for plugin registration.
+// This is the shape trAIder expects for plugin registration.
 // The actual registration pattern depends on whether you use
 // the Plugin SDK worker pattern or register via routines.
 export const PLUGIN_MANIFEST = {
@@ -137,7 +137,7 @@ export const PLUGIN_MANIFEST = {
   displayName: "ASI Trading System",
   version: "0.1.0",
   description: "Self-improving agent swarm for market analysis and automated trading",
-  author: "Paperclip",
+  author: "trAIder",
   capabilities: [
     "market_scanning",
     "hypothesis_generation",
