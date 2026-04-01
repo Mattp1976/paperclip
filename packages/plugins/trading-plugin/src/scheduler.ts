@@ -91,26 +91,53 @@ if (hasAlpaca) {
   console.log("[Scheduler] No Alpaca keys — equity scanning disabled");
 }
 
-// OANDA (Forex)
-const hasOanda = OANDA_API_KEY.length > 0 && OANDA_ACCOUNT_ID.length > 0;
+// OANDA (Forex) — check env vars first, then fall back to DB
 let oandaConnector: OandaConnector | null = null;
-if (hasOanda) {
-  oandaConnector = new OandaConnector(db, OANDA_API_KEY, OANDA_ACCOUNT_ID);
-  connectorRegistry.register(oandaConnector);
-  console.log("[Scheduler] OANDA connector registered (Forex & Metals)");
-} else {
-  console.log("[Scheduler] No OANDA keys — forex scanning disabled");
-}
-
-// Interactive Brokers (Futures)
-const hasIBKR = IBKR_GATEWAY_URL.length > 0 && IBKR_ACCOUNT_ID.length > 0;
 let ibkrConnector: IBKRConnector | null = null;
-if (hasIBKR) {
-  ibkrConnector = new IBKRConnector(db, IBKR_GATEWAY_URL, IBKR_ACCOUNT_ID);
-  connectorRegistry.register(ibkrConnector);
-  console.log("[Scheduler] IBKR connector registered (Futures & Commodities)");
-} else {
-  console.log("[Scheduler] No IBKR config — futures scanning disabled");
+
+async function loadConnectorsFromDB(): Promise<void> {
+  // OANDA: try env vars first
+  if (OANDA_API_KEY.length > 0 && OANDA_ACCOUNT_ID.length > 0) {
+    oandaConnector = new OandaConnector(db, OANDA_API_KEY, OANDA_ACCOUNT_ID);
+    connectorRegistry.register(oandaConnector);
+    console.log("[Scheduler] OANDA connector registered from env vars (Forex & Metals)");
+  } else {
+    // Fall back to DB config saved by dashboard
+    try {
+      const rows = await sqlClient`SELECT config, is_active FROM trading_connector_config WHERE id = 'oanda'`;
+      if (rows.length > 0 && rows[0].is_active) {
+        const cfg = typeof rows[0].config === "string" ? JSON.parse(rows[0].config) : rows[0].config;
+        if (cfg.api_key && cfg.account_id) {
+          oandaConnector = new OandaConnector(db, cfg.api_key, cfg.account_id);
+          connectorRegistry.register(oandaConnector);
+          console.log("[Scheduler] OANDA connector registered from DB config (Forex & Metals)");
+        }
+      }
+    } catch (e) {
+      console.log("[Scheduler] No OANDA config found — forex scanning disabled");
+    }
+  }
+
+  // IBKR: try env vars first
+  if (IBKR_GATEWAY_URL.length > 0 && IBKR_ACCOUNT_ID.length > 0) {
+    ibkrConnector = new IBKRConnector(db, IBKR_GATEWAY_URL, IBKR_ACCOUNT_ID);
+    connectorRegistry.register(ibkrConnector);
+    console.log("[Scheduler] IBKR connector registered from env vars (Futures & Commodities)");
+  } else {
+    try {
+      const rows = await sqlClient`SELECT config, is_active FROM trading_connector_config WHERE id = 'ibkr'`;
+      if (rows.length > 0 && rows[0].is_active) {
+        const cfg = typeof rows[0].config === "string" ? JSON.parse(rows[0].config) : rows[0].config;
+        if (cfg.gateway_url && cfg.account_id) {
+          ibkrConnector = new IBKRConnector(db, cfg.gateway_url, cfg.account_id);
+          connectorRegistry.register(ibkrConnector);
+          console.log("[Scheduler] IBKR connector registered from DB config (Futures & Commodities)");
+        }
+      }
+    } catch (e) {
+      console.log("[Scheduler] No IBKR config found — futures scanning disabled");
+    }
+  }
 }
 
 function now(): string { return new Date().toISOString(); }
@@ -161,7 +188,7 @@ function checkWeeklyMeta(): void {
 const PORT = parseInt(process.env.PORT ?? "3200", 10);
 
 async function main(): Promise<void> {
-  console.log("[ASI Trading System v5] Multi-Market Scheduler starting...");
+  console.log("[ASI Trading System v6] Multi-Market Scheduler starting...");
   console.log(`[${now()}] Database connected`);
 
   // Run migrations (idempotent)
@@ -169,6 +196,9 @@ async function main(): Promise<void> {
   await runV3Migration(sqlClient);
   await runV4Migration(sqlClient);
   await runV5Migration(sqlClient);
+
+  // Load OANDA/IBKR connectors from DB if not set via env vars
+  await loadConnectorsFromDB();
 
   // Seed equity assets if Alpaca is configured
   if (alpacaConnector) {
