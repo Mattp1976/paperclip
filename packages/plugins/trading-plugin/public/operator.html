@@ -262,7 +262,7 @@ function logNarrative(log){
 
 async function refreshData(){
   try{
-    const [healthR,equityR,posR,tradesR,perfR,corrR,hypR,logsR]=await Promise.all([
+    const [healthR,equityR,posR,tradesR,perfR,corrR,hypR,logsR,riskR]=await Promise.all([
       fetch('/api/health').then(r=>r.json()).catch(()=>null),
       fetch('/api/portfolio/equity').then(r=>r.json()).catch(()=>null),
       fetch('/api/paper-trades').then(r=>r.json()).catch(()=>null),
@@ -271,6 +271,7 @@ async function refreshData(){
       fetch('/api/correlation/report').then(r=>r.json()).catch(()=>null),
       fetch('/api/hypotheses').then(r=>r.json()).catch(()=>null),
       fetch('/api/agent-logs').then(r=>r.json()).catch(()=>null),
+      fetch('/api/performance/risk-metrics').then(r=>r.json()).catch(()=>null),
     ]);
     // Status
     if(healthR){
@@ -297,7 +298,9 @@ async function refreshData(){
     }
     if(perfR){
       $('heroWinRate').textContent=(perfR.winRate||0)+'%';
-      $('heroSharpe').textContent=perfR.sharpeRatio!=null?Number(perfR.sharpeRatio).toFixed(1):'—';
+    }
+    if(riskR&&riskR.sharpeRatio!=null){
+      $('heroSharpe').textContent=Number(riskR.sharpeRatio).toFixed(2);
     }
 
     // Risk banner
@@ -410,3 +413,4 @@ setInterval(refreshData,30000);
 </script>
 </body>
 </html>
+
