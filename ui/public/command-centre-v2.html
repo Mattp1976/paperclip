@@ -1080,6 +1080,7 @@ function renderBriefScreen(data) {
   const briefSection = `
     <div>
       <div style="margin-bottom: 20px">
+        <a onclick="navigate('briefs')" style="color:var(--text-muted);cursor:pointer;font-size:13px;text-decoration:none;display:inline-block;margin-bottom:12px">&larr; Back to Briefs</a>
         <h2 style="font-size:20px;font-weight:600;margin-bottom:6px">New Brief</h2>
         <p style="color:var(--text-muted);font-size:13px">Tell your AI team what to work on. The CEO will decompose it into tasks and delegate to the right specialists.</p>
       </div>
@@ -2229,7 +2230,7 @@ function renderBriefsListScreen(data) {
     const desc = brief.description || brief.body || '';
     return `<div class="brief-card" data-brief-id="${brief.id}">
       <div class="brief-card-header"><div class="brief-card-title">${brief.title || 'Untitled Brief'}</div><span class="brief-card-status ${statusClass}">${statusLabel}</span></div>
-      <div class="brief-card-desc">${desc.substring(0, 150)}${desc.length > 150 ? '...' : ''}</div>
+      <div class="brief-card-desc">${desc.replace(/^#+\s*/gm,'').replace(/\*\*/g,'').trim().substring(0, 150)}${desc.length > 150 ? '...' : ''}</div>
       <div class="brief-card-stats"><span class="brief-card-stat">\u{1F4E6} ${doneTasks}/${totalTasks} tasks</span><span class="brief-card-stat">\u{1F916} ${agentIds.length} agents</span><span class="brief-card-stat">\u{1F552} ${timeAgo}</span></div>
       <div class="brief-card-progress"><div class="brief-card-progress-fill" style="width:${pct}%"></div></div>
     </div>`;
@@ -2296,7 +2297,7 @@ function renderBriefDetailScreen(data) {
       <div class="brief-detail-title">${brief.title || 'Untitled Brief'}</div>
       <button class="download-all-btn" onclick="downloadAllOutputs('${briefId}')">\u{1F4E5} Download All</button>
     </div>
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px">
+    <div class="brief-progress" style="display:flex;align-items:center;gap:16px;margin-bottom:8px">
       <span style="font-size:13px;color:var(--accent);font-weight:600">${pct}% complete</span>
       <span style="font-size:12px;color:var(--text-muted)">${doneTasks}/${totalTasks} tasks done</span>
     </div>
@@ -2326,7 +2327,17 @@ function renderScreen() {
         return;
       }
       if (screen === 'briefdetail') {
+        const activeTab = el.querySelector('.brief-tab.active');
+        const currentTab = activeTab ? activeTab.dataset.tab : null;
         el.innerHTML = renderBriefDetailScreen(data);
+        if (currentTab) {
+          el.querySelectorAll('.brief-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === currentTab));
+          const panels = el.querySelector('#brief-tab-content');
+          if (panels) Array.from(panels.children).forEach((p, i) => {
+            const tabs = ['outputs','activity','warroom'];
+            p.style.display = tabs[i] === currentTab ? '' : 'none';
+          });
+        }
         initBriefDetailScreen();
         return;
       }
