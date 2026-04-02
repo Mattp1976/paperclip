@@ -115,16 +115,18 @@ export class BillingService {
   private stripeWebhookSecret: string;
   private stripeApiBase: string = 'https://api.stripe.com/v1';
 
+  private enabled: boolean;
+
   constructor(sql: Sql) {
     this.sql = sql;
     this.stripeSecretKey = process.env.STRIPE_SECRET_KEY || '';
     this.stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+    this.enabled = !!(this.stripeSecretKey && this.stripeWebhookSecret);
 
-    if (!this.stripeSecretKey) {
-      throw new Error('STRIPE_SECRET_KEY environment variable is required');
-    }
-    if (!this.stripeWebhookSecret) {
-      throw new Error('STRIPE_WEBHOOK_SECRET environment variable is required');
+    if (!this.enabled) {
+      console.log('[Billing] Stripe not configured — billing operates in free-tier-only mode');
+    } else {
+      console.log('[Billing] Stripe configured');
     }
   }
 
@@ -137,6 +139,9 @@ export class BillingService {
     successUrl: string,
     cancelUrl: string
   ): Promise<CheckoutSessionResult> {
+    if (!this.enabled) {
+      throw new Error('Stripe billing is not configured. Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET environment variables.');
+    }
     if (!SUBSCRIPTION_TIERS[planId]) {
       throw new Error(`Invalid plan ID: ${planId}`);
     }
@@ -193,6 +198,9 @@ export class BillingService {
    * Handle Stripe webhook events
    */
   async handleWebhook(payload: string, signature: string): Promise<void> {
+    if (!this.enabled) {
+      throw new Error('Stripe billing is not configured');
+    }
     // Verify webhook signature
     const hash = crypto
       .createHmac('sha256', this.stripeWebhookSecret)
