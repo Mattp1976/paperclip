@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>trAIder — Pricing</title>
+  <style>
+    :root { --bg: #0a0e17; --surface: #1a1f2e; --surface2: #252b3d; --border: #2d3548; --text: #e2e8f0; --dim: #8892a4; --green: #00d68f; --red: #ff4757; --blue: #4d9fff; --gold: #ffd700; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    a { color: var(--green); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Navigation */
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(10,14,23,0.95); backdrop-filter: blur(10px); z-index: 100; }
+    .logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .logo span { color: var(--green); }
+    .nav-links { display: flex; gap: 12px; align-items: center; }
+    .nav-links a { color: var(--dim); font-size: 14px; padding: 8px 16px; border-radius: 6px; transition: all 0.2s; }
+    .nav-links a:hover { color: var(--text); background: var(--surface); text-decoration: none; }
+    .nav-links .btn { background: var(--green); color: #000; font-weight: 600; }
+    .nav-links .btn:hover { background: #00f5a0; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 80px 40px 40px; }
+    .hero h1 { font-size: 42px; font-weight: 700; margin-bottom: 16px; }
+    .hero h1 span { color: var(--green); }
+    .hero p { font-size: 18px; color: var(--dim); max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+    /* Pricing Cards */
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1100px; margin: 40px auto; padding: 0 40px; align-items: start; }
+    .plan-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px 28px; position: relative; transition: all 0.3s ease; }
+    .plan-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+    .plan-card.featured { border-color: var(--green); transform: scale(1.04); box-shadow: 0 0 30px rgba(0,214,143,0.15); z-index: 2; }
+    .plan-card.featured:hover { transform: scale(1.04) translateY(-4px); box-shadow: 0 0 40px rgba(0,214,143,0.2); }
+    .badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--green); color: #000; font-size: 12px; font-weight: 700; padding: 4px 16px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .plan-name { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .plan-price { font-size: 48px; font-weight: 700; margin-bottom: 4px; }
+    .plan-price span { font-size: 16px; color: var(--dim); font-weight: 400; }
+    .plan-desc { font-size: 14px; color: var(--dim); margin-bottom: 24px; line-height: 1.5; }
+    .plan-features { list-style: none; margin-bottom: 28px; }
+    .plan-features li { padding: 8px 0; font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(45,53,72,0.5); }
+    .plan-features li:last-child { border: none; }
+    .plan-features li::before { content: "✓"; color: var(--green); font-weight: 700; font-size: 16px; flex-shrink: 0; }
+    .plan-features li.disabled { color: var(--dim); }
+    .plan-features li.disabled::before { content: "—"; color: var(--dim); }
+    .plan-cta { display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .plan-cta.primary { background: var(--green); color: #000; }
+    .plan-cta.primary:hover { background: #00f5a0; transform: translateY(-1px); }
+    .plan-cta.secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .plan-cta.secondary:hover { background: var(--border); }
+    .plan-cta.gold { background: linear-gradient(135deg, var(--gold), #ffaa00); color: #000; }
+    .plan-cta.gold:hover { background: linear-gradient(135deg, #ffe44d, var(--gold)); }
+
+    /* Comparison Table */
+    .comparison { max-width: 1100px; margin: 80px auto 40px; padding: 0 40px; }
+    .comparison h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 32px; }
+    .comp-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; }
+    .comp-table th, .comp-table td { padding: 14px 20px; text-align: center; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .comp-table th:first-child, .comp-table td:first-child { text-align: left; font-weight: 500; }
+    .comp-table thead th { background: var(--surface2); font-weight: 600; font-size: 15px; }
+    .comp-table .check { color: var(--green); font-size: 18px; }
+    .comp-table .cross { color: var(--dim); }
+
+    /* FAQ */
+    .faq { max-width: 800px; margin: 80px auto; padding: 0 40px; }
+    .faq h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 32px; }
+    .faq-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+    .faq-q { padding: 18px 20px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; }
+    .faq-q:hover { background: var(--surface2); }
+    .faq-q::after { content: "+"; font-size: 20px; color: var(--dim); transition: transform 0.2s; }
+    .faq-item.open .faq-q::after { content: "−"; color: var(--green); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+    .faq-item.open .faq-a { max-height: 200px; padding: 0 20px 18px; }
+    .faq-a p { font-size: 14px; color: var(--dim); line-height: 1.6; }
+
+    /* Footer */
+    footer { text-align: center; padding: 40px; border-top: 1px solid var(--border); margin-top: 60px; }
+    footer p { color: var(--dim); font-size: 13px; }
+    footer .links { margin-top: 12px; display: flex; gap: 20px; justify-content: center; }
+    footer .links a { color: var(--dim); font-size: 13px; }
+
+    @media (max-width: 768px) {
+      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .plan-card.featured { transform: none; }
+      .hero h1 { font-size: 28px; }
+      nav { padding: 12px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">tr<span>AI</span>der</div>
+    <div class="nav-links" id="navLinks">
+      <a href="/landing">Home</a>
+      <a href="/">Dashboard</a>
+      <a href="/backtest">Backtest Lab</a>
+      <a href="/login.html" class="btn" id="authBtn">Log In</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Choose Your <span>Trading Edge</span></h1>
+    <p>From free exploration to full autonomous trading — pick the plan that matches your ambition.</p>
+  </section>
+
+  <div class="pricing-grid">
+    <!-- Free -->
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0<span>/month</span></div>
+      <div class="plan-desc">Explore AI-powered trading with zero commitment.</div>
+      <ul class="plan-features">
+        <li>1 AI trading hypothesis</li>
+        <li>Basic backtesting</li>
+        <li>Delayed market signals</li>
+        <li>Community dashboard</li>
+        <li class="disabled">Paper trading</li>
+        <li class="disabled">Live trading connectors</li>
+        <li class="disabled">API access</li>
+      </ul>
+      <button class="plan-cta secondary" onclick="handleCTA('free')">Get Started Free</button>
+    </div>
+
+    <!-- Pro -->
+    <div class="plan-card featured">
+      <div class="badge">Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">$29<span>/month</span></div>
+      <div class="plan-desc">Serious tools for serious traders. Unlock the full backtest suite.</div>
+      <ul class="plan-features">
+        <li>10 AI trading hypotheses</li>
+        <li>Enhanced multi-timeframe backtesting</li>
+        <li>Real-time market signals</li>
+        <li>Paper trading simulator</li>
+        <li>Email &amp; push notifications</li>
+        <li>Priority support</li>
+        <li class="disabled">Live trading connectors</li>
+      </ul>
+      <button class="plan-cta primary" onclick="handleCTA('pro')">Upgrade to Pro</button>
+    </div>
+
+    <!-- Elite -->
+    <div class="plan-card">
+      <div class="plan-name">Elite</div>
+      <div class="plan-price">$99<span>/month</span></div>
+      <div class="plan-desc">Full autonomous trading across all markets. The ultimate edge.</div>
+      <ul class="plan-features">
+        <li>Unlimited AI hypotheses</li>
+        <li>Full backtest suite (Monte Carlo, walk-forward, optimization)</li>
+        <li>Live trading connectors (Alpaca, OANDA, IBKR)</li>
+        <li>Multi-market: crypto, stocks, forex, futures</li>
+        <li>API access</li>
+        <li>Priority alerts</li>
+        <li>Dedicated support</li>
+      </ul>
+      <button class="plan-cta gold" onclick="handleCTA('elite')">Go Elite</button>
+    </div>
+  </div>
+
+  <!-- Feature Comparison -->
+  <section class="comparison">
+    <h2>Feature Comparison</h2>
+    <table class="comp-table">
+      <thead>
+        <tr><th>Feature</th><th>Free</th><th>Pro</th><th>Elite</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>AI Hypotheses</td><td>1</td><td>10</td><td>Unlimited</td></tr>
+        <tr><td>Basic Backtesting</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Multi-Timeframe Backtests</td><td class="cross">—</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Monte Carlo Simulation</td><td class="cross">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+        <tr><td>Walk-Forward Analysis</td><td class="cross">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+        <tr><td>Parameter Optimization</td><td class="cross">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+        <tr><td>Real-Time Signals</td><td class="cross">—</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Paper Trading</td><td class="cross">—</td><td class="check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Live Trading</td><td class="cross">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+        <tr><td>Market Coverage</td><td>Crypto</td><td>Crypto</td><td>All Markets</td></tr>
+        <tr><td>API Access</td><td class="cross">—</td><td class="cross">—</td><td class="check">✓</td></tr>
+        <tr><td>Notifications</td><td>Dashboard</td><td>Email + Push</td><td>Priority Alerts</td></tr>
+        <tr><td>Support</td><td>Community</td><td>Priority</td><td>Dedicated</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Can I cancel anytime?</div>
+      <div class="faq-a"><p>Yes. You can cancel your subscription at any time. Your access continues until the end of your current billing period — no partial refunds, no surprise charges.</p></div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What happens if I downgrade?</div>
+      <div class="faq-a"><p>Your extra hypotheses and features remain active until the current period ends. After that, excess hypotheses are paused (not deleted) and you can re-activate them if you upgrade again.</p></div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Is there a free trial for Pro or Elite?</div>
+      <div class="faq-a"><p>The Free plan gives you a permanent taste of the platform. We don't currently offer time-limited trials, but you can upgrade and cancel within the first 7 days for a full refund.</p></div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Do you offer annual pricing?</div>
+      <div class="faq-a"><p>Annual plans are coming soon with a 20% discount. Join the waitlist by emailing team@traider.ai.</p></div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Is my trading data secure?</div>
+      <div class="faq-a"><p>Your API keys are encrypted at rest and in transit. We never store your exchange passwords. All connections use OAuth where available and encrypted credential storage otherwise.</p></div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Can I use trAIder for real trading?</div>
+      <div class="faq-a"><p>The Elite plan includes live trading connectors for Alpaca (stocks), OANDA (forex), and IBKR (futures). Paper trading is available on Pro. All strategies start in simulation before going live.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 trAIder. AI-powered autonomous trading.</p>
+    <div class="links">
+      <a href="/landing">Home</a>
+      <a href="/">Dashboard</a>
+      <a href="/backtest">Backtest Lab</a>
+    </div>
+  </footer>
+
+  <script src="/analytics.js"></script>
+  <script>
+    // Auth check
+    const token = localStorage.getItem('traider_token');
+    if (token) {
+      document.getElementById('authBtn').textContent = 'Dashboard';
+      document.getElementById('authBtn').href = '/';
+    }
+
+    function handleCTA(plan) {
+      if (plan === 'free') {
+        window.location.href = token ? '/' : '/login.html';
+        return;
+      }
+      if (!token) {
+        window.location.href = '/login.html?redirect=pricing&plan=' + plan;
+        return;
+      }
+      // Create checkout session
+      fetch('/api/billing/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ planId: plan, successUrl: window.location.origin + '/?upgraded=true', cancelUrl: window.location.origin + '/pricing' }),
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok && data.url) window.location.href = data.url;
+        else alert(data.error || 'Failed to start checkout');
+      })
+      .catch(err => alert('Error: ' + err.message));
+    }
+
+    // Track page view
+    if (window.traiderAnalytics) window.traiderAnalytics.track('pricing_page_viewed');
+  </script>
+</body>
+</html>

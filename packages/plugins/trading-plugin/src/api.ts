@@ -10,6 +10,9 @@ import { ExitEngine } from "./services/exit-engine.js";
 import { CorrelationEngine } from "./services/correlation-engine.js";
 import { NotificationService } from "./services/notification-service.js";
 import { PerformanceAttribution } from "./services/performance-attribution.js";
+import { BacktestEngine } from "./services/backtest-engine.js";
+import { BillingService } from "./services/billing.js";
+import { AnalyticsService } from "./services/analytics.js";
 import { createAuthHandlers, getUserFromToken } from "./auth.js";
 
 const sql = postgres(process.env.DATABASE_URL!);
@@ -23,6 +26,9 @@ const exitEngine = new ExitEngine(sql);
 const correlationEngine = new CorrelationEngine(sql);
 const notifier = new NotificationService(sql);
 const perfAttribution = new PerformanceAttribution(sql);
+const backtestEngine = new BacktestEngine(sql);
+const billing = new BillingService(sql);
+const analytics = new AnalyticsService(sql);
 
 const MIME: Record<string, string> = {
   ".html": "text/html", ".js": "application/javascript",
@@ -123,6 +129,78 @@ async function handleAPI(path: string, req: IncomingMessage, res: ServerResponse
         ORDER BY br.created_at DESC LIMIT 50`;
       return json(res, rows);
     }
+    // ─── Billing endpoints ───
+    if (path === "/api/billing/subscription") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const sub = await billing.getUserSubscription(user.id);
+      return json(res, { ok: true, subscription: sub });
+    }
+    if (path === "/api/billing/usage") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const usage = await billing.getUsageForUser(user.id);
+      return json(res, { ok: true, usage });
+    }
+    if (path.startsWith("/api/billing/feature/")) {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const feature = path.replace("/api/billing/feature/", "");
+      const access = await billing.checkFeatureAccess(user.id, feature);
+      return json(res, { ok: true, feature, access });
+    }
+    if (path === "/api/billing/plans") {
+      return json(res, {
+        ok: true,
+        plans: [
+          { id: "free", name: "Free", price: 0, interval: "month", features: { hypothesis_count: 1, backtest_enhanced: false, backtest_montecarlo: false, backtest_walkforward: false, backtest_optimization: false, live_trading: false, paper_trading: false, api_access: false, realtime_signals: false } },
+          { id: "pro", name: "Pro", price: 2900, interval: "month", features: { hypothesis_count: 10, backtest_enhanced: true, backtest_montecarlo: false, backtest_walkforward: false, backtest_optimization: false, live_trading: false, paper_trading: true, api_access: false, realtime_signals: true } },
+          { id: "elite", name: "Elite", price: 9900, interval: "month", features: { hypothesis_count: 999, backtest_enhanced: true, backtest_montecarlo: true, backtest_walkforward: true, backtest_optimization: true, live_trading: true, paper_trading: true, api_access: true, realtime_signals: true } },
+        ],
+      });
+    }
+
+    // ─── Enhanced Backtest endpoints ───
+    if (path.startsWith("/api/backtest/results/")) {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const hypothesisId = path.replace("/api/backtest/results/", "");
+      const rows = await sql`
+        SELECT br.*, h.name as hypothesis_name, h.strategy_type, h.asset_class
+        FROM trading_backtest_results br
+        JOIN trading_hypotheses h ON h.id = br.hypothesis_id
+        WHERE br.hypothesis_id = ${hypothesisId}::uuid
+        ORDER BY br.created_at DESC LIMIT 20`;
+      return json(res, { ok: true, results: rows });
+    }
+    if (path === "/api/backtest/history") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const rows = await sql`
+        SELECT br.id, br.hypothesis_id, br.total_return, br.sharpe_ratio,
+          br.win_rate, br.max_drawdown, br.total_trades, br.profit_factor,
+          br.period_start, br.period_end, br.created_at, br.raw_results,
+          h.name as hypothesis_name, h.strategy_type, h.asset_class
+        FROM trading_backtest_results br
+        JOIN trading_hypotheses h ON h.id = br.hypothesis_id
+        ORDER BY br.created_at DESC LIMIT 50`;
+      return json(res, { ok: true, history: rows });
+    }
+    if (path === "/api/backtest/compare") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const url = new URL(path, "http://localhost");
+      const ids = (url.searchParams.get("ids") ?? "").split(",").filter(Boolean);
+      if (ids.length === 0) return json(res, { ok: false, error: "Provide ?ids=uuid1,uuid2" }, 400);
+      const rows = await sql`
+        SELECT br.*, h.name as hypothesis_name, h.strategy_type, h.asset_class
+        FROM trading_backtest_results br
+        JOIN trading_hypotheses h ON h.id = br.hypothesis_id
+        WHERE br.hypothesis_id = ANY(${ids}::uuid[])
+        ORDER BY br.sharpe_ratio DESC NULLS LAST`;
+      return json(res, { ok: true, comparison: rows });
+    }
+
     if (path === "/api/agent-logs") {
       const rows = await sql`
         SELECT agent_name, log_level, message, context, created_at
@@ -711,6 +789,67 @@ async function handlePostAPI(path: string, body: string, req: IncomingMessage, r
       }
     }
 
+    // ─── Billing POST endpoints ───
+    if (path === "/api/billing/checkout") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const data = JSON.parse(body);
+      if (!data.planId) return json(res, { ok: false, error: "planId required" }, 400);
+      try {
+        const session = await billing.createCheckoutSession(
+          user.id, data.planId,
+          data.successUrl || `https://${req.headers.host}/backtest?upgraded=true`,
+          data.cancelUrl || `https://${req.headers.host}/pricing`,
+        );
+        analytics.track(user.id, "checkout_started", { plan: data.planId });
+        return json(res, { ok: true, url: session.url, sessionId: session.id });
+      } catch (e: any) {
+        return json(res, { ok: false, error: e.message }, 500);
+      }
+    }
+    if (path === "/api/billing/cancel") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      try {
+        await billing.cancelSubscription(user.id);
+        analytics.trackSubscriptionChanged(user.id, "current", "cancelling");
+        return json(res, { ok: true, message: "Subscription will cancel at period end" });
+      } catch (e: any) {
+        return json(res, { ok: false, error: e.message }, 500);
+      }
+    }
+    if (path === "/api/billing/webhook") {
+      try {
+        const sig = req.headers["stripe-signature"] as string;
+        await billing.handleWebhook(body, sig);
+        return json(res, { received: true });
+      } catch (e: any) {
+        console.error("[Billing] Webhook error:", e.message);
+        return json(res, { error: e.message }, 400);
+      }
+    }
+
+    // ─── Enhanced Backtest run ───
+    if (path === "/api/backtest/run") {
+      const user = getUserFromToken(req.headers.authorization);
+      if (!user) return json(res, { ok: false, error: "Unauthorized" }, 401);
+      const data = JSON.parse(body);
+      if (!data.hypothesisId) return json(res, { ok: false, error: "hypothesisId required" }, 400);
+      try {
+        const result = await backtestEngine.runEnhancedBacktest(data.hypothesisId, {
+          timeframes: data.timeframe ? [data.timeframe] : ["60"],
+          walkForward: data.walkForward ?? false,
+          monteCarlo: data.monteCarlo ?? false,
+          optimize: data.optimize ?? false,
+          periodDays: data.period ?? 90,
+        });
+        return json(res, { ok: true, result });
+      } catch (btErr: any) {
+        console.error("[Backtest] Enhanced backtest error:", btErr);
+        return json(res, { ok: false, error: btErr.message }, 500);
+      }
+    }
+
     return json(res, { error: "Not found" }, 404);
   } catch (err: any) {
     console.error("POST API error:", err);
@@ -762,6 +901,20 @@ export function startAPIServer(port: number): void {
       if (existsSync(landingPath)) {
         res.writeHead(200, { "Content-Type": "text/html" });
         return res.end(readFileSync(landingPath));
+      }
+    }
+    if (url === "/backtest" || url === "/backtest.html") {
+      const btPath = join(pubDir, "backtest.html");
+      if (existsSync(btPath)) {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        return res.end(readFileSync(btPath));
+      }
+    }
+    if (url === "/pricing" || url === "/pricing.html") {
+      const pricingPath = join(pubDir, "pricing.html");
+      if (existsSync(pricingPath)) {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        return res.end(readFileSync(pricingPath));
       }
     }
 
