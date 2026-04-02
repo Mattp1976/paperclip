@@ -483,6 +483,48 @@ body.presentation .main { max-width: 100%; padding: 20px; }
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ===== BRIEFS LIST ===== */
+.briefs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; padding: 24px; }
+.brief-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.2s; }
+.brief-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.brief-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.brief-card-title { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.brief-card-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+.brief-card-status.done { background: var(--accent-dim); color: var(--accent); }
+.brief-card-status.in_progress { background: var(--blue-dim); color: var(--blue); }
+.brief-card-status.pending { background: var(--purple-dim); color: var(--purple); }
+.brief-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.brief-card-stats { display: flex; gap: 16px; font-size: 12px; color: var(--text-2); }
+.brief-card-stat { display: flex; align-items: center; gap: 4px; }
+.brief-card-progress { width: 100%; height: 4px; background: var(--bg-input); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+.brief-card-progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.3s; }
+.brief-detail { padding: 24px; }
+.brief-detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.brief-detail-title { font-size: 22px; font-weight: 700; color: var(--text); }
+.brief-detail-desc { font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 24px; }
+.brief-detail-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.brief-tab { padding: 10px 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.brief-tab:hover { color: var(--text); }
+.brief-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.output-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+.output-card-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; cursor: pointer; }
+.output-card-header:hover { background: var(--bg-hover); }
+.output-card-agent { display: flex; align-items: center; gap: 10px; }
+.output-card-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: var(--bg-input); }
+.output-card-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.output-card-role { font-size: 11px; color: var(--text-muted); }
+.output-card-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.output-card-body { padding: 0 18px 18px; font-size: 13px; color: var(--text-2); line-height: 1.7; white-space: pre-wrap; border-top: 1px solid var(--border); padding-top: 14px; max-height: 300px; overflow-y: auto; }
+.back-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 8px 0; margin-bottom: 12px; }
+.back-btn:hover { color: var(--accent); }
+.download-all-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,212,170,0.3); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.download-all-btn:hover { background: var(--accent); color: #000; }
+.briefs-header { display: flex; justify-content: space-between; align-items: center; padding: 24px 24px 0; }
+.briefs-header h2 { font-size: 20px; font-weight: 700; color: var(--text); }
+.new-brief-btn { padding: 8px 18px; background: var(--accent); color: #000; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.new-brief-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
 </style>
 </head>
 <body>
@@ -495,11 +537,8 @@ body.presentation .main { max-width: 100%; padding: 20px; }
   <div class="header-left">
     <div class="logo">THE FUTURE <span>COLLECTIVE</span></div>
     <nav class="nav" id="nav">
-      <button class="nav-btn active" data-screen="brief">Brief</button>
-      <button class="nav-btn" data-screen="warroom">War Room</button>
-      <button class="nav-btn" data-screen="deliverables">Deliverables</button>
-      <button class="nav-btn" data-screen="costs">Costs</button>
-      <button class="nav-btn" data-screen="team">Team</button>
+      <button class="nav-btn active" data-screen="briefs">📁 Briefs</button>
+      <button class="nav-btn" data-screen="team">🤖 Team</button>
     </nav>
   </div>
   <div class="header-right">
@@ -980,7 +1019,7 @@ document.getElementById('settings-overlay').addEventListener('click', (e) => {
 // âââââââââââââââââââââââââââââââââââââââââââââââ
 class Router {
   constructor() {
-    this.currentScreen = 'brief';
+    this.currentScreen = 'briefs';
     this.params = {};
     window.addEventListener('hashchange', () => this.handleHash());
     document.getElementById('nav').addEventListener('click', (e) => {
@@ -990,7 +1029,7 @@ class Router {
     });
   }
   handleHash() {
-    const hash = location.hash.slice(1) || 'brief';
+    const hash = location.hash.slice(1) || 'briefs';
     const parts = hash.split('/');
     this.currentScreen = parts[0];
     this.params = { id: parts[1] };
@@ -1173,7 +1212,7 @@ function initBriefScreen() {
   // History clicks
   document.querySelectorAll('.brief-history-item').forEach(item => {
     item.addEventListener('click', () => {
-      router.navigate('warroom', { id: item.dataset.issueId });
+      router.navigate('briefdetail', { id: item.dataset.issueId });
     });
   });
 }
@@ -1244,7 +1283,7 @@ function renderWarRoomScreen(data) {
       <div class="empty-state-icon">ð¯</div>
       <div class="empty-state-title">No brief selected</div>
       <div class="empty-state-desc">Submit a new brief or select one from your history to see it in the War Room.</div>
-      <button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate('brief')">Submit a Brief</button>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate('newbrief')">Submit a Brief</button>
     </div>`;
   }
 
@@ -1374,7 +1413,7 @@ function renderWarRoomScreen(data) {
 
     <div style="margin-top:16px;text-align:center">
       <button class="btn btn-sm btn-secondary" onclick="router.navigate('deliverables', {id:'${briefId}'})">View Deliverables â</button>
-      <button class="btn btn-sm btn-ghost" onclick="router.navigate('brief')">+ New Brief</button>
+      <button class="btn btn-sm btn-ghost" onclick="router.navigate('newbrief')">+ New Brief</button>
     </div>
   `;
 }
@@ -1419,7 +1458,7 @@ function renderDeliverablesScreen(data) {
       <div class="empty-state-icon">ð¦</div>
       <div class="empty-state-title">No deliverables yet</div>
       <div class="empty-state-desc">Deliverables will appear here as your AI team completes tasks.</div>
-      <button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate('brief')">Submit a Brief</button>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate('newbrief')">Submit a Brief</button>
     </div>`;
   }
 
@@ -1431,7 +1470,7 @@ function renderDeliverablesScreen(data) {
       </div>
       <div style="display:flex;gap:8px">
         ${doneTasks.length > 0 ? '<button class="btn btn-sm btn-secondary" id="download-all-btn">Download All â</button>' : ''}
-        <button class="btn btn-sm btn-ghost" onclick="router.navigate('brief')">+ New Brief</button>
+        <button class="btn btn-sm btn-ghost" onclick="router.navigate('newbrief')">+ New Brief</button>
       </div>
     </div>
     <div class="deliverables-grid">
@@ -2084,60 +2123,242 @@ function initSwarmCanvas() {
 
 // SCREEN RENDERER
 // âââââââââââââââââââââââââââââââââââââââââââââââ
-function renderScreen() {
-  const el = document.getElementById('main-content');
-  const data = store.data;
-  const screen = router.currentScreen || 'brief';
 
-  // On Brief screen, avoid destroying the form while user is typing
-  if (screen === 'brief') {
-    const activeEl = document.activeElement;
-    const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
-    const hasBriefForm = document.getElementById('brief-title');
-    if (isTyping && hasBriefForm) {
-      // Only update the sidebar (previous briefs) without touching the form
-      const sidebar = el.querySelector('.brief-history');
-      if (sidebar) {
-        const parentIssues = (data.issues || []).filter(i => !i.parentId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        sidebar.innerHTML = `<div class="brief-history-title">Previous Briefs</div>` +
-          parentIssues.slice(0, 10).map(issue => {
-            const childCount = (data.issues || []).filter(i => i.parentId === issue.id).length;
-            const doneCount = (data.issues || []).filter(i => i.parentId === issue.id && i.status === 'done').length;
-            const allDone = childCount > 0 && doneCount === childCount;
-            const statusColor = allDone ? 'var(--accent)' : childCount > 0 ? 'var(--blue)' : 'var(--orange)';
-            const statusLabel = allDone ? 'Complete' : childCount > 0 ? 'Processing' : 'Processing';
-            return `<div class="brief-history-item" data-issue-id="${issue.id}">
-              <div style="display:flex;align-items:center;gap:6px">
-                <div style="width:6px;height:6px;border-radius:50%;background:${statusColor}"></div>
-                ${issue.title || 'Untitled Brief'}
-              </div>
-              <div class="brief-history-meta">${statusLabel} Â· ${new Date(issue.createdAt).toLocaleDateString()}</div>
-            </div>`;
-          }).join('');
-        // Re-bind sidebar click handlers
-        sidebar.querySelectorAll('.brief-history-item').forEach(item => {
-          item.addEventListener('click', () => router.navigate('warroom', { id: item.dataset.issueId }));
-        });
+// ═══════════════════════════════════════════════
+// BRIEF DETAIL SCREEN (Outputs front & centre)
+// ═══════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════
+// BRIEFS LIST + HELPERS
+// ═══════════════════════════════════════════════
+function getTimeAgo(date) {
+  const now = new Date();
+  const diff = now - date;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  return days + 'd ago';
+}
+
+function toggleOutputBody(headerEl) {
+  const body = headerEl.nextElementSibling;
+  if (body) body.style.display = body.style.display === 'none' ? '' : 'none';
+}
+
+function downloadAllOutputs(briefId) {
+  const issues = store.data.issues || [];
+  const agents = store.data.agents || [];
+  const activity = store.data.activity || [];
+  const brief = issues.find(i => i.id === briefId);
+  const tasks = issues.filter(i => i.parentId === briefId);
+  let content = '# ' + (brief?.title || 'Brief') + '\n';
+  content += '# Generated: ' + new Date().toLocaleString() + '\n\n';
+  content += (brief?.description || brief?.body || '') + '\n\n---\n\n';
+  tasks.forEach((task, idx) => {
+    const agent = agents.find(a => a.id === task.assigneeAgentId || a.name === task.executionAgentNameKey);
+    const agentName = agent ? agent.name : (task.executionAgentNameKey || 'Unknown');
+    content += '## ' + (idx+1) + '. ' + (task.title || 'Task') + '\n';
+    content += 'Agent: ' + agentName + ' | Status: ' + (task.status || 'unknown') + '\n\n';
+    const ta = activity.filter(a => (a.details?.issueId === task.id || a.entityId === task.id) && (a.action?.includes('comment') || a.type?.includes('comment')));
+    const coms = ta.map(a => a.details?.body || a.body || '').filter(b => b.length > 0).sort((a,b) => b.length - a.length);
+    if (coms.length > 0) content += coms[0] + '\n\n';
+    else if (task.body && task.body.length > 50) content += task.body + '\n\n';
+    else if (task.description) content += task.description + '\n\n';
+    else content += '(No output recorded)\n\n';
+    content += '---\n\n';
+  });
+  const blob = new Blob([content], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (brief?.title || 'brief').replace(/[^a-zA-Z0-9]/g, '_') + '_outputs.md';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function initBriefDetailScreen() {
+  document.querySelectorAll('.brief-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.brief-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const tabName = tab.dataset.tab;
+      document.querySelectorAll('#brief-tab-content > div').forEach(d => d.style.display = 'none');
+      const target = document.getElementById('tab-' + tabName);
+      if (target) target.style.display = '';
+      if (tabName === 'warroom') {
+        const container = document.getElementById('tab-warroom');
+        if (container && !container.dataset.loaded) {
+          container.dataset.loaded = '1';
+          container.innerHTML = renderWarRoomScreen(store.data);
+        }
       }
-      return; // Don't rebuild the form
-    }
-    // Not typing â safe to do full render
-    el.innerHTML = renderBriefScreen(data);
-    initBriefScreen();
-    return;
-  }
-
-  switch (screen) {
-    case 'warroom': el.innerHTML = renderWarRoomScreen(data); break;
-    case 'deliverables': el.innerHTML = renderDeliverablesScreen(data); initDeliverablesScreen(); break;
-    case 'costs': el.innerHTML = renderCostCentreScreen(data); initCostCentreScreen(); break;
-    case 'team': el.innerHTML = renderTeamScreen(data); initSwarmCanvas(); break;
-    default: el.innerHTML = renderBriefScreen(data); initBriefScreen();
+    });
+  });
+  const firstDone = document.querySelector('.output-card .output-card-status');
+  if (firstDone) {
+    const header = firstDone.closest('.output-card-header');
+    if (header) toggleOutputBody(header);
   }
 }
 
-// âââââââââââââââââââââââââââââââââââââââââââââââ
-// INIT
+function renderBriefsListScreen(data) {
+  if (!store.connectionOk && store._fetchAttempted) {
+    return '<div class="empty-state"><div class="empty-state-icon">\u{1F50C}</div><div class="empty-state-title">Not connected</div><div class="empty-state-desc">Cannot reach the Paperclip API.</div><button class="btn btn-primary" style="margin-top:16px" onclick="openSettings()">\u2699 Open Settings</button></div>';
+  }
+  const issues = data.issues || [];
+  const agents = data.agents || [];
+  const activity = data.activity || [];
+  const briefs = issues.filter(i => !i.parentId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  if (briefs.length === 0) {
+    return '<div class="empty-state"><div class="empty-state-icon">\u{1F4CB}</div><div class="empty-state-title">No briefs yet</div><div class="empty-state-desc">Create your first brief to get the swarm working.</div><button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate(\u0027newbrief\u0027)">+ New Brief</button></div>';
+  }
+  const cards = briefs.map(brief => {
+    const tasks = issues.filter(i => i.parentId === brief.id);
+    const doneTasks = tasks.filter(t => t.status === 'done').length;
+    const totalTasks = tasks.length;
+    const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+    const agentIds = [...new Set(tasks.map(t => t.assigneeAgentId || t.executionAgentNameKey).filter(Boolean))];
+    const briefAct = activity.filter(a => a.details?.issueId === brief.id || tasks.some(t => t.id === (a.details?.issueId || a.entityId)));
+    const lastActive = briefAct.length > 0 ? new Date(briefAct.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0].createdAt) : new Date(brief.createdAt);
+    const timeAgo = getTimeAgo(lastActive);
+    let statusClass = 'pending', statusLabel = 'Pending';
+    if (pct === 100 && totalTasks > 0) { statusClass = 'done'; statusLabel = 'Complete'; }
+    else if (doneTasks > 0) { statusClass = 'in_progress'; statusLabel = 'In Progress'; }
+    const desc = brief.description || brief.body || '';
+    return `<div class="brief-card" data-brief-id="${brief.id}">
+      <div class="brief-card-header"><div class="brief-card-title">${brief.title || 'Untitled Brief'}</div><span class="brief-card-status ${statusClass}">${statusLabel}</span></div>
+      <div class="brief-card-desc">${desc.substring(0, 150)}${desc.length > 150 ? '...' : ''}</div>
+      <div class="brief-card-stats"><span class="brief-card-stat">\u{1F4E6} ${doneTasks}/${totalTasks} tasks</span><span class="brief-card-stat">\u{1F916} ${agentIds.length} agents</span><span class="brief-card-stat">\u{1F552} ${timeAgo}</span></div>
+      <div class="brief-card-progress"><div class="brief-card-progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+  return `<div class="briefs-header"><h2>\u{1F4C1} Your Briefs</h2><button class="new-brief-btn" onclick="router.navigate('newbrief')">+ New Brief</button></div><div class="briefs-grid">${cards}</div>`;
+}
+
+function initBriefsListScreen() {
+  document.querySelectorAll('.brief-card').forEach(card => {
+    card.addEventListener('click', () => router.navigate('briefdetail', { id: card.dataset.briefId }));
+  });
+}
+
+function renderBriefDetailScreen(data) {
+  const briefId = router.params?.id;
+  const issues = data.issues || [];
+  const agents = data.agents || [];
+  const activity = data.activity || [];
+  const brief = issues.find(i => i.id === briefId);
+  if (!brief) {
+    return '<div class="empty-state"><div class="empty-state-icon">\u{2753}</div><div class="empty-state-title">Brief not found</div><button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate(\u0027briefs\u0027)">\u2190 Back to Briefs</button></div>';
+  }
+  const tasks = issues.filter(i => i.parentId === briefId);
+  const doneTasks = tasks.filter(t => t.status === 'done').length;
+  const totalTasks = tasks.length;
+  const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+
+  const outputCards = tasks.map(task => {
+    const agent = agents.find(a => a.id === task.assigneeAgentId || a.name === task.executionAgentNameKey);
+    const agentName = agent ? agent.name : (task.executionAgentNameKey || 'Unknown Agent');
+    const agentIcon = agent?.icon || '\u{1F916}';
+    const agentRole = agent?.title || agent?.role || '';
+    const isDone = task.status === 'done';
+    const statusStyle = isDone ? 'background:var(--accent-dim);color:var(--accent)' : 'background:var(--blue-dim);color:var(--blue)';
+    const taskActivity = activity.filter(a => (a.details?.issueId === task.id || a.entityId === task.id) && (a.action?.includes('comment') || a.type?.includes('comment')));
+    const comments = taskActivity.map(a => a.details?.body || a.body || '').filter(b => b.length > 0).sort((a, b) => b.length - a.length);
+    let content = '';
+    if (comments.length > 0) content = comments[0];
+    else if (task.body && task.body.length > 50) content = task.body;
+    else if (task.description && task.description.length > 20) content = task.description;
+    else content = isDone ? 'Task completed. No detailed output recorded.' : 'Task in progress\u2026';
+
+    return `<div class="output-card" data-task-id="${task.id}">
+      <div class="output-card-header" onclick="toggleOutputBody(this)">
+        <div class="output-card-agent">
+          <div class="output-card-icon">${agentIcon}</div>
+          <div><div class="output-card-name">${agentName}</div><div class="output-card-role">${agentRole}</div></div>
+        </div>
+        <span class="output-card-status" style="${statusStyle}">${isDone ? '\u2713 Done' : '\u25CF In Progress'}</span>
+      </div>
+      <div class="output-card-body" style="display:none"><strong>${task.title || 'Untitled Task'}</strong><br><br>${content.replace(/\n/g, '<br>')}</div>
+    </div>`;
+  }).join('');
+
+  const briefActivity = activity.filter(a => {
+    const eid = a.details?.issueId || a.entityId;
+    return eid === briefId || tasks.some(t => t.id === eid);
+  }).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 30);
+  const activityHtml = briefActivity.map(evt => formatActivity(evt)).join('');
+
+  return `<button class="back-btn" onclick="router.navigate('briefs')">\u2190 Back to Briefs</button>
+  <div class="brief-detail">
+    <div class="brief-detail-header">
+      <div class="brief-detail-title">${brief.title || 'Untitled Brief'}</div>
+      <button class="download-all-btn" onclick="downloadAllOutputs('${briefId}')">\u{1F4E5} Download All</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px">
+      <span style="font-size:13px;color:var(--accent);font-weight:600">${pct}% complete</span>
+      <span style="font-size:12px;color:var(--text-muted)">${doneTasks}/${totalTasks} tasks done</span>
+    </div>
+    <div class="brief-card-progress" style="margin-bottom:16px"><div class="brief-card-progress-fill" style="width:${pct}%"></div></div>
+    <div class="brief-detail-desc">${brief.description || brief.body || ''}</div>
+    <div class="brief-detail-tabs">
+      <button class="brief-tab active" data-tab="outputs">\u{1F4E6} Outputs (${tasks.length})</button>
+      <button class="brief-tab" data-tab="activity">\u{1F4AC} Activity (${briefActivity.length})</button>
+      <button class="brief-tab" data-tab="warroom">\u{1F3AF} War Room</button>
+    </div>
+    <div id="brief-tab-content">
+      <div id="tab-outputs">${outputCards || '<div style="color:var(--text-muted);padding:24px">No outputs yet.</div>'}</div>
+      <div id="tab-activity" style="display:none"><div class="activity-feed" style="max-height:600px;overflow-y:auto">${activityHtml || '<div style="color:var(--text-muted);padding:24px">No activity yet.</div>'}</div></div>
+      <div id="tab-warroom" style="display:none"></div>
+    </div>
+  </div>`;
+}
+
+function renderScreen() {
+      const el = document.getElementById('main-content');
+      const data = store.data;
+      const screen = router.currentScreen || 'briefs';
+
+      if (screen === 'newbrief') {
+        el.innerHTML = renderBriefScreen(data);
+        initBriefScreen();
+        return;
+      }
+      if (screen === 'briefdetail') {
+        el.innerHTML = renderBriefDetailScreen(data);
+        initBriefDetailScreen();
+        return;
+      }
+      if (screen === 'briefs') {
+        el.innerHTML = renderBriefsListScreen(data);
+        initBriefsListScreen();
+        return;
+      }
+
+      switch (screen) {
+        case 'warroom':
+          el.innerHTML = renderWarRoomScreen(data);
+          break;
+        case 'deliverables':
+          el.innerHTML = renderDeliverablesScreen(data);
+          initDeliverablesScreen();
+          break;
+        case 'costs':
+          el.innerHTML = renderCostCentreScreen(data);
+          initCostCentreScreen();
+          break;
+        case 'team':
+          el.innerHTML = renderTeamScreen(data);
+          initSwarmCanvas();
+          break;
+        default:
+          el.innerHTML = renderBriefsListScreen(data);
+          initBriefsListScreen();
+      }
+    }
+
+    // INIT
 // âââââââââââââââââââââââââââââââââââââââââââââââ
 store.onChange(() => renderScreen());
 store.startPolling();
