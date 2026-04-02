@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Future Collective â Command Centre</title>
+<title>The Future Collective &mdash; Command Centre</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -525,6 +525,72 @@ body.presentation .main { max-width: 100%; padding: 20px; }
 .new-brief-btn { padding: 8px 18px; background: var(--accent); color: #000; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
 .new-brief-btn:hover { opacity: 0.85; transform: translateY(-1px); }
 
+
+/* ════════ VISUAL OVERHAUL ════════ */
+/* Search & Filter Bar */
+.briefs-toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+.briefs-search { flex: 1; min-width: 200px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.briefs-search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+.briefs-search::placeholder { color: var(--text-muted); }
+.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-pill { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+.filter-pill:hover { border-color: var(--accent); color: var(--text); }
+.filter-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.filter-pill .pill-count { display: inline-block; min-width: 18px; height: 18px; line-height: 18px; text-align: center; background: rgba(255,255,255,0.15); border-radius: 9px; font-size: 11px; margin-left: 4px; }
+.filter-pill:not(.active) .pill-count { background: var(--border); }
+.briefs-sort { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 13px; cursor: pointer; }
+
+/* Enhanced Brief Cards */
+.brief-card { position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s; }
+.brief-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.brief-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 8px 0 0 8px; }
+.brief-card[data-status="done"]::before { background: #22c55e; }
+.brief-card[data-status="in_progress"]::before { background: #3b82f6; }
+.brief-card[data-status="blocked"]::before { background: #ef4444; }
+.brief-card[data-status="in_review"]::before { background: #f59e0b; }
+.brief-card[data-status="backlog"]::before { background: #6b7280; }
+.brief-card[data-status="pending"]::before { background: #8b5cf6; }
+
+/* Status badge enhancement */
+.status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.status-badge.done { background: rgba(34,197,94,0.12); color: #22c55e; }
+.status-badge.done::before { background: #22c55e; }
+.status-badge.in_progress { background: rgba(59,130,246,0.12); color: #3b82f6; }
+.status-badge.in_progress::before { background: #3b82f6; }
+.status-badge.blocked { background: rgba(239,68,68,0.12); color: #ef4444; }
+.status-badge.blocked::before { background: #ef4444; }
+.status-badge.in_review { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.status-badge.in_review::before { background: #f59e0b; }
+.status-badge.backlog { background: rgba(107,114,128,0.12); color: #6b7280; }
+.status-badge.backlog::before { background: #6b7280; }
+
+/* Screen transitions */
+#main-content { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state h3 { font-size: 18px; margin-bottom: 8px; color: var(--text); }
+.empty-state p { font-size: 14px; }
+
+/* Brief count header */
+.briefs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.briefs-header h2 { font-size: 22px; font-weight: 700; }
+.briefs-count { font-size: 13px; color: var(--text-muted); }
+
+/* Card meta row */
+.card-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); }
+.card-meta .agent-count { display: flex; align-items: center; gap: 4px; }
+
+/* Brief detail enhancements */
+.brief-tab { transition: all 0.2s; }
+.brief-tab:hover { color: var(--text); }
+.brief-tab.active { border-bottom-width: 3px; }
+
+/* Loading skeleton */
+.skeleton { background: linear-gradient(90deg, var(--card-bg) 25%, var(--border) 50%, var(--card-bg) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 </style>
 </head>
 <body>
@@ -537,15 +603,15 @@ body.presentation .main { max-width: 100%; padding: 20px; }
   <div class="header-left">
     <div class="logo">THE FUTURE <span>COLLECTIVE</span></div>
     <nav class="nav" id="nav">
-      <button class="nav-btn active" data-screen="briefs">📁 Briefs</button>
-      <button class="nav-btn" data-screen="team">🤖 Team</button>
+      <button class="nav-btn active" data-screen="briefs">&#128193; Briefs</button>
+      <button class="nav-btn" data-screen="team">&#129302; Team</button>
     </nav>
   </div>
   <div class="header-right">
     <div class="status-dot" id="status-dot" title="API Connected" style="cursor:pointer" onclick="openSettings()"></div>
-    <button class="sound-toggle" id="sound-toggle" title="Toggle sound effects">ð Sound</button>
+    <button class="sound-toggle" id="sound-toggle" title="Toggle sound effects">&#128263; Sound</button>
     <button class="settings-btn" id="settings-btn" title="Connection settings">â Settings</button>
-    <a href="https://paperclip-production-6689.up.railway.app" target="_blank" class="platform-link">Open Platform â</a>
+    <a href="https://paperclip-production-6689.up.railway.app" target="_blank" class="platform-link">Open Platform &#8599;</a>
   </div>
 </div>
 
@@ -655,7 +721,7 @@ class SoundManager {
   updateBtn() {
     const btn = document.getElementById('sound-toggle');
     if (btn) {
-      btn.textContent = this.muted ? 'ð Sound' : 'ð Sound';
+      btn.textContent = this.muted ? '&#128263; Sound' : '&#128266; Sound';
       btn.classList.toggle('on', !this.muted);
     }
   }
@@ -792,7 +858,7 @@ function analyseBrief(title, description) {
 function hashCost(id) {
   let h = 0;
   for (let i = 0; i < (id || '').length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0;
-  return 0.20 + (Math.abs(h) % 150) / 100; // $0.20 â $1.70
+  return 0.20 + (Math.abs(h) % 150) / 100; // $0.20 &ndash; $1.70
 }
 
 // âââââââââââââââââââââââââââââââââââââââââââââââ
@@ -827,7 +893,7 @@ class DataStore {
     this.connectionOk = !!(agents || issues);
     this._fetchAttempted = true;
 
-    // Optional endpoints â try once, disable if they 404
+    // Optional endpoints &mdash; try once, disable if they 404
     if (this._tryActivity !== false) {
       const activity = await this.api('/activity?limit=50');
       if (activity) {
@@ -861,7 +927,7 @@ class DataStore {
     const dot = document.getElementById('status-dot');
     if (dot) {
       dot.className = 'status-dot' + (this.connectionOk ? (this.isActive ? '' : ' idle') : ' error');
-      dot.title = this.connectionOk ? (this.isActive ? 'Agents Working' : 'Connected Â· Idle') : 'Connection Error';
+      dot.title = this.connectionOk ? (this.isActive ? 'Agents Working' : 'Connected &middot; Idle') : 'Connection Error';
     }
   }
   startPolling() {
@@ -946,10 +1012,10 @@ function updateConnectionStatus() {
   const el = document.getElementById('connection-status');
   if (store.connectionOk) {
     el.className = 'connection-status ok';
-    el.textContent = 'â Connected â receiving data from API';
+    el.textContent = 'â Connected &mdash; receiving data from API';
   } else {
     el.className = 'connection-status err';
-    el.textContent = 'â Not connected â check your API URL and company ID';
+    el.textContent = 'â Not connected &mdash; check your API URL and company ID';
   }
 }
 async function testConnection() {
@@ -967,19 +1033,19 @@ async function testConnection() {
     if (token) headers['Authorization'] = `Bearer ${token}`;
     const res = await fetch(testUrl, { headers });
     if (!res.ok) {
-      if (res.status === 403) throw new Error('403 Forbidden â check API token or enable CORS proxy');
-      if (res.status === 401) throw new Error('401 Unauthorised â API token required');
+      if (res.status === 403) throw new Error('403 Forbidden &mdash; check API token or enable CORS proxy');
+      if (res.status === 401) throw new Error('401 Unauthorised &mdash; API token required');
       throw new Error(`HTTP ${res.status}`);
     }
     const data = await res.json();
     const count = Array.isArray(data) ? data.length : (data.data ? data.data.length : 0);
     el.className = 'connection-status ok';
-    el.textContent = `â Connected â found ${count} agents`;
+    el.textContent = `â Connected &mdash; found ${count} agents`;
   } catch (e) {
     el.className = 'connection-status err';
     const isCors = e.message === 'Failed to fetch' || e.name === 'TypeError';
     el.textContent = isCors
-      ? `â Connection blocked â try enabling the CORS proxy checkbox above`
+      ? `â Connection blocked &mdash; try enabling the CORS proxy checkbox above`
       : `â Connection failed: ${e.message}`;
   }
 }
@@ -1039,6 +1105,7 @@ class Router {
   navigate(screen, params = {}) {
     this.currentScreen = screen;
     this.params = params;
+    window.__lastFingerprint = null; // force re-render on navigation
     const hash = params.id ? `${screen}/${params.id}` : screen;
     location.hash = hash;
     this.updateNav();
@@ -1059,9 +1126,9 @@ function renderBriefScreen(data) {
   // Show connection banner if not connected
   if (!store.connectionOk && store._fetchAttempted) {
     return `<div class="empty-state">
-      <div class="empty-state-icon">ð</div>
+      <div class="empty-state-icon">&#128268;</div>
       <div class="empty-state-title">Not connected</div>
-      <div class="empty-state-desc">Can't reach the Paperclip API.${location.protocol === 'file:' ? '<br><strong style="color:var(--orange)">You\'re running from a local file â enable the CORS proxy in settings.</strong>' : ''}</div>
+      <div class="empty-state-desc">Can't reach the Paperclip API.${location.protocol === 'file:' ? '<br><strong style="color:var(--orange)">You\'re running from a local file &mdash; enable the CORS proxy in settings.</strong>' : ''}</div>
       <button class="btn btn-primary" style="margin-top:16px" onclick="openSettings()">â Open Settings</button>
       <p style="font-size:11px;color:var(--text-muted);margin-top:12px">Current: ${CONFIG.API_URL}${CONFIG.CORS_PROXY ? ' (via CORS proxy)' : ''}</p>
     </div>`;
@@ -1078,7 +1145,7 @@ function renderBriefScreen(data) {
   ];
 
   const briefSection = `
-    <div>
+    <div id="brief-form">
       <div style="margin-bottom: 20px">
         <a onclick="navigate('briefs')" style="color:var(--text-muted);cursor:pointer;font-size:13px;text-decoration:none;display:inline-block;margin-bottom:12px">&larr; Back to Briefs</a>
         <h2 style="font-size:20px;font-weight:600;margin-bottom:6px">New Brief</h2>
@@ -1093,7 +1160,7 @@ function renderBriefScreen(data) {
       </div>
       <div class="form-group">
         <label class="form-label">Brief</label>
-        <textarea class="form-textarea" id="brief-desc" placeholder="Describe what you need â the more detail, the better the output. Include target audience, expected deliverables, and success criteria for best results..."></textarea>
+        <textarea class="form-textarea" id="brief-desc" placeholder="Describe what you need &mdash; the more detail, the better the output. Include target audience, expected deliverables, and success criteria for best results..."></textarea>
       </div>
       <div style="display:flex;gap:12px">
         <div class="form-group" style="flex:1">
@@ -1139,7 +1206,7 @@ function renderBriefScreen(data) {
               <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${statusColor};flex-shrink:0"></span>
               ${issue.title || 'Untitled Brief'}
             </div>
-            <div class="brief-history-meta">${statusLabel} Â· ${new Date(issue.createdAt).toLocaleDateString()}</div>
+            <div class="brief-history-meta">${statusLabel} &middot; ${new Date(issue.createdAt).toLocaleDateString()}</div>
           </div>
         `;
       }).join('')}
@@ -1185,7 +1252,7 @@ function initBriefScreen() {
       analysis.tips.good.map(t => `<div class="quality-tip-good">â ${t}</div>`).join('') +
       analysis.tips.warn.map(t => `<div class="quality-tip-warn">â³ ${t}</div>`).join('');
     document.getElementById('quality-estimate').innerHTML =
-      `<strong style="color:var(--text)">Estimate:</strong> ~${analysis.estimate.tasks} tasks Â· ${analysis.estimate.agents} agents Â· $${analysis.estimate.costLow}â$${analysis.estimate.costHigh} Â· ~${analysis.estimate.time} min`;
+      `<strong style="color:var(--text)">Estimate:</strong> ~${analysis.estimate.tasks} tasks &middot; ${analysis.estimate.agents} agents &middot; $${analysis.estimate.costLow}&ndash;$${analysis.estimate.costHigh} &middot; ~${analysis.estimate.time} min`;
   };
   titleInput.addEventListener('input', updateQuality);
   descInput.addEventListener('input', updateQuality);
@@ -1281,7 +1348,7 @@ function renderWarRoomScreen(data) {
 
   if (!brief && !briefId) {
     return `<div class="empty-state">
-      <div class="empty-state-icon">ð¯</div>
+      <div class="empty-state-icon">&#127919;</div>
       <div class="empty-state-title">No brief selected</div>
       <div class="empty-state-desc">Submit a new brief or select one from your history to see it in the War Room.</div>
       <button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate('newbrief')">Submit a Brief</button>
@@ -1360,7 +1427,7 @@ function renderWarRoomScreen(data) {
                 <div class="task-item-cost">${task.status === 'done' ? '$' + (hashCost(task.id)).toFixed(2) : task.status === 'in_progress' ? '$...' : ''}</div>
               </div>
               <div class="task-item-meta">
-                â ${getAgentName(task.assigneeAgentId)} Â·
+                â ${getAgentName(task.assigneeAgentId)} &middot;
                 <span class="status-${task.status === 'done' ? 'done' : task.status === 'in_progress' ? 'active' : 'queued'}">
                   ${task.status === 'done' ? 'Done' : task.status === 'in_progress' ? 'In Progress' : 'Queued'}
                 </span>
@@ -1436,13 +1503,13 @@ function renderDeliverablesScreen(data) {
   };
   const getIcon = (title) => {
     const t = (title || '').toLowerCase();
-    if (t.includes('research') || t.includes('analysis')) return 'ð';
-    if (t.includes('copy') || t.includes('content') || t.includes('write')) return 'ð';
-    if (t.includes('design') || t.includes('page') || t.includes('landing')) return 'ð';
-    if (t.includes('strategy') || t.includes('plan')) return 'ð¯';
-    if (t.includes('code') || t.includes('technical')) return 'ð»';
-    if (t.includes('review') || t.includes('audit')) return 'ð';
-    return 'ð';
+    if (t.includes('research') || t.includes('analysis')) return '&#128202;';
+    if (t.includes('copy') || t.includes('content') || t.includes('write')) return '&#128221;';
+    if (t.includes('design') || t.includes('page') || t.includes('landing')) return '&#127760;';
+    if (t.includes('strategy') || t.includes('plan')) return '&#127919;';
+    if (t.includes('code') || t.includes('technical')) return '&#128187;';
+    if (t.includes('review') || t.includes('audit')) return '&#128269;';
+    return '&#128196;';
   };
   const getRating = (issueId) => {
     return parseInt(localStorage.getItem('cc-rating-' + issueId)) || 0;
@@ -1456,7 +1523,7 @@ function renderDeliverablesScreen(data) {
 
   if (doneTasks.length === 0 && pendingTasks.length === 0) {
     return `<div class="empty-state">
-      <div class="empty-state-icon">ð¦</div>
+      <div class="empty-state-icon">&#128230;</div>
       <div class="empty-state-title">No deliverables yet</div>
       <div class="empty-state-desc">Deliverables will appear here as your AI team completes tasks.</div>
       <button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate('newbrief')">Submit a Brief</button>
@@ -1467,7 +1534,7 @@ function renderDeliverablesScreen(data) {
     <div class="deliverables-header">
       <div>
         <h2 style="font-size:20px;font-weight:600">Deliverables</h2>
-        <p style="font-size:13px;color:var(--text-muted);margin-top:4px">${doneTasks.length} items ready${pendingTasks.length > 0 ? ` Â· ${pendingTasks.length} in progress` : ''}</p>
+        <p style="font-size:13px;color:var(--text-muted);margin-top:4px">${doneTasks.length} items ready${pendingTasks.length > 0 ? ` &middot; ${pendingTasks.length} in progress` : ''}</p>
       </div>
       <div style="display:flex;gap:8px">
         ${doneTasks.length > 0 ? '<button class="btn btn-sm btn-secondary" id="download-all-btn">Download All â</button>' : ''}
@@ -1538,7 +1605,7 @@ function initDeliverablesScreen() {
     });
   });
 
-  // Revision buttons â toggle inline form
+  // Revision buttons &mdash; toggle inline form
   document.querySelectorAll('.revision-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1566,7 +1633,7 @@ function initDeliverablesScreen() {
         submitBtn.disabled = true;
         store.requestRevision(issueId, feedback, agentId).then(ok => {
           if (ok) {
-            form.innerHTML = '<div style="font-size:12px;color:var(--accent);padding:6px 0">â Revision requested â check the War Room for updates</div>';
+            form.innerHTML = '<div style="font-size:12px;color:var(--accent);padding:6px 0">â Revision requested &mdash; check the War Room for updates</div>';
             setTimeout(() => form.remove(), 3000);
           } else {
             submitBtn.textContent = 'Send Revision â';
@@ -2205,43 +2272,144 @@ function initBriefDetailScreen() {
 }
 
 function renderBriefsListScreen(data) {
-  if (!store.connectionOk && store._fetchAttempted) {
-    return '<div class="empty-state"><div class="empty-state-icon">\u{1F50C}</div><div class="empty-state-title">Not connected</div><div class="empty-state-desc">Cannot reach the Paperclip API.</div><button class="btn btn-primary" style="margin-top:16px" onclick="openSettings()">\u2699 Open Settings</button></div>';
-  }
-  const issues = data.issues || [];
-  const agents = data.agents || [];
-  const activity = data.activity || [];
-  const briefs = issues.filter(i => !i.parentId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  if (briefs.length === 0) {
-    return '<div class="empty-state"><div class="empty-state-icon">\u{1F4CB}</div><div class="empty-state-title">No briefs yet</div><div class="empty-state-desc">Create your first brief to get the swarm working.</div><button class="btn btn-primary" style="margin-top:16px" onclick="router.navigate(\u0027newbrief\u0027)">+ New Brief</button></div>';
-  }
-  const cards = briefs.map(brief => {
-    const tasks = issues.filter(i => i.parentId === brief.id);
-    const doneTasks = tasks.filter(t => t.status === 'done').length;
-    const totalTasks = tasks.length;
-    const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
-    const agentIds = [...new Set(tasks.map(t => t.assigneeAgentId || t.executionAgentNameKey).filter(Boolean))];
-    const briefAct = activity.filter(a => a.details?.issueId === brief.id || tasks.some(t => t.id === (a.details?.issueId || a.entityId)));
-    const lastActive = briefAct.length > 0 ? new Date(briefAct.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0].createdAt) : new Date(brief.createdAt);
-    const timeAgo = getTimeAgo(lastActive);
-    let statusClass = 'pending', statusLabel = 'Pending';
-    if (pct === 100 && totalTasks > 0) { statusClass = 'done'; statusLabel = 'Complete'; }
-    else if (doneTasks > 0) { statusClass = 'in_progress'; statusLabel = 'In Progress'; }
-    const desc = brief.description || brief.body || '';
-    return `<div class="brief-card" data-brief-id="${brief.id}">
-      <div class="brief-card-header"><div class="brief-card-title">${brief.title || 'Untitled Brief'}</div><span class="brief-card-status ${statusClass}">${statusLabel}</span></div>
-      <div class="brief-card-desc">${desc.replace(/^#+\s*/gm,'').replace(/\*\*/g,'').trim().substring(0, 150)}${desc.length > 150 ? '...' : ''}</div>
-      <div class="brief-card-stats"><span class="brief-card-stat">\u{1F4E6} ${doneTasks}/${totalTasks} tasks</span><span class="brief-card-stat">\u{1F916} ${agentIds.length} agents</span><span class="brief-card-stat">\u{1F552} ${timeAgo}</span></div>
-      <div class="brief-card-progress"><div class="brief-card-progress-fill" style="width:${pct}%"></div></div>
-    </div>`;
-  }).join('');
-  return `<div class="briefs-header"><h2>\u{1F4C1} Your Briefs</h2><button class="new-brief-btn" onclick="router.navigate('newbrief')">+ New Brief</button></div><div class="briefs-grid">${cards}</div>`;
-}
+      const briefs = (data.issues || []).filter(i => !i.parentId);
+      const agents = data.agents || [];
+
+      // Count by status for filter pills
+      const counts = {};
+      briefs.forEach(b => { counts[b.status] = (counts[b.status] || 0) + 1; });
+      const totalCount = briefs.length;
+
+      // Get current filter/search state (persisted across re-renders)
+      const activeFilter = window.__briefFilter || 'all';
+      const searchQuery = window.__briefSearch || '';
+      const sortBy = window.__briefSort || 'status';
+
+      // Filter
+      let filtered = activeFilter === 'all' ? briefs : briefs.filter(b => b.status === activeFilter);
+
+      // Search
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(b => (b.title||'').toLowerCase().includes(q) || (b.description||'').toLowerCase().includes(q));
+      }
+
+      // Sort
+      const statusOrder = { 'in_progress': 0, 'in_review': 1, 'blocked': 2, 'backlog': 3, 'done': 4 };
+      if (sortBy === 'status') {
+        filtered.sort((a,b) => (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99));
+      } else if (sortBy === 'newest') {
+        filtered.sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+      } else if (sortBy === 'oldest') {
+        filtered.sort((a,b) => new Date(a.createdAt||0) - new Date(b.createdAt||0));
+      } else if (sortBy === 'alpha') {
+        filtered.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+      }
+
+      const getBriefTypeIcon = (t) => {
+        if (t.includes('analysis')) return '&#128202;';
+        if (t.includes('write')) return '&#128221;';
+        if (t.includes('marketing')) return '&#127760;';
+        if (t.includes('strategy') || t.includes('plan')) return '&#127919;';
+        if (t.includes('technical')) return '&#128187;';
+        if (t.includes('audit')) return '&#128269;';
+        return '&#128196;';
+      };
+
+      const briefCards = filtered.map(b => {
+        const subtasks = (data.issues || []).filter(i => i.parentId === b.id);
+        const doneCount = subtasks.filter(s => s.status === 'done').length;
+        const total = subtasks.length;
+        const pct = total ? Math.round(doneCount/total*100) : 0;
+        const icon = getBriefTypeIcon((b.title || '').toLowerCase());
+        const desc = (b.description || 'No description').replace(/^#+\s*/gm,'').replace(/\*\*/g,'').trim().substring(0, 150);
+        const assigned = agents.filter(a => (a.assignedBriefs || []).includes(b.id));
+        const created = b.createdAt ? new Date(b.createdAt).toLocaleDateString('en-GB') : '';
+        return `
+          <div class="brief-card" data-status="${b.status}" onclick="router.navigate('briefdetail', {id:'${b.id}'})">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <span style="font-size:20px">${icon}</span>
+              <span class="status-badge ${b.status}">${b.status.replace('_',' ')}</span>
+            </div>
+            <h3>${b.title}</h3>
+            <p>${desc}</p>
+            <div class="brief-progress" style="display:flex;align-items:center;gap:16px;margin-bottom:8px">
+              <div style="flex:1;background:var(--border);border-radius:4px;height:6px">
+                <div style="width:${pct}%;height:100%;background:var(--accent);border-radius:4px;transition:width 0.3s"></div>
+              </div>
+              <span style="font-size:12px;color:var(--text-muted)">${doneCount}/${total}</span>
+            </div>
+            <div class="card-meta">
+              <span class="agent-count">&#128101; ${assigned.length}</span>
+              <span>&middot;</span>
+              <span>${created}</span>
+            </div>
+          </div>`;
+      }).join('');
+
+      const emptyState = filtered.length === 0 ? '<div class="empty-state"><h3>No briefs found</h3><p>Try adjusting your search or filters</p></div>' : '';
+
+      const filterPills = ['all','in_progress','in_review','blocked','backlog','done'].map(s => {
+        const label = s === 'all' ? 'All' : s.replace('_',' ');
+        const count = s === 'all' ? totalCount : (counts[s] || 0);
+        const active = activeFilter === s ? ' active' : '';
+        return `<button class="filter-pill${active}" data-filter="${s}">${label}<span class="pill-count">${count}</span></button>`;
+      }).join('');
+
+      return `
+        <div class="briefs-header">
+          <div>
+            <h2>Briefs</h2>
+            <span class="briefs-count">Showing ${filtered.length} of ${totalCount}</span>
+          </div>
+          <button onclick="router.navigate('newbrief')" style="padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">+ New Brief</button>
+        </div>
+        <div class="briefs-toolbar">
+          <input type="text" class="briefs-search" placeholder="Search briefs..." value="${searchQuery}" id="brief-search-input">
+          <select class="briefs-sort" id="brief-sort-select">
+            <option value="status"${sortBy==='status'?' selected':''}>Sort: Status</option>
+            <option value="newest"${sortBy==='newest'?' selected':''}>Sort: Newest</option>
+            <option value="oldest"${sortBy==='oldest'?' selected':''}>Sort: Oldest</option>
+            <option value="alpha"${sortBy==='alpha'?' selected':''}>Sort: A-Z</option>
+          </select>
+        </div>
+        <div class="filter-pills" style="margin-bottom:20px">${filterPills}</div>
+        <div class="briefs-grid">${briefCards}${emptyState}</div>`;
+    }
 
 function initBriefsListScreen() {
-  document.querySelectorAll('.brief-card').forEach(card => {
-    card.addEventListener('click', () => router.navigate('briefdetail', { id: card.dataset.briefId }));
+  // Search input with debounce
+  const searchInput = document.getElementById('brief-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(window.__searchTimer);
+      window.__searchTimer = setTimeout(() => {
+        window.__briefSearch = e.target.value;
+        window.__lastFingerprint = null;
+        renderScreen();
+        // Re-focus search input after re-render
+        const inp = document.getElementById('brief-search-input');
+        if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+      }, 250);
+    });
+  }
+  // Filter pills
+  document.querySelectorAll('.filter-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      window.__briefFilter = pill.dataset.filter;
+      window.__lastFingerprint = null;
+      renderScreen();
+    });
   });
+  // Sort select
+  const sortSelect = document.getElementById('brief-sort-select');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', (e) => {
+      window.__briefSort = e.target.value;
+      window.__lastFingerprint = null;
+      renderScreen();
+    });
+  }
 }
 
 function renderBriefDetailScreen(data) {
@@ -2321,11 +2489,23 @@ function renderScreen() {
       const data = store.data;
       const screen = router.currentScreen || 'briefs';
 
+      // SMART RENDER GATE: skip re-render when nothing changed
       if (screen === 'newbrief') {
+        // Never re-render the new brief form - preserves user input
+        if (el.querySelector('#brief-form')) return;
         el.innerHTML = renderBriefScreen(data);
         initBriefScreen();
         return;
       }
+
+      // Data fingerprint: skip re-render if data + screen unchanged
+      const fingerprint = screen + ':' + (data.issues||[]).length + ':' +
+        (data.issues||[]).map(i => i.id + i.status + (i.updatedAt||'')).join(',') + ':' +
+        (data.agents||[]).length;
+      if (window.__lastFingerprint === fingerprint && window.__lastScreen === screen) return;
+      window.__lastFingerprint = fingerprint;
+      window.__lastScreen = screen;
+
       if (screen === 'briefdetail') {
         const activeTab = el.querySelector('.brief-tab.active');
         const currentTab = activeTab ? activeTab.dataset.tab : null;
@@ -2348,8 +2528,9 @@ function renderScreen() {
       }
 
       switch (screen) {
-        case 'warroom':
-          el.innerHTML = renderWarRoomScreen(data);
+        case 'dashboard':
+          el.innerHTML = renderDashboardScreen(data);
+          initDashboardScreen();
           break;
         case 'deliverables':
           el.innerHTML = renderDeliverablesScreen(data);
@@ -2361,7 +2542,7 @@ function renderScreen() {
           break;
         case 'team':
           el.innerHTML = renderTeamScreen(data);
-          initSwarmCanvas();
+          initTeamScreen();
           break;
         default:
           el.innerHTML = renderBriefsListScreen(data);
