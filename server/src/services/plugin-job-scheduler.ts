@@ -18,7 +18,8 @@
  *
  * 3. **Overlap prevention** — Before dispatching a job, the scheduler checks
  *    for an existing `running` run for the same job. If one exists, the job
- *    is skipped for that tick.
+ *    is skipped for that tick. Phase 2 adds DB-backed overlap checks in
+ *    addition to the in-memory Set, catching ghost runs from crashed servers.
  *
  * 4. **Job run recording** — Every execution creates a `plugin_job_runs` row:
  *    `queued` → `running` → `succeeded` | `failed`. Duration and error are
@@ -29,9 +30,15 @@
  *    scheduling when plugins start/stop. On registration, the scheduler
  *    computes `nextRunAt` for all active jobs that don't already have one.
  *
+ * 6. **Heartbeat** (Phase 2) — During job execution, the scheduler
+ *    periodically touches `lastHeartbeatAt` on the run record. The
+ *    RunRecoveryService sweeps for runs whose heartbeat has expired and
+ *    marks them as failed.
+ *
  * @see PLUGIN_SPEC.md §17 — Scheduled Jobs
  * @see ./plugin-job-store.ts — Persistence layer
  * @see ./cron.ts — Cron parsing utilities
+ * @see ./run-recovery.ts — Ghost run recovery (Phase 2)
  */
 
 import { and, eq, lte, or } from "drizzle-orm";
@@ -39,6 +46,7 @@ import type { Db } from "@paperclipai/db";
 import { pluginJobs, pluginJobRuns } from "@paperclipai/db";
 import type { PluginJobStore } from "./plugin-job-store.js";
 import type { PluginWorkerManager } from "./plugin-worker-manager.js";
+import type { RunRecoveryService } from "./run-recovery.js";
 import { parseCron, nextCronTick, validateCron } from "./cron.js";
 import { logger } from "../middleware/logger.js";
 
@@ -55,6 +63,9 @@ const DEFAULT_JOB_TIMEOUT_MS = 5 * 60 * 1_000;
 /** Maximum number of concurrent job executions across all plugins. */
 const DEFAULT_MAX_CONCURRENT_JOBS = 10;
 
+/** Heartbeat touch interval during job execution (30 seconds). */
+const HEARTBEAT_INTERVAL_MS = 30_000;
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -65,14 +76,22 @@ const DEFAULT_MAX_CONCURRENT_JOBS = 10;
 export interface PluginJobSchedulerOptions {
   /** Drizzle database instance. */
   db: Db;
+
   /** Persistence layer for jobs and runs. */
   jobStore: PluginJobStore;
+
   /** Worker process manager for RPC calls. */
   workerManager: PluginWorkerManager;
+
+  /** Run recovery service for heartbeat and ghost run detection (Phase 2). */
+  runRecovery?: RunRecoveryService;
+
   /** Interval between scheduler ticks in ms (default: 30s). */
   tickIntervalMs?: number;
+
   /** Timeout for individual job RPC calls in ms (default: 5min). */
   jobTimeoutMs?: number;
+
   /** Maximum number of concurrent job executions (default: 10). */
   maxConcurrentJobs?: number;
 }
@@ -115,8 +134,10 @@ export interface PluginJobScheduler {
    * Start the scheduler tick loop.
    *
    * Safe to call multiple times — subsequent calls are no-ops.
+   *
+   * Phase 2: Now async — recovers ghost runs before the first tick.
    */
-  start(): void;
+  start(): Promise<void>;
 
   /**
    * Stop the scheduler tick loop.
@@ -185,10 +206,11 @@ export interface PluginJobScheduler {
  *   db,
  *   jobStore,
  *   workerManager,
+ *   runRecovery,  // Phase 2 — optional
  * });
  *
- * // Start the tick loop
- * scheduler.start();
+ * // Start the tick loop (Phase 2: also recovers ghost runs)
+ * await scheduler.start();
  *
  * // When a plugin comes online, register it
  * await scheduler.registerPlugin(pluginId);
@@ -207,6 +229,7 @@ export function createPluginJobScheduler(
     db,
     jobStore,
     workerManager,
+    runRecovery,
     tickIntervalMs = DEFAULT_TICK_INTERVAL_MS,
     jobTimeoutMs = DEFAULT_JOB_TIMEOUT_MS,
     maxConcurrentJobs = DEFAULT_MAX_CONCURRENT_JOBS,
@@ -237,6 +260,31 @@ export function createPluginJobScheduler(
   let tickInProgress = false;
 
   // -----------------------------------------------------------------------
+  // Phase 2: DB-backed overlap check
+  // -----------------------------------------------------------------------
+
+  /**
+   * Check the database for active (queued/running) runs for a job.
+   * This catches ghost runs from a previous server instance that the
+   * in-memory Set wouldn't know about.
+   */
+  async function hasActiveRunInDb(jobId: string): Promise<boolean> {
+    const dbRunningRuns = await db
+      .select({ id: pluginJobRuns.id })
+      .from(pluginJobRuns)
+      .where(
+        and(
+          eq(pluginJobRuns.jobId, jobId),
+          or(
+            eq(pluginJobRuns.status, "running"),
+            eq(pluginJobRuns.status, "queued"),
+          ),
+        ),
+      );
+    return dbRunningRuns.length > 0;
+  }
+
+  // -----------------------------------------------------------------------
   // Core: tick
   // -----------------------------------------------------------------------
 
@@ -258,8 +306,6 @@ export function createPluginJobScheduler(
       const now = new Date();
 
       // Query for jobs whose nextRunAt has passed and are active.
-      // We include jobs with null nextRunAt since they may have just been
-      // registered and need their first run calculated.
       const dueJobs = await db
         .select()
         .from(pluginJobs)
@@ -289,13 +335,29 @@ export function createPluginJobScheduler(
           break;
         }
 
-        // Overlap prevention: skip if this job is already running
+        // Overlap prevention: skip if this job is already running (in-memory)
         if (activeJobs.has(job.id)) {
           log.debug(
             { jobId: job.id, jobKey: job.jobKey, pluginId: job.pluginId },
-            "skipping job — already running (overlap prevention)",
+            "skipping job — already running (in-memory overlap prevention)",
           );
           continue;
+        }
+
+        // Phase 2: DB-backed overlap prevention
+        try {
+          if (await hasActiveRunInDb(job.id)) {
+            log.debug(
+              { jobId: job.id, jobKey: job.jobKey },
+              "skipping job — DB shows existing active run (Phase 2 overlap check)",
+            );
+            continue;
+          }
+        } catch (err) {
+          log.warn(
+            { jobId: job.id, err: err instanceof Error ? err.message : String(err) },
+            "DB overlap check failed — falling back to in-memory only",
+          );
         }
 
         // Check if the worker is available
@@ -366,20 +428,30 @@ export function createPluginJobScheduler(
       // 2. Mark run as running
       await jobStore.markRunning(runId);
 
-      // 3. Call worker via RPC
-      await workerManager.call(
-        pluginId,
-        "runJob",
-        {
-          job: {
-            jobKey,
-            runId,
-            trigger: "schedule" as const,
-            scheduledAt: (job.nextRunAt ?? new Date()).toISOString(),
+      // 3. Call worker via RPC — with periodic heartbeat (Phase 2)
+      const heartbeatInterval = runRecovery
+        ? setInterval(() => {
+            void runRecovery.touchHeartbeat(runId!);
+          }, HEARTBEAT_INTERVAL_MS)
+        : null;
+
+      try {
+        await workerManager.call(
+          pluginId,
+          "runJob",
+          {
+            job: {
+              jobKey,
+              runId,
+              trigger: "schedule" as const,
+              scheduledAt: (job.nextRunAt ?? new Date()).toISOString(),
+            },
           },
-        },
-        jobTimeoutMs,
-      );
+          jobTimeoutMs,
+        );
+      } finally {
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+      }
 
       // 4. Mark run as succeeded
       const durationMs = Date.now() - startedAt;
@@ -410,7 +482,10 @@ export function createPluginJobScheduler(
           jobLog.error(
             {
               runId,
-              err: completeErr instanceof Error ? completeErr.message : String(completeErr),
+              err:
+                completeErr instanceof Error
+                  ? completeErr.message
+                  : String(completeErr),
             },
             "failed to record job failure",
           );
@@ -441,6 +516,7 @@ export function createPluginJobScheduler(
     trigger: "manual" | "retry" = "manual",
   ): Promise<TriggerJobResult> {
     const job = await jobStore.getJobById(jobId);
+
     if (!job) {
       throw new Error(`Job not found: ${jobId}`);
     }
@@ -512,19 +588,30 @@ export function createPluginJobScheduler(
     try {
       await jobStore.markRunning(runId);
 
-      await workerManager.call(
-        pluginId,
-        "runJob",
-        {
-          job: {
-            jobKey,
-            runId,
-            trigger,
-            scheduledAt: new Date().toISOString(),
+      // Phase 2: heartbeat during manual run execution
+      const heartbeatInterval = runRecovery
+        ? setInterval(() => {
+            void runRecovery.touchHeartbeat(runId);
+          }, HEARTBEAT_INTERVAL_MS)
+        : null;
+
+      try {
+        await workerManager.call(
+          pluginId,
+          "runJob",
+          {
+            job: {
+              jobKey,
+              runId,
+              trigger,
+              scheduledAt: new Date().toISOString(),
+            },
           },
-        },
-        jobTimeoutMs,
-      );
+          jobTimeoutMs,
+        );
+      } finally {
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+      }
 
       const durationMs = Date.now() - startedAt;
       await jobStore.completeRun(runId, {
@@ -536,6 +623,7 @@ export function createPluginJobScheduler(
     } catch (err) {
       const durationMs = Date.now() - startedAt;
       const errorMessage = err instanceof Error ? err.message : String(err);
+
       jobLog.error({ durationMs, err: errorMessage }, "manual job failed");
 
       try {
@@ -547,7 +635,10 @@ export function createPluginJobScheduler(
       } catch (completeErr) {
         jobLog.error(
           {
-            err: completeErr instanceof Error ? completeErr.message : String(completeErr),
+            err:
+              completeErr instanceof Error
+                ? completeErr.message
+                : String(completeErr),
           },
           "failed to record manual job failure",
         );
@@ -688,13 +779,35 @@ export function createPluginJobScheduler(
   // Lifecycle: start / stop
   // -----------------------------------------------------------------------
 
-  function start(): void {
+  async function start(): Promise<void> {
     if (running) {
       log.debug("scheduler already running");
       return;
     }
 
+    // Phase 2: Recover ghost runs from previous server instance
+    if (runRecovery) {
+      try {
+        const recovery = await runRecovery.recoverStaleRuns();
+        if (recovery.recoveredCount > 0) {
+          log.info(
+            { recoveredCount: recovery.recoveredCount },
+            "recovered ghost runs before starting scheduler",
+          );
+        }
+      } catch (err) {
+        log.error(
+          { err: err instanceof Error ? err.message : String(err) },
+          "failed to recover stale runs — proceeding anyway",
+        );
+      }
+
+      // Start the heartbeat sweeper
+      runRecovery.startHeartbeatSweeper();
+    }
+
     running = true;
+
     tickTimer = setInterval(() => {
       void tick();
     }, tickIntervalMs);
@@ -713,7 +826,13 @@ export function createPluginJobScheduler(
       tickTimer = null;
     }
 
+    // Phase 2: Stop the heartbeat sweeper
+    if (runRecovery) {
+      runRecovery.stopHeartbeatSweeper();
+    }
+
     if (!running) return;
+
     running = false;
 
     log.info(
