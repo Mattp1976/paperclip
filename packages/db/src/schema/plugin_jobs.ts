@@ -21,11 +21,11 @@ import type { PluginJobStatus, PluginJobRunStatus, PluginJobRunTrigger } from "@
  * used by the job scheduler to decide when to fire the job.
  *
  * Status values:
- * - `active` — job is enabled and will run on schedule
- * - `paused` — job is temporarily disabled by the operator
- * - `error` — job has been disabled due to repeated failures
+ * - `active`    — job is scheduled and will fire on its cron/interval
+ * - `paused`    — job exists but won't fire until resumed
+ * - `disabled`  — job is inactive (e.g. plugin disabled)
  *
- * @see PLUGIN_SPEC.md §21.3 — `plugin_jobs`
+ * @see PLUGIN_SPEC.md §17 — Scheduled Jobs
  */
 export const pluginJobs = pgTable(
   "plugin_jobs",
@@ -64,7 +64,7 @@ export const pluginJobs = pgTable(
  *
  * Trigger values:
  * - `scheduled` — fired automatically by the cron/interval scheduler
- * - `manual` — triggered by an operator via the admin UI or API
+ * - `manual`    — triggered by an operator via the admin UI or API
  *
  * @see PLUGIN_SPEC.md §21.3 — `plugin_job_runs`
  */
@@ -92,6 +92,8 @@ export const pluginJobRuns = pgTable(
     logs: jsonb("logs").$type<string[]>().notNull().default([]),
     startedAt: timestamp("started_at", { withTimezone: true }),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
+    /** Phase 2: Last heartbeat timestamp for ghost run detection. */
+    lastHeartbeatAt: timestamp("last_heartbeat_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
