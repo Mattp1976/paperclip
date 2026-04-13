@@ -10,16 +10,16 @@ import {
 import { validate } from "../middleware/validate.js";
 import { assertBoard, assertCompanyAccess } from "./authz.js";
 import { logActivity, secretService } from "../services/index.js";
+import { getDefaultSecretProviderId } from "../secrets/provider-registry.js";
 
 export function secretRoutes(db: Db) {
   const router = Router();
   const svc = secretService(db);
-  const configuredDefaultProvider = process.env.PAPERCLIP_SECRETS_PROVIDER;
-  const defaultProvider = (
-    configuredDefaultProvider && SECRET_PROVIDERS.includes(configuredDefaultProvider as SecretProvider)
-      ? configuredDefaultProvider
-      : "local_encrypted"
-  ) as SecretProvider;
+
+  // Use the centralized default from provider-registry instead of
+  // hard-coding "local_encrypted". This respects PAPERCLIP_SECRETS_PROVIDER
+  // and defaults to "railway_env".
+  const defaultProvider = getDefaultSecretProviderId();
 
   router.get("/companies/:companyId/secret-providers", (req, res) => {
     assertBoard(req);
