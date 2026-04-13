@@ -30,3 +30,11 @@ export { notifyHireApproved, type NotifyHireApprovedInput } from "./hire-hook.js
 export { publishLiveEvent, subscribeCompanyLiveEvents } from "./live-events.js";
 export { reconcilePersistedRuntimeServicesOnStartup } from "./workspace-runtime.js";
 export { createStorageServiceFromConfig, getStorageService } from "../storage/index.js";
+
+// Phase 2: Run recovery service
+export { createRunRecoveryService } from "./run-recovery.js";
+export type { RunRecoveryService, RunRecoveryOptions } from "./run-recovery.js";
+
+// Phase 3: Checkout lock recovery service
+export { createCheckoutLockRecoveryService } from "./checkout-lock-recovery.js";
+export type { CheckoutLockRecoveryService, CheckoutLockRecoveryOptions } from "./checkout-lock-recovery.js";
