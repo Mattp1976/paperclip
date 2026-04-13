@@ -89,7 +89,7 @@ export interface LockRecoveryResult {
 
 export interface OrphanedLockEntry {
   issueId: string;
-  issueKey: string;
+  identifier: string;
   companyId: string;
   status: string;
   checkoutRunId: string | null;
@@ -119,7 +119,7 @@ export interface CheckoutLockRecoveryService {
    * Force-release a specific issue's checkout lock.
    * Used by admin endpoints when manual intervention is needed.
    */
-  forceRelease(issueId: string): Promise<boolean>;
+  forceRelease(issueId: string, reason?: string): Promise<boolean>;
 
   /**
    * Audit all issues with potentially orphaned locks.
@@ -285,7 +285,7 @@ export function createCheckoutLockRecoveryService(
   // Force release (admin)
   // -----------------------------------------------------------------------
 
-  async function forceRelease(issueId: string): Promise<boolean> {
+  async function forceRelease(issueId: string, reason?: string): Promise<boolean> {
     const now = new Date();
     const result = await db
       .update(issues)
@@ -302,7 +302,7 @@ export function createCheckoutLockRecoveryService(
 
     const released = result.length > 0;
     if (released) {
-      log.warn({ issueId }, "force-released issue checkout lock (admin action)");
+      log.warn({ issueId, reason: reason ?? "no reason provided" }, "force-released issue checkout lock (admin action)");
     }
     return released;
   }
@@ -317,7 +317,7 @@ export function createCheckoutLockRecoveryService(
     const lockedIssues = await db
       .select({
         id: issues.id,
-        issueKey: issues.issueKey,
+        identifier: issues.identifier,
         companyId: issues.companyId,
         status: issues.status,
         checkoutRunId: issues.checkoutRunId,
@@ -341,7 +341,7 @@ export function createCheckoutLockRecoveryService(
 
       entries.push({
         issueId: issue.id,
-        issueKey: issue.issueKey,
+        identifier: issue.identifier,
         companyId: issue.companyId,
         status: issue.status,
         checkoutRunId: issue.checkoutRunId,
