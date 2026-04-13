@@ -1,39 +1,13 @@
 /**
  * PluginJobScheduler — tick-based scheduler for plugin scheduled jobs.
  *
- * The scheduler is the central coordinator for all plugin cron jobs. It
- * periodically ticks (default every 30 seconds), queries the `plugin_jobs`
- * table for jobs whose `nextRunAt` has passed, dispatches `runJob` RPC calls
- * to the appropriate worker processes, records each execution in the
- * `plugin_job_runs` table, and advances the scheduling pointer.
- *
- * ## Responsibilities
- *
- * 1. **Tick loop** — A `setInterval`-based loop fires every `tickIntervalMs`
- *    (default 30s). Each tick scans for due jobs and dispatches them.
- *
- * 2. **Cron parsing & next-run calculation** — Uses the lightweight built-in
- *    cron parser ({@link parseCron}, {@link nextCronTick}) to compute the
- *    `nextRunAt` timestamp after each run or when a new job is registered.
- *
- * 3. **Overlap prevention** — Before dispatching a job, the scheduler checks
- *    for an existing `running` run for the same job. If one exists, the job
- *    is skipped for that tick. Phase 2 adds DB-backed overlap checks in
- *    addition to the in-memory Set, catching ghost runs from crashed servers.
- *
- * 4. **Job run recording** — Every execution creates a `plugin_job_runs` row:
- *    `queued` → `running` → `succeeded` | `failed`. Duration and error are
- *    captured.
- *
- * 5. **Lifecycle integration** — The scheduler exposes `registerPlugin()` and
- *    `unregisterPlugin()` so the host lifecycle manager can wire up job
- *    scheduling when plugins start/stop. On registration, the scheduler
- *    computes `nextRunAt` for all active jobs that don't already have one.
- *
- * 6. **Heartbeat** (Phase 2) — During job execution, the scheduler
- *    periodically touches `lastHeartbeatAt` on the run record. The
- *    RunRecoveryService sweeps for runs whose heartbeat has expired and
- *    marks them as failed.
+ * Phase 4 Hardening Changes:
+ * 1. Tick jitter — setTimeout self-reschedule with ±15% random jitter
+ *    (prevents thundering herd in multi-instance deployments)
+ * 2. Missed-fire catch-up — detects jobs overdue by >2x tick interval,
+ *    fires ONE catch-up run and fast-forwards the schedule pointer
+ * 3. Extended diagnostics — uptimeMs, missedFireCount, dispatch/failure
+ *    totals, lastError tracking for the health endpoint
  *
  * @see PLUGIN_SPEC.md §17 — Scheduled Jobs
  * @see ./plugin-job-store.ts — Persistence layer
@@ -63,133 +37,70 @@ const DEFAULT_JOB_TIMEOUT_MS = 5 * 60 * 1_000;
 /** Maximum number of concurrent job executions across all plugins. */
 const DEFAULT_MAX_CONCURRENT_JOBS = 10;
 
-/** Heartbeat touch interval during job execution (30 seconds). */
-const HEARTBEAT_INTERVAL_MS = 30_000;
+/** Interval for heartbeat touches during job execution (30 seconds). */
+const HEARTBEAT_TOUCH_INTERVAL_MS = 30_000;
+
+/**
+ * Phase 4: Maximum jitter added to each tick interval (±15% of tick interval).
+ * Prevents thundering herd when multiple scheduler instances tick in lockstep.
+ */
+const TICK_JITTER_RATIO = 0.15;
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-/**
- * Options for creating a PluginJobScheduler.
- */
 export interface PluginJobSchedulerOptions {
-  /** Drizzle database instance. */
   db: Db;
-
-  /** Persistence layer for jobs and runs. */
   jobStore: PluginJobStore;
-
-  /** Worker process manager for RPC calls. */
   workerManager: PluginWorkerManager;
-
+  tickIntervalMs?: number;
+  jobTimeoutMs?: number;
+  maxConcurrentJobs?: number;
   /** Run recovery service for heartbeat and ghost run detection (Phase 2). */
   runRecovery?: RunRecoveryService;
-
-  /** Interval between scheduler ticks in ms (default: 30s). */
-  tickIntervalMs?: number;
-
-  /** Timeout for individual job RPC calls in ms (default: 5min). */
-  jobTimeoutMs?: number;
-
-  /** Maximum number of concurrent job executions (default: 10). */
-  maxConcurrentJobs?: number;
+  /**
+   * Phase 4: Threshold in ms before a job is considered a missed fire.
+   * Default: 2× tickIntervalMs.
+   */
+  missedFireThresholdMs?: number;
 }
 
-/**
- * Result of a manual job trigger.
- */
 export interface TriggerJobResult {
-  /** The created run ID. */
   runId: string;
-  /** The job ID that was triggered. */
   jobId: string;
 }
 
 /**
- * Diagnostic information about the scheduler.
+ * Phase 4: Extended diagnostics for health endpoint.
  */
 export interface SchedulerDiagnostics {
-  /** Whether the tick loop is running. */
   running: boolean;
-  /** Number of jobs currently executing. */
   activeJobCount: number;
-  /** Set of job IDs currently in-flight. */
   activeJobIds: string[];
-  /** Total number of ticks executed since start. */
   tickCount: number;
-  /** Timestamp of the last tick (ISO 8601). */
   lastTickAt: string | null;
+  /** Phase 4: Uptime in milliseconds since the scheduler started. */
+  uptimeMs: number;
+  /** Phase 4: Total missed-fire catch-ups since start. */
+  missedFireCount: number;
+  /** Phase 4: Total jobs dispatched since start. */
+  totalDispatchCount: number;
+  /** Phase 4: Total dispatch failures since start. */
+  totalFailureCount: number;
+  /** Phase 4: Last error message (if any). */
+  lastError: string | null;
+  /** Phase 4: Timestamp of last error (ISO 8601). */
+  lastErrorAt: string | null;
 }
 
-// ---------------------------------------------------------------------------
-// Scheduler
-// ---------------------------------------------------------------------------
-
-/**
- * The public interface of the job scheduler.
- */
 export interface PluginJobScheduler {
-  /**
-   * Start the scheduler tick loop.
-   *
-   * Safe to call multiple times — subsequent calls are no-ops.
-   *
-   * Phase 2: Now async — recovers ghost runs before the first tick.
-   */
   start(): Promise<void>;
-
-  /**
-   * Stop the scheduler tick loop.
-   *
-   * In-flight job runs are NOT cancelled — they are allowed to finish
-   * naturally. The tick loop simply stops firing.
-   */
   stop(): void;
-
-  /**
-   * Register a plugin with the scheduler.
-   *
-   * Computes `nextRunAt` for all active jobs that are missing it. This is
-   * typically called after a plugin's worker process starts and
-   * `syncJobDeclarations()` has been called.
-   *
-   * @param pluginId - UUID of the plugin
-   */
   registerPlugin(pluginId: string): Promise<void>;
-
-  /**
-   * Unregister a plugin from the scheduler.
-   *
-   * Cancels any in-flight runs for the plugin and removes tracking state.
-   *
-   * @param pluginId - UUID of the plugin
-   */
   unregisterPlugin(pluginId: string): Promise<void>;
-
-  /**
-   * Manually trigger a specific job (outside of the cron schedule).
-   *
-   * Creates a run with `trigger: "manual"` and dispatches immediately,
-   * respecting the overlap prevention check.
-   *
-   * @param jobId - UUID of the job to trigger
-   * @param trigger - What triggered this run (default: "manual")
-   * @returns The created run info
-   * @throws {Error} if the job is not found, not active, or already running
-   */
   triggerJob(jobId: string, trigger?: "manual" | "retry"): Promise<TriggerJobResult>;
-
-  /**
-   * Run a single scheduler tick immediately (for testing).
-   *
-   * @internal
-   */
   tick(): Promise<void>;
-
-  /**
-   * Get diagnostic information about the scheduler state.
-   */
   diagnostics(): SchedulerDiagnostics;
 }
 
@@ -197,31 +108,6 @@ export interface PluginJobScheduler {
 // Implementation
 // ---------------------------------------------------------------------------
 
-/**
- * Create a new PluginJobScheduler.
- *
- * @example
- * ```ts
- * const scheduler = createPluginJobScheduler({
- *   db,
- *   jobStore,
- *   workerManager,
- *   runRecovery,  // Phase 2 — optional
- * });
- *
- * // Start the tick loop (Phase 2: also recovers ghost runs)
- * await scheduler.start();
- *
- * // When a plugin comes online, register it
- * await scheduler.registerPlugin(pluginId);
- *
- * // Manually trigger a job
- * const { runId } = await scheduler.triggerJob(jobId);
- *
- * // On server shutdown
- * scheduler.stop();
- * ```
- */
 export function createPluginJobScheduler(
   options: PluginJobSchedulerOptions,
 ): PluginJobScheduler {
@@ -229,10 +115,11 @@ export function createPluginJobScheduler(
     db,
     jobStore,
     workerManager,
-    runRecovery,
     tickIntervalMs = DEFAULT_TICK_INTERVAL_MS,
     jobTimeoutMs = DEFAULT_JOB_TIMEOUT_MS,
     maxConcurrentJobs = DEFAULT_MAX_CONCURRENT_JOBS,
+    runRecovery,
+    missedFireThresholdMs = 2 * tickIntervalMs,
   } = options;
 
   const log = logger.child({ service: "plugin-job-scheduler" });
@@ -241,35 +128,52 @@ export function createPluginJobScheduler(
   // State
   // -----------------------------------------------------------------------
 
-  /** Timer handle for the tick loop. */
-  let tickTimer: ReturnType<typeof setInterval> | null = null;
-
-  /** Whether the scheduler is running. */
+  let tickTimer: ReturnType<typeof setTimeout> | null = null;
   let running = false;
-
-  /** Set of job IDs currently being executed (for overlap prevention). */
   const activeJobs = new Set<string>();
-
-  /** Total number of ticks since start. */
   let tickCount = 0;
-
-  /** Timestamp of the last tick. */
   let lastTickAt: Date | null = null;
-
-  /** Guard against concurrent tick execution. */
   let tickInProgress = false;
+
+  // Phase 4: Extended state for health visibility
+  let startedAt: Date | null = null;
+  let missedFireCount = 0;
+  let totalDispatchCount = 0;
+  let totalFailureCount = 0;
+  let lastError: string | null = null;
+  let lastErrorAt: Date | null = null;
+
+  // -----------------------------------------------------------------------
+  // Phase 4: Tick jitter — prevent thundering herd
+  // -----------------------------------------------------------------------
+
+  /**
+   * Compute the next tick delay with random jitter.
+   * ±15% of the tick interval (e.g. 30s → 25.5s–34.5s).
+   */
+  function nextTickDelay(): number {
+    const jitter = (Math.random() * 2 - 1) * TICK_JITTER_RATIO;
+    return Math.round(tickIntervalMs * (1 + jitter));
+  }
+
+  /**
+   * Schedule the next tick using setTimeout with jitter.
+   * Each tick self-reschedules with a fresh random delay.
+   */
+  function scheduleNextTick(): void {
+    if (!running) return;
+    const delay = nextTickDelay();
+    tickTimer = setTimeout(() => {
+      void tick().finally(() => scheduleNextTick());
+    }, delay);
+  }
 
   // -----------------------------------------------------------------------
   // Phase 2: DB-backed overlap check
   // -----------------------------------------------------------------------
 
-  /**
-   * Check the database for active (queued/running) runs for a job.
-   * This catches ghost runs from a previous server instance that the
-   * in-memory Set wouldn't know about.
-   */
   async function hasActiveRunInDb(jobId: string): Promise<boolean> {
-    const dbRunningRuns = await db
+    const rows = await db
       .select({ id: pluginJobRuns.id })
       .from(pluginJobRuns)
       .where(
@@ -281,18 +185,32 @@ export function createPluginJobScheduler(
           ),
         ),
       );
-    return dbRunningRuns.length > 0;
+    return rows.length > 0;
+  }
+
+  // -----------------------------------------------------------------------
+  // Phase 4: Missed-fire detection
+  // -----------------------------------------------------------------------
+
+  /**
+   * A missed fire occurs when `nextRunAt` is significantly in the past
+   * (beyond the threshold), meaning the server was likely down. We fire
+   * ONE catch-up run and fast-forward the schedule (handled in
+   * advanceSchedulePointer which always computes from now).
+   */
+  function isMissedFire(
+    job: typeof pluginJobs.$inferSelect,
+    now: Date,
+  ): boolean {
+    if (!job.nextRunAt) return false;
+    return now.getTime() - job.nextRunAt.getTime() > missedFireThresholdMs;
   }
 
   // -----------------------------------------------------------------------
   // Core: tick
   // -----------------------------------------------------------------------
 
-  /**
-   * A single scheduler tick. Queries for due jobs and dispatches them.
-   */
   async function tick(): Promise<void> {
-    // Prevent overlapping ticks (in case a tick takes longer than the interval)
     if (tickInProgress) {
       log.debug("skipping tick — previous tick still in progress");
       return;
@@ -305,7 +223,6 @@ export function createPluginJobScheduler(
     try {
       const now = new Date();
 
-      // Query for jobs whose nextRunAt has passed and are active.
       const dueJobs = await db
         .select()
         .from(pluginJobs)
@@ -322,7 +239,6 @@ export function createPluginJobScheduler(
 
       log.debug({ count: dueJobs.length }, "found due jobs");
 
-      // Dispatch each due job (respecting concurrency limits)
       const dispatches: Promise<void>[] = [];
 
       for (const job of dueJobs) {
@@ -335,7 +251,7 @@ export function createPluginJobScheduler(
           break;
         }
 
-        // Overlap prevention: skip if this job is already running (in-memory)
+        // In-memory overlap prevention (fast path)
         if (activeJobs.has(job.id)) {
           log.debug(
             { jobId: job.id, jobKey: job.jobKey, pluginId: job.pluginId },
@@ -344,7 +260,7 @@ export function createPluginJobScheduler(
           continue;
         }
 
-        // Phase 2: DB-backed overlap prevention
+        // Phase 2: DB-backed overlap prevention (catches ghost runs)
         try {
           if (await hasActiveRunInDb(job.id)) {
             log.debug(
@@ -360,7 +276,7 @@ export function createPluginJobScheduler(
           );
         }
 
-        // Check if the worker is available
+        // Check worker availability
         if (!workerManager.isRunning(job.pluginId)) {
           log.debug(
             { jobId: job.id, pluginId: job.pluginId },
@@ -369,13 +285,31 @@ export function createPluginJobScheduler(
           continue;
         }
 
-        // Validate cron expression before dispatching
+        // Validate schedule
         if (!job.schedule) {
           log.warn(
             { jobId: job.id, jobKey: job.jobKey },
             "skipping job — no schedule defined",
           );
           continue;
+        }
+
+        // Phase 4: Missed-fire detection — log and count but still dispatch
+        // The schedule pointer always fast-forwards from now in advanceSchedulePointer
+        if (isMissedFire(job, now)) {
+          const ageMs = now.getTime() - (job.nextRunAt?.getTime() ?? 0);
+          missedFireCount++;
+          log.warn(
+            {
+              jobId: job.id,
+              jobKey: job.jobKey,
+              pluginId: job.pluginId,
+              nextRunAt: job.nextRunAt?.toISOString(),
+              ageMs,
+              missedFireCount,
+            },
+            "missed-fire detected — dispatching catch-up run and fast-forwarding schedule",
+          );
         }
 
         dispatches.push(dispatchJob(job));
@@ -385,37 +319,31 @@ export function createPluginJobScheduler(
         await Promise.allSettled(dispatches);
       }
     } catch (err) {
-      log.error(
-        { err: err instanceof Error ? err.message : String(err) },
-        "scheduler tick error",
-      );
+      const errMsg = err instanceof Error ? err.message : String(err);
+      lastError = errMsg;
+      lastErrorAt = new Date();
+      log.error({ err: errMsg }, "scheduler tick error");
     } finally {
       tickInProgress = false;
     }
   }
 
   // -----------------------------------------------------------------------
-  // Core: dispatch a single job
+  // Core: dispatch a single job (with Phase 2 heartbeat)
   // -----------------------------------------------------------------------
 
-  /**
-   * Dispatch a single job run — create the run record, call the worker,
-   * record the result, and advance the schedule pointer.
-   */
   async function dispatchJob(
     job: typeof pluginJobs.$inferSelect,
   ): Promise<void> {
-    const { id: jobId, pluginId, jobKey, schedule } = job;
+    const { id: jobId, pluginId, jobKey } = job;
     const jobLog = log.child({ jobId, pluginId, jobKey });
 
-    // Mark as active (overlap prevention)
     activeJobs.add(jobId);
-
+    totalDispatchCount++;
     let runId: string | undefined;
-    const startedAt = Date.now();
+    const startedAtMs = Date.now();
 
     try {
-      // 1. Create run record
       const run = await jobStore.createRun({
         jobId,
         pluginId,
@@ -425,14 +353,18 @@ export function createPluginJobScheduler(
 
       jobLog.info({ runId }, "dispatching scheduled job");
 
-      // 2. Mark run as running
       await jobStore.markRunning(runId);
 
-      // 3. Call worker via RPC — with periodic heartbeat (Phase 2)
-      const heartbeatInterval = runRecovery
+      // Phase 2: Start heartbeat interval during execution
+      const heartbeatTimer = runRecovery
         ? setInterval(() => {
-            void runRecovery.touchHeartbeat(runId!);
-          }, HEARTBEAT_INTERVAL_MS)
+            void runRecovery.touchHeartbeat(runId!).catch((err) => {
+              jobLog.warn(
+                { runId, err: err instanceof Error ? err.message : String(err) },
+                "failed to touch heartbeat",
+              );
+            });
+          }, HEARTBEAT_TOUCH_INTERVAL_MS)
         : null;
 
       try {
@@ -450,11 +382,10 @@ export function createPluginJobScheduler(
           jobTimeoutMs,
         );
       } finally {
-        if (heartbeatInterval) clearInterval(heartbeatInterval);
+        if (heartbeatTimer) clearInterval(heartbeatTimer);
       }
 
-      // 4. Mark run as succeeded
-      const durationMs = Date.now() - startedAt;
+      const durationMs = Date.now() - startedAtMs;
       await jobStore.completeRun(runId, {
         status: "succeeded",
         durationMs,
@@ -462,15 +393,18 @@ export function createPluginJobScheduler(
 
       jobLog.info({ runId, durationMs }, "job completed successfully");
     } catch (err) {
-      const durationMs = Date.now() - startedAt;
+      const durationMs = Date.now() - startedAtMs;
       const errorMessage = err instanceof Error ? err.message : String(err);
+
+      totalFailureCount++;
+      lastError = errorMessage;
+      lastErrorAt = new Date();
 
       jobLog.error(
         { runId, durationMs, err: errorMessage },
         "job execution failed",
       );
 
-      // Record the failure
       if (runId) {
         try {
           await jobStore.completeRun(runId, {
@@ -482,20 +416,15 @@ export function createPluginJobScheduler(
           jobLog.error(
             {
               runId,
-              err:
-                completeErr instanceof Error
-                  ? completeErr.message
-                  : String(completeErr),
+              err: completeErr instanceof Error ? completeErr.message : String(completeErr),
             },
             "failed to record job failure",
           );
         }
       }
     } finally {
-      // Remove from active set
       activeJobs.delete(jobId);
 
-      // 5. Always advance the schedule pointer (even on failure)
       try {
         await advanceSchedulePointer(job);
       } catch (err) {
@@ -508,7 +437,7 @@ export function createPluginJobScheduler(
   }
 
   // -----------------------------------------------------------------------
-  // Core: manual trigger
+  // Core: manual trigger (with Phase 2 heartbeat)
   // -----------------------------------------------------------------------
 
   async function triggerJob(
@@ -516,64 +445,36 @@ export function createPluginJobScheduler(
     trigger: "manual" | "retry" = "manual",
   ): Promise<TriggerJobResult> {
     const job = await jobStore.getJobById(jobId);
-
-    if (!job) {
-      throw new Error(`Job not found: ${jobId}`);
-    }
-
+    if (!job) throw new Error(`Job not found: ${jobId}`);
     if (job.status !== "active") {
-      throw new Error(
-        `Job "${job.jobKey}" is not active (status: ${job.status})`,
-      );
+      throw new Error(`Job "${job.jobKey}" is not active (status: ${job.status})`);
     }
 
-    // Overlap prevention
     if (activeJobs.has(jobId)) {
+      throw new Error(`Job "${job.jobKey}" is already running — cannot trigger while in progress`);
+    }
+
+    if (await hasActiveRunInDb(jobId)) {
       throw new Error(
-        `Job "${job.jobKey}" is already running — cannot trigger while in progress`,
+        `Job "${job.jobKey}" already has an active run in the database — cannot trigger while in progress`,
       );
     }
 
-    // Also check DB for running runs (defensive — covers multi-instance)
-    const existingRuns = await db
-      .select()
-      .from(pluginJobRuns)
-      .where(
-        and(
-          eq(pluginJobRuns.jobId, jobId),
-          eq(pluginJobRuns.status, "running"),
-        ),
-      );
-
-    if (existingRuns.length > 0) {
-      throw new Error(
-        `Job "${job.jobKey}" already has a running execution — cannot trigger while in progress`,
-      );
-    }
-
-    // Check worker availability
     if (!workerManager.isRunning(job.pluginId)) {
-      throw new Error(
-        `Worker for plugin "${job.pluginId}" is not running — cannot trigger job`,
-      );
+      throw new Error(`Worker for plugin "${job.pluginId}" is not running — cannot trigger job`);
     }
 
-    // Create the run and dispatch (non-blocking)
     const run = await jobStore.createRun({
       jobId,
       pluginId: job.pluginId,
       trigger,
     });
 
-    // Dispatch in background — don't block the caller
     void dispatchManualRun(job, run.id, trigger);
 
     return { runId: run.id, jobId };
   }
 
-  /**
-   * Dispatch a manually triggered job run.
-   */
   async function dispatchManualRun(
     job: typeof pluginJobs.$inferSelect,
     runId: string,
@@ -583,16 +484,16 @@ export function createPluginJobScheduler(
     const jobLog = log.child({ jobId, pluginId, jobKey, runId, trigger });
 
     activeJobs.add(jobId);
-    const startedAt = Date.now();
+    totalDispatchCount++;
+    const startedAtMs = Date.now();
 
     try {
       await jobStore.markRunning(runId);
 
-      // Phase 2: heartbeat during manual run execution
-      const heartbeatInterval = runRecovery
+      const heartbeatTimer = runRecovery
         ? setInterval(() => {
-            void runRecovery.touchHeartbeat(runId);
-          }, HEARTBEAT_INTERVAL_MS)
+            void runRecovery.touchHeartbeat(runId).catch(() => {});
+          }, HEARTBEAT_TOUCH_INTERVAL_MS)
         : null;
 
       try {
@@ -610,19 +511,19 @@ export function createPluginJobScheduler(
           jobTimeoutMs,
         );
       } finally {
-        if (heartbeatInterval) clearInterval(heartbeatInterval);
+        if (heartbeatTimer) clearInterval(heartbeatTimer);
       }
 
-      const durationMs = Date.now() - startedAt;
-      await jobStore.completeRun(runId, {
-        status: "succeeded",
-        durationMs,
-      });
-
+      const durationMs = Date.now() - startedAtMs;
+      await jobStore.completeRun(runId, { status: "succeeded", durationMs });
       jobLog.info({ durationMs }, "manual job completed successfully");
     } catch (err) {
-      const durationMs = Date.now() - startedAt;
+      const durationMs = Date.now() - startedAtMs;
       const errorMessage = err instanceof Error ? err.message : String(err);
+
+      totalFailureCount++;
+      lastError = errorMessage;
+      lastErrorAt = new Date();
 
       jobLog.error({ durationMs, err: errorMessage }, "manual job failed");
 
@@ -634,12 +535,7 @@ export function createPluginJobScheduler(
         });
       } catch (completeErr) {
         jobLog.error(
-          {
-            err:
-              completeErr instanceof Error
-                ? completeErr.message
-                : String(completeErr),
-          },
+          { err: completeErr instanceof Error ? completeErr.message : String(completeErr) },
           "failed to record manual job failure",
         );
       }
@@ -652,9 +548,6 @@ export function createPluginJobScheduler(
   // Schedule pointer management
   // -----------------------------------------------------------------------
 
-  /**
-   * Advance the `lastRunAt` and `nextRunAt` timestamps on a job after a run.
-   */
   async function advanceSchedulePointer(
     job: typeof pluginJobs.$inferSelect,
   ): Promise<void> {
@@ -677,23 +570,12 @@ export function createPluginJobScheduler(
     await jobStore.updateRunTimestamps(job.id, now, nextRunAt);
   }
 
-  /**
-   * Ensure all active jobs for a plugin have a `nextRunAt` value.
-   * Called when a plugin is registered with the scheduler.
-   */
   async function ensureNextRunTimestamps(pluginId: string): Promise<void> {
     const jobs = await jobStore.listJobs(pluginId, "active");
 
     for (const job of jobs) {
-      // Skip jobs that already have a valid nextRunAt in the future
-      if (job.nextRunAt && job.nextRunAt.getTime() > Date.now()) {
-        continue;
-      }
-
-      // Skip jobs without a schedule
-      if (!job.schedule) {
-        continue;
-      }
+      if (job.nextRunAt && job.nextRunAt.getTime() > Date.now()) continue;
+      if (!job.schedule) continue;
 
       const validationError = validateCron(job.schedule);
       if (validationError) {
@@ -706,7 +588,6 @@ export function createPluginJobScheduler(
 
       const cron = parseCron(job.schedule);
       const nextRunAt = nextCronTick(cron, new Date());
-
       if (nextRunAt) {
         await jobStore.updateRunTimestamps(
           job.id,
@@ -733,8 +614,6 @@ export function createPluginJobScheduler(
   async function unregisterPlugin(pluginId: string): Promise<void> {
     log.info({ pluginId }, "unregistering plugin from job scheduler");
 
-    // Cancel any in-flight run records for this plugin that are still
-    // queued or running. Active jobs in-memory will finish naturally.
     try {
       const runningRuns = await db
         .select()
@@ -753,9 +632,7 @@ export function createPluginJobScheduler(
         await jobStore.completeRun(run.id, {
           status: "cancelled",
           error: "Plugin unregistered",
-          durationMs: run.startedAt
-            ? Date.now() - run.startedAt.getTime()
-            : null,
+          durationMs: run.startedAt ? Date.now() - run.startedAt.getTime() : null,
         });
       }
     } catch (err) {
@@ -768,7 +645,6 @@ export function createPluginJobScheduler(
       );
     }
 
-    // Remove any active tracking for jobs owned by this plugin
     const jobs = await jobStore.listJobs(pluginId);
     for (const job of jobs) {
       activeJobs.delete(job.id);
@@ -777,6 +653,7 @@ export function createPluginJobScheduler(
 
   // -----------------------------------------------------------------------
   // Lifecycle: start / stop
+  // Phase 4: Jittered setTimeout replaces fixed setInterval
   // -----------------------------------------------------------------------
 
   async function start(): Promise<void> {
@@ -802,37 +679,37 @@ export function createPluginJobScheduler(
         );
       }
 
-      // Start the heartbeat sweeper
       runRecovery.startHeartbeatSweeper();
     }
 
     running = true;
+    startedAt = new Date();
 
-    tickTimer = setInterval(() => {
-      void tick();
-    }, tickIntervalMs);
+    // Phase 4: Jittered setTimeout instead of fixed setInterval
+    scheduleNextTick();
 
     log.info(
-      { tickIntervalMs, maxConcurrentJobs },
-      "plugin job scheduler started",
+      {
+        tickIntervalMs,
+        maxConcurrentJobs,
+        jitterRatio: TICK_JITTER_RATIO,
+        missedFireThresholdMs,
+      },
+      "plugin job scheduler started (Phase 4: jitter + missed-fire catch-up enabled)",
     );
   }
 
   function stop(): void {
-    // Always clear the timer defensively, even if `running` is already false,
-    // to prevent leaked interval timers.
     if (tickTimer !== null) {
-      clearInterval(tickTimer);
+      clearTimeout(tickTimer);
       tickTimer = null;
     }
 
-    // Phase 2: Stop the heartbeat sweeper
     if (runRecovery) {
       runRecovery.stopHeartbeatSweeper();
     }
 
     if (!running) return;
-
     running = false;
 
     log.info(
@@ -842,7 +719,7 @@ export function createPluginJobScheduler(
   }
 
   // -----------------------------------------------------------------------
-  // Diagnostics
+  // Diagnostics (Phase 4: extended)
   // -----------------------------------------------------------------------
 
   function diagnostics(): SchedulerDiagnostics {
@@ -852,6 +729,12 @@ export function createPluginJobScheduler(
       activeJobIds: [...activeJobs],
       tickCount,
       lastTickAt: lastTickAt?.toISOString() ?? null,
+      uptimeMs: startedAt ? Date.now() - startedAt.getTime() : 0,
+      missedFireCount,
+      totalDispatchCount,
+      totalFailureCount,
+      lastError,
+      lastErrorAt: lastErrorAt?.toISOString() ?? null,
     };
   }
 
