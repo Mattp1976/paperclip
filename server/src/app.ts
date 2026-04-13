@@ -36,6 +36,8 @@ import { logger } from "./middleware/logger.js";
 import { DEFAULT_LOCAL_PLUGIN_DIR, pluginLoader } from "./services/plugin-loader.js";
 import { createPluginWorkerManager } from "./services/plugin-worker-manager.js";
 import { createPluginJobScheduler } from "./services/plugin-job-scheduler.js";
+import { createRunRecoveryService } from "./services/run-recovery.js";
+import { createSchedulerHealthRoutes } from "./services/scheduler-health-routes.js";
 import { pluginJobStore } from "./services/plugin-job-store.js";
 import { createPluginToolDispatcher } from "./services/plugin-tool-dispatcher.js";
 import { pluginLifecycleManager } from "./services/plugin-lifecycle.js";
@@ -164,16 +166,27 @@ export async function createApp(
   setPluginEventBus(eventBus);
   const jobStore = pluginJobStore(db);
   const lifecycle = pluginLifecycleManager(db, { workerManager });
+  // Phase 4: Wire up run recovery for heartbeat + ghost run detection
+  const runRecovery = createRunRecoveryService({ db });
+
   const scheduler = createPluginJobScheduler({
     db,
     jobStore,
     workerManager,
+    runRecovery,
   });
   const toolDispatcher = createPluginToolDispatcher({
     workerManager,
     lifecycleManager: lifecycle,
     db,
   });
+
+  // Phase 4: Scheduler health endpoint for observability
+  const schedulerHealthRoutes = createSchedulerHealthRoutes({
+    scheduler,
+    runRecovery,
+  });
+  api.use("/health/scheduler", schedulerHealthRoutes);
   const jobCoordinator = createPluginJobCoordinator({
     db,
     lifecycle,
