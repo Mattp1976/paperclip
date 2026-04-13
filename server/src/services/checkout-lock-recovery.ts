@@ -89,7 +89,7 @@ export interface LockRecoveryResult {
 
 export interface OrphanedLockEntry {
   issueId: string;
-  identifier: string;
+  identifier: string | null;
   companyId: string;
   status: string;
   checkoutRunId: string | null;
