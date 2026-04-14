@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { schedulerHealthApi } from "../api/schedulerHealth";
-import { queryKeys } from "../lib/queryKeys";
-import { Activity, AlertTriangle, XCircle, Loader2 } from "lucide-react";
+import { Activity, AlertTriangle, XCircle } from "lucide-react";
 import { cn } from "../lib/utils";
 
 const STATUS_CONFIG = {
@@ -38,7 +37,7 @@ const STATUS_CONFIG = {
  */
 export function SchedulerStatusBadge() {
   const { data, isLoading, error } = useQuery({
-    queryKey: queryKeys.schedulerHealth?.() ?? ["schedulerHealth"],
+    queryKey: ["scheduler-health"],
     queryFn: () => schedulerHealthApi.get(),
     refetchInterval: 30_000, // poll every 30 s
     retry: 1,
