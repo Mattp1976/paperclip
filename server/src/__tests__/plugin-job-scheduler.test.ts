@@ -10,16 +10,16 @@ vi.mock("@paperclipai/db", () => ({
   pluginJobRuns: { id: "id", jobId: "jobId", pluginId: "pluginId", status: "status" },
 }));
 
-vi.mock("../middleware/logger.js", () => ({
-  logger: {
-    child: () => ({
-      info: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-      debug: vi.fn(),
-    }),
-  },
-}));
+vi.mock("../middleware/logger.js", () => {
+  const createMockLogger = (): any => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    child: () => createMockLogger(),
+  });
+  return { logger: createMockLogger() };
+});
 
 vi.mock("./cron.js", () => ({
   parseCron: vi.fn().mockReturnValue({}),
