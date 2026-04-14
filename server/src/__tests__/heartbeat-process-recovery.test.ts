@@ -16,7 +16,7 @@ import {
   heartbeatRunEvents,
   heartbeatRuns,
   issues,
-} from "@paperclipai/db";
+} from "@mattparrytfc/db";
 import { runningProcesses } from "../adapters/index.ts";
 import { heartbeatService } from "../services/heartbeat.ts";
 

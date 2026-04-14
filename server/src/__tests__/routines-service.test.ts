@@ -20,7 +20,7 @@ import {
   routineRuns,
   routines,
   routineTriggers,
-} from "@paperclipai/db";
+} from "@mattparrytfc/db";
 import { issueService } from "../services/issues.ts";
 import { routineService } from "../services/routines.ts";
 

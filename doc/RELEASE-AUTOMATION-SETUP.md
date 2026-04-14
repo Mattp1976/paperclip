@@ -34,7 +34,7 @@ Do this for every public package that Paperclip publishes.
 At minimum that includes:
 
 - `paperclipai`
-- `@paperclipai/server`
+- `@mattparrytfc/server`
 - public packages under `packages/`
 
 ### 2.1. In npm, open each package settings page

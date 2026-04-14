@@ -1,4 +1,4 @@
-import type { SecretProvider, SecretProviderDescriptor } from "@paperclipai/shared";
+import type { SecretProvider, SecretProviderDescriptor } from "@mattparrytfc/shared";
 import { localEncryptedProvider } from "./local-encrypted-provider.js";
 import { railwayEnvProvider } from "./railway-env-provider.js";
 import {

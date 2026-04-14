@@ -1,4 +1,4 @@
-import type { QuotaWindow } from "@paperclipai/shared";
+import type { QuotaWindow } from "@mattparrytfc/shared";
 import { cn, quotaSourceDisplayName } from "@/lib/utils";
 
 interface CodexSubscriptionPanelProps {

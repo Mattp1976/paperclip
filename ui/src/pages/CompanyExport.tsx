@@ -5,7 +5,7 @@ import type {
   CompanyPortabilityExportPreviewResult,
   CompanyPortabilityExportResult,
   CompanyPortabilityManifest,
-} from "@paperclipai/shared";
+} from "@mattparrytfc/shared";
 import { useNavigate, useLocation } from "@/lib/router";
 import { useCompany } from "../context/CompanyContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";

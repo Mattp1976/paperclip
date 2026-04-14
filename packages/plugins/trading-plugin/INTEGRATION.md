@@ -85,7 +85,7 @@ await seedDatabase(db);
 In your Paperclip server bootstrap (likely `server/src/index.ts` or wherever plugins are loaded):
 
 ```typescript
-import { TradingPlugin } from "@paperclipai/plugin-trading";
+import { TradingPlugin } from "@mattparrytfc/plugin-trading";
 
 const tradingPlugin = new TradingPlugin({
   db,                                       // Drizzle database instance
@@ -113,7 +113,7 @@ await tradingPlugin.start();
 Register the dashboard routes with your Express/HTTP layer:
 
 ```typescript
-import { createDashboardRoutes } from "@paperclipai/plugin-trading/dashboard/api";
+import { createDashboardRoutes } from "@mattparrytfc/plugin-trading/dashboard/api";
 
 const dashRoutes = createDashboardRoutes(db);
 
