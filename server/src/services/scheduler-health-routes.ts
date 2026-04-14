@@ -65,7 +65,7 @@ export function createSchedulerHealthRoutes(
 
       if (!diag.running) {
         status = "stopped";
-      } else if (diag.totalFailureCount > 0 && diag.lastErrorAt) {
+      } else if (diag.lastErrorAt) {
         // If the last error was within the last 5 minutes, mark degraded
         const lastErrorAge = now - new Date(diag.lastErrorAt).getTime();
         if (lastErrorAge < TICK_STALENESS_MS) {
@@ -101,7 +101,7 @@ export function createSchedulerHealthRoutes(
               count: activeRuns.length,
               runs: activeRuns.slice(0, 50), // Cap at 50 for response size
             }
-          : null,
+          : { count: 0, runs: [] },
         timestamp: new Date().toISOString(),
       });
     } catch (err) {
