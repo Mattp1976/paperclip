@@ -9,7 +9,7 @@ import type {
   CompanyPortabilityInclude,
   CompanyPortabilityPreviewResult,
   CompanyPortabilityImportResult,
-} from "@paperclipai/shared";
+} from "@mattparrytfc/shared";
 import { ApiRequestError } from "../../client/http.js";
 import {
   addCommonClientOptions,

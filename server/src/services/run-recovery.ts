@@ -30,8 +30,8 @@
  */
 
 import { and, eq, lt, or, isNull, sql } from "drizzle-orm";
-import type { Db } from "@paperclipai/db";
-import { pluginJobRuns, pluginJobs } from "@paperclipai/db";
+import type { Db } from "@mattparrytfc/db";
+import { pluginJobRuns, pluginJobs } from "@mattparrytfc/db";
 import { logger } from "../middleware/logger.js";
 
 // ---------------------------------------------------------------------------

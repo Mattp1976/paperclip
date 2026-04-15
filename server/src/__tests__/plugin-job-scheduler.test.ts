@@ -5,7 +5,7 @@ import { createPluginJobScheduler } from "../services/plugin-job-scheduler.js";
 /*  Module mocks                                                       */
 /* ------------------------------------------------------------------ */
 
-vi.mock("@paperclipai/db", () => ({
+vi.mock("@mattparrytfc/db", () => ({
   pluginJobs: { id: "id", status: "status", nextRunAt: "nextRunAt", pluginId: "pluginId" },
   pluginJobRuns: { id: "id", jobId: "jobId", pluginId: "pluginId", status: "status" },
 }));

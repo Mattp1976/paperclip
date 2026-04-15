@@ -41,7 +41,7 @@ import {
   projects,
   runDatabaseBackup,
   runDatabaseRestore,
-} from "@paperclipai/db";
+} from "@mattparrytfc/db";
 import type { Command } from "commander";
 import { ensureAgentJwtSecret, loadPaperclipEnvFile, mergePaperclipEnvEntries, readPaperclipEnvEntries, resolvePaperclipEnvFile } from "../config/env.js";
 import { expandHomePrefix } from "../config/home.js";
