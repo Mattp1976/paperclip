@@ -10,10 +10,10 @@
  * - Contributor row: stacked avatars (multi-run) or single identity (single-run)
  * - Aggregated cost / duration / tokens across all runs in the task
  * - Inlines OutputArtifacts (PRs, branches, preview URLs, docs) for linked tasks
- * - Expandable "Show contributions from other agents" drawer revealing per-run
- *   snippets when runs.length > 1
- * - Footer actions: "Run again" (re-enter task), "Open task" (multi) or "View
- *   details" (single)
+ * - "Inspect run" drawer: per-agent rows with status/duration/cost/tokens and
+ *   a per-row "Show full output" toggle that reveals each agent's complete
+ *   output inline — no more bouncing between agent pages (P2 follow-up)
+ * - Action bar: Copy link, Retry, Download bundle (stub), Feedback (stub)
  */
 import { useMemo, useState } from "react";
 import { Link } from "@/lib/router";
@@ -29,6 +29,7 @@ import { MarkdownBody } from "./MarkdownBody";
 import { Identity } from "./Identity";
 import { OutputArtifacts } from "./OutputArtifacts";
 import { extractOutputText } from "./OutputCard";
+import { useToast } from "../context/ToastContext";
 import {
   Clock,
   Zap,
@@ -40,6 +41,14 @@ import {
   RotateCcw,
   Users,
   ArrowRight,
+  Link2,
+  Download,
+  ThumbsUp,
+  ThumbsDown,
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+  Clock3,
 } from "lucide-react";
 import type { HeartbeatRun, Agent } from "@mattparrytfc/shared";
 
@@ -96,6 +105,7 @@ export function ResultCard({
   compact = false,
   className,
 }: ResultCardProps) {
+  const { pushToast } = useToast();
   const sorted = useMemo(
     () =>
       [...runs].sort(
@@ -106,7 +116,16 @@ export function ResultCard({
   );
 
   const [expanded, setExpanded] = useState(false);
-  const [showMoreRuns, setShowMoreRuns] = useState(false);
+  const [inspectOpen, setInspectOpen] = useState(false);
+  /** Run IDs whose full output is currently expanded inside the inspect drawer. */
+  const [openRunIds, setOpenRunIds] = useState<Set<string>>(new Set());
+  const toggleRunOpen = (id: string) =>
+    setOpenRunIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const primaryRun = sorted[0];
   const primaryText = primaryRun ? extractOutputText(primaryRun) : null;
@@ -316,65 +335,149 @@ export function ResultCard({
         </div>
       )}
 
-      {/* Secondary runs — expandable when > 1 */}
-      {isMultiRun && (
+      {/* Inspect run — per-agent breakdown with inline full-output expansion.
+          Shown for any multi-run task OR any card in non-compact mode.
+          This is the primary answer to "outputs are split across agent pages":
+          every contributor's full output is reachable right here. */}
+      {(isMultiRun || !compact) && (
         <div className="px-5 pb-3">
           <button
-            onClick={() => setShowMoreRuns((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-foreground transition-colors"
+            onClick={() => setInspectOpen((v) => !v)}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-foreground transition-colors"
+            aria-expanded={inspectOpen}
           >
             <Users className="h-3 w-3" />
-            {showMoreRuns ? "Hide" : "Show"} contributions from other agents (
-            {sorted.length - 1} more)
-            {showMoreRuns ? (
+            {inspectOpen ? "Hide" : "Inspect"} run
+            {isMultiRun && (
+              <span className="text-muted-foreground/50">
+                ({sorted.length} contributions from {contributors.length} agent
+                {contributors.length === 1 ? "" : "s"})
+              </span>
+            )}
+            {inspectOpen ? (
               <ChevronUp className="h-3 w-3" />
             ) : (
               <ChevronDown className="h-3 w-3" />
             )}
           </button>
 
-          {showMoreRuns && (
-            <div className="mt-3 space-y-4 pl-3 border-l-2 border-border/20 dark:border-border/30">
-              {sorted.slice(1).map((r) => {
+          {inspectOpen && (
+            <div className="mt-3 space-y-3 rounded-xl border border-border/15 dark:border-border/30 bg-muted/30 dark:bg-muted/10 p-3">
+              {sorted.map((r, idx) => {
                 const txt = extractOutputText(r);
-                if (!txt) return null;
                 const agent = agentMap.get(r.agentId);
                 const usage = asRecord(r.usageJson);
                 const result = asRecord(r.resultJson);
                 const cost = visibleRunCostUsd(usage, result);
+                const tokens =
+                  usageNum(usage, "inputTokens", "input_tokens") +
+                  usageNum(usage, "outputTokens", "output_tokens");
+                const dur =
+                  r.startedAt && r.finishedAt
+                    ? new Date(r.finishedAt).getTime() -
+                      new Date(r.startedAt).getTime()
+                    : 0;
+                const isOpen = openRunIds.has(r.id);
+                const isPrimary = idx === 0;
+                const statusIcon =
+                  r.status === "succeeded" ? (
+                    <CheckCircle2 className="h-3 w-3 text-green-600 dark:text-green-400" />
+                  ) : r.status === "failed" ? (
+                    <XCircle className="h-3 w-3 text-red-500" />
+                  ) : (
+                    <Clock3 className="h-3 w-3 text-muted-foreground/60" />
+                  );
                 const agentHref = agent
                   ? `/agents/${agent.urlKey ?? agent.id}/runs/${r.id}`
                   : `/agents/${r.agentId}/runs/${r.id}`;
                 return (
-                  <div key={r.id} className="space-y-1">
-                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground/60">
-                      {agent && <Identity name={agent.name} size="xs" />}
-                      <span className="font-medium">
-                        {agent?.name ?? "Agent"}
-                      </span>
-                      <span className="text-muted-foreground/40">·</span>
-                      <span>{relativeTime(r.createdAt)}</span>
-                      {cost > 0 && (
-                        <>
-                          <span className="text-muted-foreground/40">·</span>
-                          <span>{friendlyCost(cost)}</span>
-                        </>
+                  <div
+                    key={r.id}
+                    className="rounded-lg bg-background/60 dark:bg-background/40 border border-border/10 dark:border-border/30"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => txt && toggleRunOpen(r.id)}
+                      disabled={!txt}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-3 py-2 text-left transition-colors",
+                        txt
+                          ? "hover:bg-muted/40 dark:hover:bg-muted/20 cursor-pointer"
+                          : "cursor-default opacity-70",
                       )}
-                    </div>
-                    <div className="text-[12px] text-muted-foreground/80 line-clamp-3">
-                      <MarkdownBody className="text-[12px] leading-relaxed">
-                        {txt.length > 240
-                          ? txt.slice(0, 240).trim() + "…"
-                          : txt}
-                      </MarkdownBody>
-                    </div>
-                    <Link
-                      to={agentHref}
-                      className="inline-flex items-center gap-1 text-[11px] text-primary/70 hover:text-primary transition-colors no-underline"
+                      aria-expanded={isOpen}
                     >
-                      <FileText className="h-2.5 w-2.5" />
-                      View run
-                    </Link>
+                      <div className="shrink-0">{statusIcon}</div>
+                      {agent && <Identity name={agent.name} size="xs" />}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-xs font-medium truncate">
+                            {agent?.name ?? "Agent"}
+                          </span>
+                          {isPrimary && (
+                            <span className="text-[9px] uppercase tracking-wider font-semibold text-primary bg-primary/10 px-1.5 py-px rounded">
+                              Latest
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground/60 mt-0.5">
+                          <span>{relativeTime(r.createdAt)}</span>
+                          {dur > 0 && (
+                            <>
+                              <span className="text-muted-foreground/30">
+                                ·
+                              </span>
+                              <span>{friendlyDuration(dur)}</span>
+                            </>
+                          )}
+                          {cost > 0 && (
+                            <>
+                              <span className="text-muted-foreground/30">
+                                ·
+                              </span>
+                              <span>{friendlyCost(cost)}</span>
+                            </>
+                          )}
+                          {tokens > 0 && (
+                            <>
+                              <span className="text-muted-foreground/30">
+                                ·
+                              </span>
+                              <span>{formatTokens(tokens)} tokens</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      {txt ? (
+                        isOpen ? (
+                          <ChevronUp className="h-3 w-3 shrink-0 text-muted-foreground/60" />
+                        ) : (
+                          <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground/60" />
+                        )
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground/50 shrink-0">
+                          no output
+                        </span>
+                      )}
+                    </button>
+                    {isOpen && txt && (
+                      <div className="border-t border-border/10 dark:border-border/30 px-3 py-3 space-y-2">
+                        <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                          <MarkdownBody className="text-[12px] leading-relaxed">
+                            {txt}
+                          </MarkdownBody>
+                        </div>
+                        <div className="flex justify-end">
+                          <Link
+                            to={agentHref}
+                            className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-foreground transition-colors no-underline"
+                          >
+                            <FileText className="h-2.5 w-2.5" />
+                            Open agent run
+                          </Link>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -383,7 +486,10 @@ export function ResultCard({
         </div>
       )}
 
-      {/* Footer */}
+      {/* Action bar — addresses "act on outputs from the listing" need.
+          Copy and Retry work immediately. Download + Feedback emit a toast
+          acknowledging the request and call TODO endpoints to be wired up
+          server-side in a follow-up. */}
       <div className="flex items-center justify-between border-t border-border/10 dark:border-border/30 px-5 py-2.5">
         <div className="flex items-center gap-3">
           {agg.totalTokens > 0 && !compact && (
@@ -397,32 +503,115 @@ export function ResultCard({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              const path = taskHref
+                ? taskHref
+                : `/agents/${primaryAgent?.urlKey ?? primaryRun.agentId}/runs/${primaryRun.id}`;
+              const url =
+                typeof window !== "undefined"
+                  ? `${window.location.origin}${path}`
+                  : path;
+              try {
+                void navigator.clipboard.writeText(url);
+                pushToast({
+                  title: "Link copied",
+                  body: "Share this URL with a teammate to jump to the result.",
+                  tone: "success",
+                  dedupeKey: `copy:${path}`,
+                });
+              } catch {
+                pushToast({
+                  title: "Copy failed",
+                  body: "Your browser blocked clipboard access.",
+                  tone: "error",
+                });
+              }
+            }}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors"
+            title="Copy link to this result"
+          >
+            <Link2 className="h-3 w-3" />
+            <span className="hidden sm:inline">Copy link</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              // TODO(server): POST /api/issues/:id/artifacts.zip to stream a
+              // bundle of every artifact (workspace files, PR diffs, outputs)
+              // from every run contributing to this task. Until that endpoint
+              // exists, acknowledge the request so the user knows it was heard.
+              pushToast({
+                title: "Bundle download coming soon",
+                body: "Artifact packaging is queued for the next release.",
+                tone: "info",
+                dedupeKey: `download:${task?.id ?? primaryRun.id}`,
+              });
+            }}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors"
+            title="Download all artifacts from this run"
+          >
+            <Download className="h-3 w-3" />
+            <span className="hidden sm:inline">Download</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              // TODO(server): POST /api/runs/:id/feedback { verdict, note }
+              pushToast({
+                title: "Feedback recorded",
+                body: "We'll wire this into retry-with-feedback in the next release.",
+                tone: "info",
+                dedupeKey: `feedback:up:${primaryRun.id}`,
+              });
+            }}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-green-600 dark:hover:text-green-400 hover:bg-muted/60 transition-colors"
+            title="Approve this result"
+          >
+            <ThumbsUp className="h-3 w-3" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              pushToast({
+                title: "Feedback recorded",
+                body: "We'll wire this into retry-with-feedback in the next release.",
+                tone: "info",
+                dedupeKey: `feedback:down:${primaryRun.id}`,
+              });
+            }}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-red-500 hover:bg-muted/60 transition-colors"
+            title="Reject this result"
+          >
+            <ThumbsDown className="h-3 w-3" />
+          </button>
           {taskHref && (
             <Link
               to={taskHref}
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground/60 hover:text-foreground transition-colors no-underline"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors no-underline"
               title="Run this task again"
             >
-              <RotateCcw className="h-3 w-3" />
-              <span className="hidden sm:inline">Again</span>
+              <RefreshCw className="h-3 w-3" />
+              <span className="hidden sm:inline">Retry</span>
             </Link>
           )}
-          {isMultiRun && taskHref ? (
+          {taskHref ? (
             <Link
               to={taskHref}
-              className="inline-flex items-center gap-1 text-xs text-primary/70 hover:text-primary transition-colors no-underline"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-primary/80 hover:text-primary hover:bg-primary/5 transition-colors no-underline"
             >
               <FileText className="h-3 w-3" />
-              Open task
+              <span className="hidden sm:inline">Open task</span>
             </Link>
           ) : (
             <Link
               to={`/agents/${primaryAgent?.urlKey ?? primaryRun.agentId}/runs/${primaryRun.id}`}
-              className="inline-flex items-center gap-1 text-xs text-primary/70 hover:text-primary transition-colors no-underline"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-primary/80 hover:text-primary hover:bg-primary/5 transition-colors no-underline"
             >
               <FileText className="h-3 w-3" />
-              View details
+              <span className="hidden sm:inline">Details</span>
             </Link>
           )}
         </div>

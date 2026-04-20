@@ -1,12 +1,14 @@
 /**
- * LatestWorkFeed — Shows the most recent meaningful results
- * from across all agents, rendered as rich preview cards.
+ * LatestWorkFeed — "Run results" feed on the Dashboard.
  *
- * Used on the Dashboard to surface "what your agents produced"
- * without needing to drill into individual agent pages.
+ * Shows the most recent meaningful results from across all agents as rich
+ * preview cards. Named "Run results" in the UI (internal file name kept for
+ * import stability) because users need to see clearly which *run* each output
+ * belongs to — this is the primary answer to "where are my outputs?".
  *
  * Results are grouped by task (issueId) so a 5-agent swarm collaborating on
- * one task shows as ONE card, not five (per UX-REDESIGN-SPEC §P2).
+ * one task shows as ONE card (per UX-REDESIGN-SPEC §P2), with each agent's
+ * contribution inspectable inline without navigating away.
  */
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router";
@@ -32,7 +34,7 @@ interface LatestWorkFeedProps {
   limit?: number;
 }
 
-export function LatestWorkFeed({ companyId, limit = 5 }: LatestWorkFeedProps) {
+export function LatestWorkFeed({ companyId, limit = 8 }: LatestWorkFeedProps) {
   // First-result onboarding tooltip — shown once ever per device, then dismissed.
   const [showFirstResultTip, setShowFirstResultTip] = useState(false);
   useEffect(() => {
@@ -107,7 +109,7 @@ export function LatestWorkFeed({ companyId, limit = 5 }: LatestWorkFeedProps) {
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-xs font-medium text-muted-foreground/70">
             <Sparkles className="h-3.5 w-3.5" />
-            Latest work
+            Run results
           </h3>
         </div>
         <div className="space-y-3">

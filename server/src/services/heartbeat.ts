@@ -1279,6 +1279,14 @@ export function heartbeatService(db: Db) {
       .then((rows) => rows[0] ?? null);
 
     if (updated) {
+      // Pull issueId out of contextSnapshot so client toasts can route the
+      // user straight to the task (and dedupe multi-agent completions into
+      // one "Task finished" toast).
+      const ctx = (updated.contextSnapshot ?? null) as
+        | Record<string, unknown>
+        | null;
+      const issueId =
+        ctx && typeof ctx.issueId === "string" ? ctx.issueId : null;
       publishLiveEvent({
         companyId: updated.companyId,
         type: "heartbeat.run.status",
@@ -1292,6 +1300,7 @@ export function heartbeatService(db: Db) {
           errorCode: updated.errorCode ?? null,
           startedAt: updated.startedAt ? new Date(updated.startedAt).toISOString() : null,
           finishedAt: updated.finishedAt ? new Date(updated.finishedAt).toISOString() : null,
+          issueId,
         },
       });
     }
@@ -1566,6 +1575,13 @@ export function heartbeatService(db: Db) {
       .then((rows) => rows[0] ?? null);
     if (!claimed) return null;
 
+    const claimedCtx = (claimed.contextSnapshot ?? null) as
+      | Record<string, unknown>
+      | null;
+    const claimedIssueId =
+      claimedCtx && typeof claimedCtx.issueId === "string"
+        ? claimedCtx.issueId
+        : null;
     publishLiveEvent({
       companyId: claimed.companyId,
       type: "heartbeat.run.status",
@@ -1579,6 +1595,7 @@ export function heartbeatService(db: Db) {
         errorCode: claimed.errorCode ?? null,
         startedAt: claimed.startedAt ? new Date(claimed.startedAt).toISOString() : null,
         finishedAt: claimed.finishedAt ? new Date(claimed.finishedAt).toISOString() : null,
+        issueId: claimedIssueId,
       },
     });
 

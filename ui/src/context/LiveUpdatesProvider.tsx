@@ -35,6 +35,22 @@ function resolveAgentName(
   return agent?.name ?? null;
 }
 
+function resolveIssueContext(
+  queryClient: QueryClient,
+  companyId: string,
+  issueId: string | null,
+): { id: string; ref: string | null; title: string | null } | null {
+  if (!issueId) return null;
+  const issues = queryClient.getQueryData<Issue[]>(queryKeys.issues.list(companyId));
+  const match = issues?.find((i) => i.id === issueId);
+  if (!match) return { id: issueId, ref: null, title: null };
+  return {
+    id: issueId,
+    ref: match.identifier ?? null,
+    title: match.title ?? null,
+  };
+}
+
 function truncate(text: string, max: number): string {
   if (text.length <= max) return text;
   return text.slice(0, max - 1) + "\u2026";
@@ -294,6 +310,7 @@ function buildAgentStatusToast(
 function buildRunStatusToast(
   payload: Record<string, unknown>,
   nameOf: (id: string) => string | null,
+  issueContext: { id: string; ref: string | null; title: string | null } | null,
 ): ToastInput | null {
   const runId = readString(payload.runId);
   const agentId = readString(payload.agentId);
@@ -302,6 +319,17 @@ function buildRunStatusToast(
 
   const error = readString(payload.error);
   const triggerDetail = readString(payload.triggerDetail);
+  // When a run belongs to a task, prefer task-level routing + dedupe so a
+  // 5-agent swarm completing one task fires ONE toast that jumps the user to
+  // the consolidated result, not 5 toasts pointing at individual agent pages.
+  const issueId = issueContext?.id ?? readString(payload.issueId);
+  const issueRef =
+    issueContext?.ref ??
+    readString(payload.issueRef) ??
+    readString(payload.issueIdentifier);
+  const issueTitle = issueContext?.title ?? readString(payload.issueTitle);
+  const taskRoute = issueRef ?? issueId;
+
   const name = nameOf(agentId) ?? `Agent ${shortId(agentId)}`;
   const tone = status === "succeeded" ? "success" : status === "cancelled" ? "warn" : "error";
   const statusLabel =
@@ -309,22 +337,40 @@ function buildRunStatusToast(
       : status === "failed" ? "failed"
         : status === "timed_out" ? "timed out"
           : "cancelled";
-  const title = `${name} run ${statusLabel}`;
+  const title = taskRoute
+    ? status === "succeeded"
+      ? issueTitle
+        ? `Task finished: ${truncate(issueTitle, 60)}`
+        : "Task finished"
+      : `Task ${statusLabel}`
+    : `${name} run ${statusLabel}`;
 
   let body: string | undefined;
   if (error) {
     body = truncate(error, 100);
   } else if (triggerDetail) {
     body = `Trigger: ${triggerDetail}`;
+  } else if (taskRoute) {
+    body = `${name} · tap to see all contributions`;
   }
+
+  const action: ToastInput["action"] = taskRoute
+    ? { label: "View task", href: `/issues/${taskRoute}` }
+    : { label: "View run", href: `/agents/${agentId}/runs/${runId}` };
+
+  // Dedupe at the task level when one exists so multiple agents on the same
+  // task collapse into a single completion toast within the dedupe window.
+  const dedupeKey = taskRoute
+    ? `run-complete-task:${taskRoute}:${status}`
+    : `run-status:${runId}:${status}`;
 
   return {
     title,
     body,
     tone,
     ttlMs: status === "succeeded" ? 5000 : 7000,
-    action: { label: "View run", href: `/agents/${agentId}/runs/${runId}` },
-    dedupeKey: `run-status:${runId}:${status}`,
+    action,
+    dedupeKey,
   };
 }
 
@@ -486,7 +532,12 @@ function handleLiveEvent(
   if (event.type === "heartbeat.run.queued" || event.type === "heartbeat.run.status") {
     invalidateHeartbeatQueries(queryClient, expectedCompanyId, payload);
     if (event.type === "heartbeat.run.status") {
-      const toast = buildRunStatusToast(payload, nameOf);
+      const issueContext = resolveIssueContext(
+        queryClient,
+        expectedCompanyId,
+        readString(payload.issueId),
+      );
+      const toast = buildRunStatusToast(payload, nameOf, issueContext);
       if (toast) gatedPushToast(gate, pushToast, "run-status", toast);
     }
     return;
