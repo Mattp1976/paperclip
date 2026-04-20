@@ -76,7 +76,7 @@ export function Sidebar() {
       <div className="px-3 pt-4 pb-2">
         <button
           onClick={() => openNewIssue()}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-green-600 hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98]"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-700 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(20,83,45,0.15),0_12px_24px_-8px_rgba(20,83,45,0.3)] transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(20,83,45,0.2),0_16px_32px_-8px_rgba(20,83,45,0.4)] active:translate-y-0 dark:bg-green-600 dark:hover:bg-green-500 dark:text-green-950"
         >
           <Plus className="h-4 w-4" />
           New Task

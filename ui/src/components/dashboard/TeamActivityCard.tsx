@@ -87,11 +87,19 @@ export function TeamActivityCard({ companyId }: TeamActivityCardProps) {
   }, [issues]);
 
   return (
-    <div className="flex h-full flex-col rounded-3xl bg-white dark:bg-card border border-border/50 dark:border-border/40 shadow-sm shadow-black/[0.03] overflow-hidden">
-      <div className="flex items-center justify-between px-6 pt-5 pb-3">
+    <div
+      className={cn(
+        "flex h-full flex-col overflow-hidden rounded-[32px]",
+        "bg-white dark:bg-card border border-border/40 dark:border-border/40",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-12px_rgba(0,0,0,0.06)]",
+      )}
+    >
+      <div className="flex items-center justify-between px-8 pt-7 pb-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Team activity</h3>
-          <p className="mt-0.5 text-[11px] text-muted-foreground/70">
+          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70">
+            Team activity
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground/70">
             Agents currently working or just done
           </p>
         </div>
@@ -103,7 +111,7 @@ export function TeamActivityCard({ companyId }: TeamActivityCardProps) {
         </Link>
       </div>
 
-      <div className="flex-1 px-2 pb-3">
+      <div className="flex-1 px-3 pb-4">
         {runs.length === 0 ? (
           <div className="px-4 py-6 text-center text-xs text-muted-foreground/60">
             No live agent activity right now.
@@ -120,7 +128,7 @@ export function TeamActivityCard({ companyId }: TeamActivityCardProps) {
                 <li key={run.id}>
                   <Link
                     to={`/agents/${run.agentId}/runs/${run.id}`}
-                    className="group flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-accent/40 no-underline text-inherit"
+                    className="group flex items-center gap-3 rounded-2xl px-5 py-3 transition-colors hover:bg-accent/40 no-underline text-inherit"
                   >
                     <Identity name={run.agentName} size="sm" />
                     <div className="flex-1 min-w-0">

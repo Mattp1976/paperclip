@@ -270,21 +270,21 @@ export function Dashboard() {
     successStats.rate >= 80 ? "green" : successStats.rate >= 50 ? "amber" : "red";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 pb-6">
       {/* Page header */}
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="text-4xl font-semibold tracking-tight text-foreground">
             Dashboard
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground/70">
+          <p className="mt-2 text-[15px] text-muted-foreground/75 leading-relaxed">
             Ask your agents anything, track progress, and see results.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => openNewIssue()}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-green-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-green-600 hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-green-600 dark:hover:bg-green-500 dark:text-green-950"
+            className="inline-flex items-center gap-1.5 rounded-2xl bg-green-700 px-5 py-3 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(20,83,45,0.15),0_12px_24px_-8px_rgba(20,83,45,0.3)] transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(20,83,45,0.2),0_16px_32px_-8px_rgba(20,83,45,0.4)] active:translate-y-0 dark:bg-green-600 dark:hover:bg-green-500 dark:text-green-950"
           >
             <Plus className="h-4 w-4" />
             New Task
@@ -358,7 +358,7 @@ export function Dashboard() {
 
           {/* ── KPI ROW: hero + 3 siblings ─────────────────────────── */}
 
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
             <HeroKpi
               icon={Bot}
               value={agentsTotal}
@@ -423,8 +423,8 @@ export function Dashboard() {
 
           {/* ── ANALYTICS + UP NEXT ─────────────────────────────────── */}
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            <div className="lg:col-span-2 rounded-3xl bg-white dark:bg-card border border-border/50 dark:border-border/40 shadow-sm shadow-black/[0.03] p-6">
+          <div className="grid gap-5 lg:grid-cols-3">
+            <div className="lg:col-span-2 rounded-[32px] bg-white dark:bg-card border border-border/40 dark:border-border/40 shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-12px_rgba(0,0,0,0.06)] p-8">
               <PillRunChart runs={runs ?? []} />
             </div>
             <div className="lg:col-span-1">
@@ -438,7 +438,7 @@ export function Dashboard() {
 
           {/* ── TEAM + GAUGE + SPEND ────────────────────────────────── */}
 
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-5 lg:grid-cols-3">
             <TeamActivityCard companyId={selectedCompanyId!} />
             <ProgressGauge
               label="Success rate"
@@ -472,7 +472,7 @@ export function Dashboard() {
 
           {/* ── DEEPER ANALYTICS + FORECASTS ────────────────────────── */}
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             <ChartCard title="Issues by Priority" subtitle="Last 14 days">
               <PriorityChart issues={issues ?? []} />
             </ChartCard>
@@ -481,7 +481,7 @@ export function Dashboard() {
             </ChartCard>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             <FleetHealthOverview companyId={selectedCompanyId!} />
             <BudgetForecast companyId={selectedCompanyId!} />
           </div>

@@ -1,8 +1,8 @@
 /**
  * OutlinedKpi — the quiet sibling KPI tile.
  *
- * Neutral outlined card with a small circular arrow badge top-right, per the
- * reference design. Pairs with `HeroKpi` in the top row of the dashboard.
+ * Airy, outlined card paired with `HeroKpi`. Big numeral, thin label above,
+ * sub-caption below, circular arrow badge top-right that rotates on hover.
  */
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
@@ -24,19 +24,19 @@ interface OutlinedKpiProps {
 const toneClasses: Record<NonNullable<OutlinedKpiProps["tone"]>, { icon: string; iconBg: string }> = {
   default: {
     icon: "text-green-700 dark:text-green-400",
-    iconBg: "bg-green-100/70 dark:bg-green-950/40",
+    iconBg: "bg-green-100/80 dark:bg-green-950/50",
   },
   amber: {
     icon: "text-amber-700 dark:text-amber-400",
-    iconBg: "bg-amber-100/70 dark:bg-amber-950/40",
+    iconBg: "bg-amber-100/80 dark:bg-amber-950/50",
   },
   red: {
     icon: "text-red-700 dark:text-red-400",
-    iconBg: "bg-red-100/70 dark:bg-red-950/40",
+    iconBg: "bg-red-100/80 dark:bg-red-950/50",
   },
   violet: {
     icon: "text-violet-700 dark:text-violet-400",
-    iconBg: "bg-violet-100/70 dark:bg-violet-950/40",
+    iconBg: "bg-violet-100/80 dark:bg-violet-950/50",
   },
 };
 
@@ -54,40 +54,42 @@ export function OutlinedKpi({
   const inner = (
     <div
       className={cn(
-        "group relative h-full overflow-hidden rounded-3xl px-6 py-6 transition-all duration-200",
-        "bg-white dark:bg-card border border-border/50 dark:border-border/40",
-        "shadow-sm shadow-black/[0.02]",
-        (to || onClick) && "cursor-pointer hover:-translate-y-0.5 hover:shadow-md hover:border-border/80 dark:hover:border-border/70",
+        "group relative h-full overflow-hidden rounded-[32px] p-8 transition-all duration-300",
+        "bg-white dark:bg-card border border-border/40 dark:border-border/40",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-12px_rgba(0,0,0,0.06)]",
+        (to || onClick) && "cursor-pointer hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(0,0,0,0.04),0_20px_48px_-16px_rgba(0,0,0,0.12)] hover:border-border/70",
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0 space-y-1.5">
-          <div className="flex items-center gap-2">
-            <div className={cn("rounded-lg p-1.5", t.iconBg)}>
-              <Icon className={cn("h-3.5 w-3.5", t.icon)} />
+      <div className="flex h-full flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className={cn("rounded-xl p-2", t.iconBg)}>
+              <Icon className={cn("h-4 w-4", t.icon)} strokeWidth={2.2} />
             </div>
-            <p className="text-[11px] font-medium tracking-wide text-muted-foreground/70">
+            <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70">
               {label}
             </p>
           </div>
-          <p className="text-3xl sm:text-4xl font-bold tracking-tight tabular-nums text-foreground">
-            {value}
-          </p>
-          {description && (
-            <div className="text-[12px] leading-snug text-muted-foreground/70">
-              {description}
-            </div>
-          )}
+          <div
+            className={cn(
+              "rounded-full border border-border/60 bg-background p-2.5",
+              "transition-all duration-300 group-hover:border-foreground/40 group-hover:rotate-[12deg] group-hover:bg-accent/40",
+              "dark:border-border/60 dark:bg-background/50",
+            )}
+          >
+            <ArrowUpRight className="h-4 w-4 text-foreground/70" strokeWidth={2.2} />
+          </div>
         </div>
-        <div
-          className={cn(
-            "rounded-full border border-border/60 bg-background p-2",
-            "transition-all duration-200 group-hover:border-foreground/30 group-hover:rotate-[10deg]",
-            "dark:border-border/60 dark:bg-background/50",
-          )}
-        >
-          <ArrowUpRight className="h-3.5 w-3.5 text-foreground/70" />
-        </div>
+
+        <p className="mt-8 text-5xl sm:text-6xl font-semibold tabular-nums tracking-tight text-foreground leading-none">
+          {value}
+        </p>
+
+        {description && (
+          <div className="mt-3 text-[13px] leading-relaxed text-muted-foreground/70">
+            {description}
+          </div>
+        )}
       </div>
     </div>
   );

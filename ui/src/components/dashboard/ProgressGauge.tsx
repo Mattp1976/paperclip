@@ -41,28 +41,34 @@ export function ProgressGauge({
   const styles = toneStyles[tone];
 
   return (
-    <div className="relative flex h-full flex-col rounded-3xl bg-white dark:bg-card border border-border/50 dark:border-border/40 shadow-sm shadow-black/[0.03] p-6">
+    <div
+      className={cn(
+        "relative flex h-full flex-col rounded-[32px] p-8",
+        "bg-white dark:bg-card border border-border/40 dark:border-border/40",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-12px_rgba(0,0,0,0.06)]",
+      )}
+    >
       <div>
-        <p className="text-[11px] font-medium tracking-wide text-muted-foreground/70">
+        <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70">
           {label}
         </p>
         {caption && (
-          <p className="mt-0.5 text-xs text-muted-foreground/60">{caption}</p>
+          <p className="mt-1 text-xs text-muted-foreground/60">{caption}</p>
         )}
       </div>
 
-      <div className="relative flex flex-1 flex-col items-center justify-center pt-2">
+      <div className="relative flex flex-1 flex-col items-center justify-center pt-4">
         <svg
           viewBox="0 0 160 90"
-          className="w-full max-w-[220px] overflow-visible"
+          className="w-full max-w-[240px] overflow-visible"
           role="img"
           aria-label={`${label}: ${clamped}%`}
         >
           {/* Track */}
           <path
             d="M 10 80 A 70 70 0 0 1 150 80"
-            className="stroke-muted/60 dark:stroke-muted/30"
-            strokeWidth={14}
+            className="stroke-muted/50 dark:stroke-muted/25"
+            strokeWidth={16}
             strokeLinecap="round"
             fill="none"
           />
@@ -70,7 +76,7 @@ export function ProgressGauge({
           <path
             d="M 10 80 A 70 70 0 0 1 150 80"
             className={cn(styles.stroke, "transition-[stroke-dashoffset] duration-700")}
-            strokeWidth={14}
+            strokeWidth={16}
             strokeLinecap="round"
             fill="none"
             strokeDasharray={`${CIRC}`}
@@ -78,16 +84,16 @@ export function ProgressGauge({
           />
         </svg>
 
-        <div className="-mt-10 flex flex-col items-center">
-          <p className={cn("text-4xl font-bold tabular-nums tracking-tight", styles.text)}>
+        <div className="-mt-12 flex flex-col items-center">
+          <p className={cn("text-5xl font-semibold tabular-nums tracking-tight leading-none", styles.text)}>
             {Math.round(clamped)}
-            <span className="text-xl font-semibold">%</span>
+            <span className="text-2xl font-semibold">%</span>
           </p>
         </div>
       </div>
 
       {footer && (
-        <div className="mt-3 border-t border-border/30 pt-3 text-center text-xs text-muted-foreground/80">
+        <div className="mt-4 border-t border-border/30 pt-4 text-center text-xs text-muted-foreground/80">
           {footer}
         </div>
       )}

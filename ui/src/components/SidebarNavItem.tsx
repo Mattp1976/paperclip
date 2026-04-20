@@ -39,26 +39,24 @@ export function SidebarNavItem({
       onClick={() => { if (isMobile) setSidebarOpen(false); }}
       className={({ isActive }) =>
         cn(
-          "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
+          "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150",
           isActive
-            ? "bg-white dark:bg-white/10 text-foreground shadow-sm"
-            : "text-muted-foreground hover:bg-white/70 dark:hover:bg-white/5 hover:text-foreground",
+            ? "bg-gradient-to-br from-green-700 to-green-800 text-white shadow-[0_1px_2px_rgba(20,83,45,0.15),0_8px_16px_-8px_rgba(20,83,45,0.4)] dark:from-green-600 dark:to-green-700"
+            : "text-muted-foreground/80 hover:bg-white/70 dark:hover:bg-white/5 hover:text-foreground",
           className,
         )
       }
     >
       {({ isActive }: { isActive: boolean }) => (
         <>
-          {/* Active indicator bar */}
-          <span
-            className={cn(
-              "absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-full transition-all duration-200",
-              isActive ? "h-5 bg-green-600" : "h-0 bg-transparent",
-            )}
-          />
-
           <span className="relative shrink-0">
-            <Icon className={cn("h-[18px] w-[18px]", isActive ? "text-green-700 dark:text-green-400" : "")} />
+            <Icon
+              className={cn(
+                "h-[18px] w-[18px]",
+                isActive ? "text-white" : "text-muted-foreground/70 group-hover:text-foreground",
+              )}
+              strokeWidth={isActive ? 2.3 : 2}
+            />
             {alert && (
               <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_2px_hsl(var(--background))]" />
             )}
@@ -68,9 +66,11 @@ export function SidebarNavItem({
             <span
               className={cn(
                 "ml-auto rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none",
-                textBadgeTone === "amber"
-                  ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
-                  : "bg-muted text-muted-foreground",
+                isActive
+                  ? "bg-white/20 text-white"
+                  : textBadgeTone === "amber"
+                    ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                    : "bg-muted text-muted-foreground",
               )}
             >
               {textBadge}
@@ -79,19 +79,38 @@ export function SidebarNavItem({
           {liveCount != null && liveCount > 0 && (
             <span className="ml-auto flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-600" />
+                <span
+                  className={cn(
+                    "animate-pulse absolute inline-flex h-full w-full rounded-full opacity-75",
+                    isActive ? "bg-white" : "bg-green-400",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "relative inline-flex rounded-full h-2 w-2",
+                    isActive ? "bg-white" : "bg-green-600",
+                  )}
+                />
               </span>
-              <span className="text-[11px] font-medium text-green-700 dark:text-green-400">{liveCount} live</span>
+              <span
+                className={cn(
+                  "text-[11px] font-medium",
+                  isActive ? "text-white" : "text-green-700 dark:text-green-400",
+                )}
+              >
+                {liveCount} live
+              </span>
             </span>
           )}
           {badge != null && badge > 0 && (
             <span
               className={cn(
                 "ml-auto rounded-full px-1.5 py-0.5 text-xs leading-none font-medium",
-                badgeTone === "danger"
-                  ? "bg-red-600/90 text-red-50"
-                  : "bg-green-700 text-white dark:bg-green-600",
+                isActive
+                  ? "bg-white/20 text-white"
+                  : badgeTone === "danger"
+                    ? "bg-red-600/90 text-red-50"
+                    : "bg-green-700 text-white dark:bg-green-600",
               )}
             >
               {badge}

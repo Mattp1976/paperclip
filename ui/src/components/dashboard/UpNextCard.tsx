@@ -144,19 +144,25 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
   const Icon = content.icon;
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-3xl bg-white dark:bg-card border border-border/50 dark:border-border/40 shadow-sm shadow-black/[0.03] p-6">
+    <div
+      className={cn(
+        "relative flex h-full flex-col overflow-hidden rounded-[32px] p-8",
+        "bg-white dark:bg-card border border-border/40 dark:border-border/40",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-12px_rgba(0,0,0,0.06)]",
+      )}
+    >
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-medium tracking-wide text-muted-foreground/70">
+          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70">
             Up next
           </p>
-          <p className="text-sm font-medium text-foreground/90 mt-0.5">
+          <p className="text-sm font-medium text-foreground/90 mt-1">
             {dateLabel} · {timeLabel}
           </p>
         </div>
         <span
           className={cn(
-            "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold",
+            "inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold",
             pillToneClass,
           )}
         >
@@ -164,25 +170,25 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
         </span>
       </div>
 
-      <div className="mt-5 flex items-start gap-3">
-        <div className="rounded-xl bg-green-700/10 dark:bg-green-900/30 p-2.5">
-          <Icon className="h-5 w-5 text-green-700 dark:text-green-400" />
+      <div className="mt-7 flex items-start gap-4">
+        <div className="rounded-2xl bg-green-700/10 dark:bg-green-900/30 p-3">
+          <Icon className="h-5 w-5 text-green-700 dark:text-green-400" strokeWidth={2.2} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-base font-semibold leading-snug text-foreground line-clamp-2">
+          <p className="text-lg font-semibold leading-snug text-foreground line-clamp-2 tracking-tight">
             {content.title}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground/80 leading-relaxed">
+          <p className="mt-1.5 text-[13px] text-muted-foreground/80 leading-relaxed">
             {content.body}
           </p>
         </div>
       </div>
 
-      <div className="mt-auto pt-6">
+      <div className="mt-auto pt-8">
         {content.ctaHref ? (
           <Link
             to={content.ctaHref}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-green-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-600 hover:shadow-md hover:shadow-green-700/20 active:scale-[0.99] dark:bg-green-600 dark:text-green-950 dark:hover:bg-green-500 no-underline"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-green-700 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(20,83,45,0.15),0_12px_24px_-8px_rgba(20,83,45,0.3)] transition-all hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(20,83,45,0.2),0_16px_32px_-8px_rgba(20,83,45,0.4)] active:translate-y-0 dark:bg-green-600 dark:text-green-950 dark:hover:bg-green-500 no-underline"
           >
             {content.ctaLabel}
             <ArrowRight className="h-4 w-4" />
@@ -191,7 +197,7 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
           <button
             type="button"
             onClick={content.ctaOnClick}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-green-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-green-600 hover:shadow-md hover:shadow-green-700/20 active:scale-[0.99] dark:bg-green-600 dark:text-green-950 dark:hover:bg-green-500"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-green-700 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(20,83,45,0.15),0_12px_24px_-8px_rgba(20,83,45,0.3)] transition-all hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(20,83,45,0.2),0_16px_32px_-8px_rgba(20,83,45,0.4)] active:translate-y-0 dark:bg-green-600 dark:text-green-950 dark:hover:bg-green-500"
           >
             <Plus className="h-4 w-4" />
             {content.ctaLabel}

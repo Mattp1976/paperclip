@@ -1,8 +1,9 @@
 /**
  * HeroKpi — the big filled "hero" KPI tile.
  *
- * One of these per dashboard row; it's the visual anchor that every other
- * tile defers to. Modeled on the dark-green tile in the reference design.
+ * Visual anchor for the dashboard's KPI row. Matches the dark-green filled
+ * tile in the reference: very large numeral, subtle sub-caption, circular
+ * arrow badge top-right, layered decorative rings for depth.
  */
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
@@ -33,50 +34,58 @@ export function HeroKpi({
   const inner = (
     <div
       className={cn(
-        "group relative h-full overflow-hidden rounded-3xl px-6 py-6 transition-all duration-200",
-        "bg-gradient-to-br from-green-700 to-green-800 text-white",
-        "shadow-lg shadow-green-900/20",
-        "dark:from-green-600 dark:to-green-800 dark:shadow-green-950/40",
-        (to || onClick) && "cursor-pointer hover:-translate-y-0.5 hover:shadow-xl",
+        "group relative h-full overflow-hidden rounded-[32px] p-8 transition-all duration-300",
+        "bg-gradient-to-br from-green-700 via-green-700 to-green-900 text-white",
+        "shadow-[0_2px_4px_rgba(20,83,45,0.15),0_24px_48px_-16px_rgba(20,83,45,0.35)]",
+        "dark:from-green-600 dark:via-green-700 dark:to-green-900 dark:shadow-green-950/40",
+        (to || onClick) && "cursor-pointer hover:-translate-y-1 hover:shadow-[0_4px_8px_rgba(20,83,45,0.2),0_32px_64px_-16px_rgba(20,83,45,0.45)]",
       )}
     >
-      {/* Decorative ring */}
+      {/* Decorative concentric rings — adds depth like the reference */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full border border-white/10"
+        className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full border border-white/10"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-20 -bottom-20 h-44 w-44 rounded-full border border-white/5"
+        className="pointer-events-none absolute -right-32 -top-16 h-72 w-72 rounded-full border border-white/5"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-8 bottom-0 h-40 w-40 rounded-full bg-white/[0.04] blur-2xl"
       />
 
-      <div className="relative flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0 space-y-1.5">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-white/15 p-1.5">
-              <Icon className="h-3.5 w-3.5 text-white" />
+      <div className="relative flex h-full flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="rounded-xl bg-white/15 p-2 backdrop-blur-sm">
+              <Icon className="h-4 w-4 text-white" strokeWidth={2.2} />
             </div>
-            <p className="text-[11px] font-medium tracking-wide text-green-50/90">
+            <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-green-50/80">
               {label}
             </p>
           </div>
-          <p className="text-3xl sm:text-4xl font-bold tracking-tight tabular-nums text-white">
+          <div className="rounded-full bg-white/15 p-2.5 backdrop-blur-sm transition-all duration-300 group-hover:rotate-[12deg] group-hover:bg-white/25">
+            <ArrowUpRight className="h-4 w-4 text-white" strokeWidth={2.4} />
+          </div>
+        </div>
+
+        <div className="mt-8 flex items-baseline gap-2">
+          <p className="text-5xl sm:text-6xl font-semibold tabular-nums tracking-tight text-white leading-none">
             {value}
           </p>
-          {description && (
-            <div className="text-[12px] leading-snug text-green-50/80">
-              {description}
-            </div>
-          )}
           {trend && (
-            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium text-white">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
               {trend}
             </span>
           )}
         </div>
-        <div className="rounded-full bg-white/15 p-2 transition-transform group-hover:rotate-[10deg]">
-          <ArrowUpRight className="h-4 w-4 text-white" />
-        </div>
+
+        {description && (
+          <div className="mt-3 text-[13px] leading-relaxed text-green-50/80">
+            {description}
+          </div>
+        )}
       </div>
     </div>
   );
