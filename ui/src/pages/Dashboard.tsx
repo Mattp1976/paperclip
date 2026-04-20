@@ -1,3 +1,22 @@
+/**
+ * Dashboard — the primary landing surface.
+ *
+ * Redesigned to balance Paperclip's operational needs (agents, tasks, spend,
+ * approvals) with a calmer, more magazine-style layout inspired by the
+ * reference design: a hero KPI + 3 quiet siblings, a pill-bar activity chart
+ * paired with a big "Up next" action, a semicircular success gauge, a dark
+ * spend hero, and the team-activity list that used to be buried.
+ *
+ * Layering (top → bottom):
+ *   1. Page header + "New Task" CTA
+ *   2. Quick input + live progress + urgent alerts
+ *   3. Run Results feed (hero promotion — this is what users open the app for)
+ *   4. KPI row: Hero (Agents) + 3 Outlined (Tasks, Spend, Approvals)
+ *   5. Pill-bar Run activity (wide) + Up-next card (narrow)
+ *   6. Team activity + Success gauge + Spend hero
+ *   7. Priority / status charts + Fleet health + Budget forecast
+ *   8. Leaderboard, plugin slots, recent activity, recent tasks
+ */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
@@ -11,37 +30,72 @@ import { useCompany } from "../context/CompanyContext";
 import { useDialog } from "../context/DialogContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
-import { MetricCard } from "../components/MetricCard";
 import { EmptyState } from "../components/EmptyState";
 import { StatusIcon } from "../components/StatusIcon";
 import { PriorityIcon } from "../components/PriorityIcon";
 import { ActivityRow } from "../components/ActivityRow";
 import { Identity } from "../components/Identity";
 import { timeAgo } from "../lib/timeAgo";
-import { cn, formatCents, friendlyCost } from "../lib/utils";
-import { Bot, CircleDot, DollarSign, ShieldCheck, LayoutDashboard, PauseCircle, Plus } from "lucide-react";
-import { ActiveAgentsPanel } from "../components/ActiveAgentsPanel";
+import {
+  Bot,
+  CircleDot,
+  DollarSign,
+  ShieldCheck,
+  LayoutDashboard,
+  PauseCircle,
+  Plus,
+} from "lucide-react";
 import { FleetHealthOverview } from "../components/FleetHealthOverview";
 import { AgentLeaderboard } from "../components/AgentLeaderboard";
 import { BudgetForecast } from "../components/BudgetForecast";
-import { ChartCard, RunActivityChart, PriorityChart, IssueStatusChart, SuccessRateChart } from "../components/ActivityCharts";
+import {
+  ChartCard,
+  PriorityChart,
+  IssueStatusChart,
+} from "../components/ActivityCharts";
 import { LatestWorkFeed } from "../components/LatestWorkFeed";
 import { LiveProgressStrip } from "../components/LiveProgressStrip";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { QuickInputBar } from "../components/QuickInputBar";
-import type { Agent, Issue } from "@mattparrytfc/shared";
+import { HeroKpi } from "../components/dashboard/HeroKpi";
+import { OutlinedKpi } from "../components/dashboard/OutlinedKpi";
+import { PillRunChart } from "../components/dashboard/PillRunChart";
+import { UpNextCard } from "../components/dashboard/UpNextCard";
+import { ProgressGauge } from "../components/dashboard/ProgressGauge";
+import { SpendHeroCard } from "../components/dashboard/SpendHeroCard";
+import { TeamActivityCard } from "../components/dashboard/TeamActivityCard";
+import type { Agent, HeartbeatRun, Issue } from "@mattparrytfc/shared";
 import { PluginSlotOutlet } from "@/plugins/slots";
 
 function getRecentIssues(issues: Issue[]): Issue[] {
-  return [...issues]
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  return [...issues].sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  );
+}
+
+/** Compute recent success rate (last N days) for the gauge. */
+function recentSuccessStats(runs: HeartbeatRun[], days = 14) {
+  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  let succeeded = 0;
+  let total = 0;
+  for (const run of runs) {
+    const t = new Date(run.createdAt).getTime();
+    if (t < cutoff) continue;
+    if (run.status === "succeeded" || run.status === "failed" || run.status === "timed_out") {
+      total++;
+      if (run.status === "succeeded") succeeded++;
+    }
+  }
+  return { succeeded, total, rate: total === 0 ? 0 : (succeeded / total) * 100 };
 }
 
 export function Dashboard() {
   const { selectedCompanyId, companies } = useCompany();
   const { openOnboarding, openNewIssue } = useDialog();
   const { setBreadcrumbs } = useBreadcrumbs();
-  const [animatedActivityIds, setAnimatedActivityIds] = useState<Set<string>>(new Set());
+  const [animatedActivityIds, setAnimatedActivityIds] = useState<Set<string>>(
+    new Set(),
+  );
   const seenActivityIdsRef = useRef<Set<string>>(new Set());
   const hydratedActivityRef = useRef(false);
   const activityAnimationTimersRef = useRef<number[]>([]);
@@ -87,7 +141,15 @@ export function Dashboard() {
   });
 
   const recentIssues = issues ? getRecentIssues(issues) : [];
-  const recentActivity = useMemo(() => (activity ?? []).slice(0, 10), [activity]);
+  const recentActivity = useMemo(
+    () => (activity ?? []).slice(0, 10),
+    [activity],
+  );
+
+  const successStats = useMemo(
+    () => recentSuccessStats(runs ?? [], 14),
+    [runs],
+  );
 
   useEffect(() => {
     for (const timer of activityAnimationTimersRef.current) {
@@ -131,7 +193,8 @@ export function Dashboard() {
         for (const id of newIds) next.delete(id);
         return next;
       });
-      activityAnimationTimersRef.current = activityAnimationTimersRef.current.filter((t) => t !== timer);
+      activityAnimationTimersRef.current =
+        activityAnimationTimersRef.current.filter((t) => t !== timer);
     }, 980);
     activityAnimationTimersRef.current.push(timer);
   }, [recentActivity]);
@@ -152,7 +215,8 @@ export function Dashboard() {
 
   const entityNameMap = useMemo(() => {
     const map = new Map<string, string>();
-    for (const i of issues ?? []) map.set(`issue:${i.id}`, i.identifier ?? i.id.slice(0, 8));
+    for (const i of issues ?? [])
+      map.set(`issue:${i.id}`, i.identifier ?? i.id.slice(0, 8));
     for (const a of agents ?? []) map.set(`agent:${a.id}`, a.name);
     for (const p of projects ?? []) map.set(`project:${p.id}`, p.name);
     return map;
@@ -181,7 +245,10 @@ export function Dashboard() {
       );
     }
     return (
-      <EmptyState icon={LayoutDashboard} message="Create or select a company to view the dashboard." />
+      <EmptyState
+        icon={LayoutDashboard}
+        message="Create or select a company to view the dashboard."
+      />
     );
   }
 
@@ -190,6 +257,17 @@ export function Dashboard() {
   }
 
   const hasNoAgents = agents !== undefined && agents.length === 0;
+
+  const agentsTotal = data
+    ? data.agents.active + data.agents.running + data.agents.paused + data.agents.error
+    : 0;
+  const approvalsTotal = data
+    ? data.pendingApprovals + data.budgets.pendingApprovals
+    : 0;
+
+  // Pick a tone for the gauge based on success rate
+  const gaugeTone: "green" | "amber" | "red" =
+    successStats.rate >= 80 ? "green" : successStats.rate >= 50 ? "amber" : "red";
 
   return (
     <div className="space-y-8">
@@ -232,7 +310,9 @@ export function Dashboard() {
             </div>
           </div>
           <button
-            onClick={() => openOnboarding({ initialStep: 2, companyId: selectedCompanyId! })}
+            onClick={() =>
+              openOnboarding({ initialStep: 2, companyId: selectedCompanyId! })
+            }
             className="rounded-xl bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-amber-950 shrink-0"
           >
             Create agent
@@ -244,13 +324,10 @@ export function Dashboard() {
         <>
           {/* ── PRIMARY ZONE: Input → Progress → Results ─────────── */}
 
-          {/* Quick input — the primary action, always first */}
           <QuickInputBar />
 
-          {/* Live progress — shows when agents are actively working */}
           <LiveProgressStrip companyId={selectedCompanyId!} />
 
-          {/* Budget incident alert — urgent, so stays high */}
           {data.budgets.activeIncidents > 0 && (
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50/80 px-5 py-4 dark:border-red-500/20 dark:bg-red-950/40">
               <div className="flex items-center gap-3">
@@ -259,103 +336,152 @@ export function Dashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-red-900 dark:text-red-100">
-                    {data.budgets.activeIncidents} budget incident{data.budgets.activeIncidents === 1 ? "" : "s"}
+                    {data.budgets.activeIncidents} budget incident
+                    {data.budgets.activeIncidents === 1 ? "" : "s"}
                   </p>
                   <p className="text-xs text-red-700/70 dark:text-red-200/70 mt-0.5">
-                    {data.budgets.pausedAgents} paused agents · {data.budgets.pausedProjects} paused projects
+                    {data.budgets.pausedAgents} paused agents ·{" "}
+                    {data.budgets.pausedProjects} paused projects
                   </p>
                 </div>
               </div>
-              <Link to="/costs" className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400 dark:text-red-950 shrink-0 no-underline">
+              <Link
+                to="/costs"
+                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400 dark:text-red-950 shrink-0 no-underline"
+              >
                 View budgets
               </Link>
             </div>
           )}
 
-          {/* Latest results — promoted to hero position */}
           <LatestWorkFeed companyId={selectedCompanyId!} limit={5} />
 
-          {/* ── SECONDARY ZONE: Metrics + Operations ─────────────── */}
+          {/* ── KPI ROW: hero + 3 siblings ─────────────────────────── */}
 
-          {/* Key metrics — compact overview */}
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <MetricCard
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+            <HeroKpi
               icon={Bot}
-              value={data.agents.active + data.agents.running + data.agents.paused + data.agents.error}
+              value={agentsTotal}
               label="Agents"
               to="/agents"
-              accent
               description={
                 <span>
-                  {data.agents.running} running{", "}
-                  {data.agents.paused} paused{", "}
+                  {data.agents.running} running · {data.agents.paused} paused ·{" "}
                   {data.agents.error} errors
                 </span>
               }
             />
-            <MetricCard
+            <OutlinedKpi
               icon={CircleDot}
               value={data.tasks.inProgress}
-              label="Active Tasks"
+              label="Active tasks"
               to="/issues"
               description={
                 <span>
-                  {data.tasks.open} open{", "}
-                  {data.tasks.blocked} blocked
+                  {data.tasks.open} open · {data.tasks.blocked} blocked
                 </span>
               }
             />
-            <MetricCard
+            <OutlinedKpi
               icon={DollarSign}
-              value={friendlyCost(data.costs.monthSpendCents / 100)}
-              label="Month Spend"
+              value={
+                data.costs.monthSpendCents === 0
+                  ? "$0"
+                  : `$${(data.costs.monthSpendCents / 100).toFixed(
+                      data.costs.monthSpendCents >= 10000 ? 0 : 2,
+                    )}`
+              }
+              label="Month spend"
               to="/costs"
               description={
                 <span>
                   {data.costs.monthBudgetCents > 0
-                    ? `${data.costs.monthUtilizationPercent}% of ${formatCents(data.costs.monthBudgetCents)} budget`
+                    ? `${data.costs.monthUtilizationPercent}% of budget`
                     : data.costs.projectedMonthlyCents > 0
-                      ? `At this pace, ~${friendlyCost(data.costs.projectedMonthlyCents / 100)}/month`
+                      ? `Tracking $${(data.costs.projectedMonthlyCents / 100).toFixed(0)}/mo`
                       : "Unlimited budget"}
                 </span>
               }
             />
-            <MetricCard
+            <OutlinedKpi
               icon={ShieldCheck}
-              value={data.pendingApprovals + data.budgets.pendingApprovals}
+              value={approvalsTotal}
               label="Approvals"
               to="/approvals"
+              tone={approvalsTotal > 0 ? "amber" : "default"}
               description={
                 <span>
                   {data.budgets.pendingApprovals > 0
-                    ? `${data.budgets.pendingApprovals} budget overrides awaiting review`
-                    : "Awaiting board review"}
+                    ? `${data.budgets.pendingApprovals} budget override${data.budgets.pendingApprovals === 1 ? "" : "s"}`
+                    : approvalsTotal > 0
+                      ? "Awaiting board review"
+                      : "Nothing waiting"}
                 </span>
               }
             />
           </div>
 
-          {/* Live agents — compact strip */}
-          <ActiveAgentsPanel companyId={selectedCompanyId!} />
+          {/* ── ANALYTICS + UP NEXT ─────────────────────────────────── */}
 
-          {/* Activity charts — pushed below the fold */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <ChartCard title="Run Activity" subtitle="Last 14 days">
-              <RunActivityChart runs={runs ?? []} />
-            </ChartCard>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="lg:col-span-2 rounded-3xl bg-white dark:bg-card border border-border/50 dark:border-border/40 shadow-sm shadow-black/[0.03] p-6">
+              <PillRunChart runs={runs ?? []} />
+            </div>
+            <div className="lg:col-span-1">
+              <UpNextCard
+                companyId={selectedCompanyId!}
+                pendingApprovals={data.pendingApprovals}
+                budgetApprovals={data.budgets.pendingApprovals}
+              />
+            </div>
+          </div>
+
+          {/* ── TEAM + GAUGE + SPEND ────────────────────────────────── */}
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            <TeamActivityCard companyId={selectedCompanyId!} />
+            <ProgressGauge
+              label="Success rate"
+              caption="Last 14 days"
+              value={successStats.rate}
+              tone={gaugeTone}
+              footer={
+                successStats.total > 0 ? (
+                  <span>
+                    <span className="font-semibold text-foreground/90 tabular-nums">
+                      {successStats.succeeded}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-semibold text-foreground/90 tabular-nums">
+                      {successStats.total}
+                    </span>{" "}
+                    runs succeeded
+                  </span>
+                ) : (
+                  <span>No completed runs yet</span>
+                )
+              }
+            />
+            <SpendHeroCard
+              monthSpendCents={data.costs.monthSpendCents}
+              monthBudgetCents={data.costs.monthBudgetCents}
+              utilizationPercent={data.costs.monthUtilizationPercent}
+              projectedMonthlyCents={data.costs.projectedMonthlyCents}
+            />
+          </div>
+
+          {/* ── DEEPER ANALYTICS + FORECASTS ────────────────────────── */}
+
+          <div className="grid gap-4 md:grid-cols-2">
             <ChartCard title="Issues by Priority" subtitle="Last 14 days">
               <PriorityChart issues={issues ?? []} />
             </ChartCard>
             <ChartCard title="Issues by Status" subtitle="Last 14 days">
               <IssueStatusChart issues={issues ?? []} />
             </ChartCard>
-            <ChartCard title="Success Rate" subtitle="Last 14 days">
-              <SuccessRateChart runs={runs ?? []} />
-            </ChartCard>
           </div>
 
-          {/* Fleet health + forecast row */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <FleetHealthOverview companyId={selectedCompanyId!} />
             <BudgetForecast companyId={selectedCompanyId!} />
           </div>
@@ -370,7 +496,6 @@ export function Dashboard() {
           />
 
           <div className="grid md:grid-cols-2 gap-4">
-            {/* Recent Activity */}
             {recentActivity.length > 0 && (
               <div className="min-w-0">
                 <h3 className="text-xs font-medium text-muted-foreground/70 mb-3">
@@ -384,14 +509,17 @@ export function Dashboard() {
                       agentMap={agentMap}
                       entityNameMap={entityNameMap}
                       entityTitleMap={entityTitleMap}
-                      className={animatedActivityIds.has(event.id) ? "activity-row-enter" : undefined}
+                      className={
+                        animatedActivityIds.has(event.id)
+                          ? "activity-row-enter"
+                          : undefined
+                      }
                     />
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Recent Tasks */}
             <div className="min-w-0">
               <h3 className="text-xs font-medium text-muted-foreground/70 mb-3">
                 Recent tasks
@@ -417,18 +545,27 @@ export function Dashboard() {
                             {issue.title}
                           </span>
                           <span className="flex items-center gap-2 sm:order-1 sm:shrink-0">
-                            <span className="hidden sm:inline-flex"><PriorityIcon priority={issue.priority} /></span>
-                            <span className="hidden sm:inline-flex"><StatusIcon status={issue.status} /></span>
+                            <span className="hidden sm:inline-flex">
+                              <PriorityIcon priority={issue.priority} />
+                            </span>
+                            <span className="hidden sm:inline-flex">
+                              <StatusIcon status={issue.status} />
+                            </span>
                             <span className="text-xs font-mono text-muted-foreground">
                               {issue.identifier ?? issue.id.slice(0, 8)}
                             </span>
-                            {issue.assigneeAgentId && (() => {
-                              const name = agentName(issue.assigneeAgentId);
-                              return name
-                                ? <span className="hidden sm:inline-flex"><Identity name={name} size="sm" /></span>
-                                : null;
-                            })()}
-                            <span className="text-xs text-muted-foreground sm:hidden">&middot;</span>
+                            {issue.assigneeAgentId &&
+                              (() => {
+                                const name = agentName(issue.assigneeAgentId);
+                                return name ? (
+                                  <span className="hidden sm:inline-flex">
+                                    <Identity name={name} size="sm" />
+                                  </span>
+                                ) : null;
+                              })()}
+                            <span className="text-xs text-muted-foreground sm:hidden">
+                              &middot;
+                            </span>
                             <span className="text-xs text-muted-foreground shrink-0 sm:order-last">
                               {timeAgo(issue.updatedAt)}
                             </span>
@@ -441,7 +578,6 @@ export function Dashboard() {
               )}
             </div>
           </div>
-
         </>
       )}
     </div>
