@@ -13,7 +13,13 @@ import { agentsApi } from "../api/agents";
 import { useCompany } from "../context/CompanyContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
-import { OutputCard, OutputCardSkeleton, extractOutputText, extractIssueId } from "../components/OutputCard";
+import { extractOutputText } from "../components/OutputCard";
+import {
+  ResultCard,
+  ResultCardSkeleton,
+  groupRunsByTask,
+  type ResultGroup,
+} from "../components/ResultCard";
 import { issuesApi } from "../api/issues";
 import { Identity } from "../components/Identity";
 import { EmptyState } from "../components/EmptyState";
@@ -47,9 +53,17 @@ function getDayGroup(date: Date): string {
   return d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
 }
 
+/**
+ * A unit rendered within a day group — either a task-grouped set of runs
+ * (succeeded outputs, per UX §P2) or a single non-succeeded run card.
+ */
+type OutputItem =
+  | { kind: "result"; key: string; sortAt: Date; group: ResultGroup }
+  | { kind: "run"; key: string; sortAt: Date; run: HeartbeatRun };
+
 interface DayGroup {
   label: string;
-  runs: HeartbeatRun[];
+  items: OutputItem[];
 }
 
 /* ── Component ──────────────────────────────────────────────── */
@@ -91,8 +105,16 @@ export function Outputs() {
   });
 
   const issueMap = useMemo(() => {
-    const map = new Map<string, { title: string; identifier: string | null }>();
-    for (const i of issues ?? []) map.set(i.id, { title: i.title, identifier: i.identifier });
+    const map = new Map<
+      string,
+      { id: string; title: string; identifier: string | null }
+    >();
+    for (const i of issues ?? [])
+      map.set(i.id, {
+        id: i.id,
+        title: i.title,
+        identifier: i.identifier,
+      });
     return map;
   }, [issues]);
 
@@ -145,21 +167,49 @@ export function Outputs() {
     );
   }, [tabFilteredRuns, agentFilter, searchQuery, agentMap]);
 
-  // Group by day
+  // Partition filtered runs into succeeded-with-output (→ task-grouped ResultCards)
+  // and in-progress / failed (→ per-run status cards). Then interleave and day-group.
   const dayGroups = useMemo((): DayGroup[] => {
-    const groups = new Map<string, HeartbeatRun[]>();
-    const order: string[] = [];
+    const succeeded: HeartbeatRun[] = [];
+    const other: HeartbeatRun[] = [];
+    for (const r of filteredRuns) {
+      if (r.status === "succeeded" && extractOutputText(r) !== null) {
+        succeeded.push(r);
+      } else {
+        other.push(r);
+      }
+    }
 
-    for (const run of filteredRuns) {
-      const label = getDayGroup(new Date(run.createdAt));
+    const items: OutputItem[] = [];
+    for (const group of groupRunsByTask(succeeded)) {
+      items.push({
+        kind: "result",
+        key: group.key,
+        sortAt: group.latestAt,
+        group,
+      });
+    }
+    for (const r of other) {
+      items.push({
+        kind: "run",
+        key: `run:${r.id}`,
+        sortAt: new Date(r.createdAt),
+        run: r,
+      });
+    }
+    items.sort((a, b) => b.sortAt.getTime() - a.sortAt.getTime());
+
+    const groups = new Map<string, OutputItem[]>();
+    const order: string[] = [];
+    for (const item of items) {
+      const label = getDayGroup(item.sortAt);
       if (!groups.has(label)) {
         groups.set(label, []);
         order.push(label);
       }
-      groups.get(label)!.push(run);
+      groups.get(label)!.push(item);
     }
-
-    return order.map((label) => ({ label, runs: groups.get(label)! }));
+    return order.map((label) => ({ label, items: groups.get(label)! }));
   }, [filteredRuns]);
 
   // Unique agents who have produced outputs
@@ -323,9 +373,9 @@ export function Outputs() {
       {/* Results — grouped by day */}
       {runsLoading ? (
         <div className="space-y-4">
-          <OutputCardSkeleton />
-          <OutputCardSkeleton />
-          <OutputCardSkeleton />
+          <ResultCardSkeleton />
+          <ResultCardSkeleton />
+          <ResultCardSkeleton />
         </div>
       ) : filteredRuns.length === 0 ? (
         activeTab !== "all" || searchQuery || agentFilter !== "all" ? (
@@ -379,19 +429,33 @@ export function Outputs() {
                 </h2>
                 <div className="flex-1 h-px bg-border/20 dark:bg-border/30" />
                 <span className="text-[10px] text-muted-foreground/40">
-                  {group.runs.length} result{group.runs.length !== 1 ? "s" : ""}
+                  {group.items.length} result{group.items.length !== 1 ? "s" : ""}
                 </span>
               </div>
 
-              {/* Cards for this day */}
+              {/* Items for this day */}
               <div className="space-y-3">
-                {group.runs.map((run: HeartbeatRun) => {
-                  // For in-progress runs, show a simpler card
+                {group.items.map((item) => {
+                  if (item.kind === "result") {
+                    const task = item.group.issueId
+                      ? issueMap.get(item.group.issueId) ?? null
+                      : null;
+                    return (
+                      <ResultCard
+                        key={item.key}
+                        runs={item.group.runs}
+                        agentMap={agentMap}
+                        task={task}
+                      />
+                    );
+                  }
+
+                  const run = item.run;
                   if (run.status === "running" || run.status === "queued") {
                     const agent = agentMap.get(run.agentId);
                     return (
                       <div
-                        key={run.id}
+                        key={item.key}
                         className="rounded-2xl border border-green-200/40 dark:border-green-500/15 bg-green-50/40 dark:bg-green-950/20 shadow-sm shadow-black/[0.02] px-5 py-4"
                       >
                         <div className="flex items-center gap-3">
@@ -416,7 +480,7 @@ export function Outputs() {
                     const agent = agentMap.get(run.agentId);
                     return (
                       <div
-                        key={run.id}
+                        key={item.key}
                         className="rounded-2xl border border-red-200/40 dark:border-red-500/15 bg-red-50/40 dark:bg-red-950/20 shadow-sm shadow-black/[0.02] px-5 py-4"
                       >
                         <div className="flex items-center gap-3">
@@ -435,18 +499,7 @@ export function Outputs() {
                     );
                   }
 
-                  // Succeeded — use regular OutputCard with task context
-                  const issueId = extractIssueId(run);
-                  const issue = issueId ? issueMap.get(issueId) : null;
-                  return (
-                    <OutputCard
-                      key={run.id}
-                      run={run}
-                      agent={agentMap.get(run.agentId)}
-                      taskTitle={issue?.title}
-                      taskIdentifier={issue?.identifier ?? issueId ?? undefined}
-                    />
-                  );
+                  return null;
                 })}
               </div>
             </div>

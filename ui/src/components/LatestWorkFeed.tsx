@@ -1,9 +1,12 @@
 /**
- * LatestWorkFeed — Shows the most recent meaningful outputs
+ * LatestWorkFeed — Shows the most recent meaningful results
  * from across all agents, rendered as rich preview cards.
  *
  * Used on the Dashboard to surface "what your agents produced"
  * without needing to drill into individual agent pages.
+ *
+ * Results are grouped by task (issueId) so a 5-agent swarm collaborating on
+ * one task shows as ONE card, not five (per UX-REDESIGN-SPEC §P2).
  */
 import { useMemo } from "react";
 import { Link } from "@/lib/router";
@@ -12,13 +15,18 @@ import { heartbeatsApi } from "../api/heartbeats";
 import { agentsApi } from "../api/agents";
 import { issuesApi } from "../api/issues";
 import { queryKeys } from "../lib/queryKeys";
-import { OutputCard, OutputCardSkeleton, extractOutputText, extractIssueId } from "./OutputCard";
+import { extractOutputText } from "./OutputCard";
+import {
+  ResultCard,
+  ResultCardSkeleton,
+  groupRunsByTask,
+} from "./ResultCard";
 import { Sparkles } from "lucide-react";
 import type { HeartbeatRun, Agent } from "@mattparrytfc/shared";
 
 interface LatestWorkFeedProps {
   companyId: string;
-  /** Max number of output cards to show */
+  /** Max number of task-grouped result cards to show */
   limit?: number;
 }
 
@@ -48,22 +56,27 @@ export function LatestWorkFeed({ companyId, limit = 5 }: LatestWorkFeedProps) {
   });
 
   const issueMap = useMemo(() => {
-    const map = new Map<string, { title: string; identifier: string | null }>();
-    for (const i of issues ?? []) map.set(i.id, { title: i.title, identifier: i.identifier });
+    const map = new Map<
+      string,
+      { id: string; title: string; identifier: string | null }
+    >();
+    for (const i of issues ?? [])
+      map.set(i.id, {
+        id: i.id,
+        title: i.title,
+        identifier: i.identifier,
+      });
     return map;
   }, [issues]);
 
-  // Filter to only successful runs with meaningful output, sorted newest first
-  const outputRuns = useMemo(() => {
+  // Group succeeded runs with output by task, then cap at `limit` groups
+  const resultGroups = useMemo(() => {
     if (!runs) return [];
-    return runs
-      .filter((r: HeartbeatRun) =>
-        r.status === "succeeded" && extractOutputText(r) !== null
-      )
-      .sort((a: HeartbeatRun, b: HeartbeatRun) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )
-      .slice(0, limit);
+    const meaningful = runs.filter(
+      (r: HeartbeatRun) =>
+        r.status === "succeeded" && extractOutputText(r) !== null,
+    );
+    return groupRunsByTask(meaningful).slice(0, limit);
   }, [runs, limit]);
 
   if (runsLoading) {
@@ -76,14 +89,14 @@ export function LatestWorkFeed({ companyId, limit = 5 }: LatestWorkFeedProps) {
           </h3>
         </div>
         <div className="space-y-3">
-          <OutputCardSkeleton />
-          <OutputCardSkeleton />
+          <ResultCardSkeleton />
+          <ResultCardSkeleton />
         </div>
       </div>
     );
   }
 
-  if (outputRuns.length === 0) return null;
+  if (resultGroups.length === 0) return null;
 
   return (
     <div className="space-y-3">
@@ -101,17 +114,15 @@ export function LatestWorkFeed({ companyId, limit = 5 }: LatestWorkFeedProps) {
       </div>
 
       <div className="space-y-3">
-        {outputRuns.map((run: HeartbeatRun) => {
-          const issueId = extractIssueId(run);
-          const issue = issueId ? issueMap.get(issueId) : null;
+        {resultGroups.map((group) => {
+          const task = group.issueId ? issueMap.get(group.issueId) : null;
           return (
-            <OutputCard
-              key={run.id}
-              run={run}
-              agent={agentMap.get(run.agentId)}
+            <ResultCard
+              key={group.key}
+              runs={group.runs}
+              agentMap={agentMap}
+              task={task ?? null}
               compact
-              taskTitle={issue?.title}
-              taskIdentifier={issue?.identifier ?? issueId ?? undefined}
             />
           );
         })}
