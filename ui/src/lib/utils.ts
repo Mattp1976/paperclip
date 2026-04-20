@@ -43,6 +43,58 @@ export function relativeTime(date: Date | string): string {
   return formatDate(date);
 }
 
+/**
+ * Friendly cost display — designed for non-technical users.
+ * Shows human-readable cost instead of micro-decimals.
+ *
+ * $0       → "Free"
+ * $0.001   → "Less than 1¢"
+ * $0.0523  → "5¢"
+ * $0.99    → "99¢"
+ * $1.23    → "$1.23"
+ * $100.50  → "$100.50"
+ */
+export function friendlyCost(usd: number): string {
+  if (!usd || usd <= 0) return "Free";
+  if (usd < 0.01) return "Less than 1¢";
+  if (usd < 1) return `${Math.round(usd * 100)}¢`;
+  return `$${usd.toFixed(2)}`;
+}
+
+/**
+ * Friendly invocation source for non-technical users.
+ */
+export function friendlySource(source: string): string {
+  switch (source) {
+    case "assignment": return "You asked";
+    case "timer": return "Scheduled";
+    case "on_demand": return "You asked";
+    case "automation": return "Triggered automatically";
+    default: return source;
+  }
+}
+
+/**
+ * Friendly duration with optional benchmark comparison.
+ */
+export function friendlyDuration(ms: number | null, avgMs?: number | null): string {
+  if (!ms || ms <= 0) return "";
+  const s = Math.floor(ms / 1000);
+  let base: string;
+  if (s < 60) base = `${s}s`;
+  else {
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    base = r > 0 ? `${m}m ${r}s` : `${m}m`;
+  }
+  if (avgMs && avgMs > 0) {
+    const ratio = ms / avgMs;
+    if (ratio < 0.7) base += " (faster than usual)";
+    else if (ratio > 1.5) base += " (slower than usual)";
+  }
+  return base;
+}
+
 export function formatTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;

@@ -6,14 +6,14 @@ import { cn } from "../lib/utils";
 
 const toneClasses: Record<ToastTone, string> = {
   info: "border-sky-300 bg-sky-50 text-sky-900 dark:border-sky-500/25 dark:bg-sky-950/60 dark:text-sky-100",
-  success: "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-500/25 dark:bg-emerald-950/60 dark:text-emerald-100",
+  success: "border-green-300 bg-green-50 text-green-900 dark:border-green-500/25 dark:bg-green-950/60 dark:text-green-100",
   warn: "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/25 dark:bg-amber-950/60 dark:text-amber-100",
   error: "border-red-300 bg-red-50 text-red-900 dark:border-red-500/30 dark:bg-red-950/60 dark:text-red-100",
 };
 
 const toneDotClasses: Record<ToastTone, string> = {
   info: "bg-sky-500 dark:bg-sky-400",
-  success: "bg-emerald-500 dark:bg-emerald-400",
+  success: "bg-green-600 dark:bg-green-400",
   warn: "bg-amber-500 dark:bg-amber-400",
   error: "bg-red-500 dark:bg-red-400",
 };

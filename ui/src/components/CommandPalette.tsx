@@ -28,6 +28,7 @@ import {
   History,
   SquarePen,
   Plus,
+  MessageSquarePlus,
 } from "lucide-react";
 import { Identity } from "./Identity";
 import { agentUrl, projectUrl } from "../lib/utils";
@@ -37,7 +38,7 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const { selectedCompanyId } = useCompany();
-  const { openNewIssue, openNewAgent } = useDialog();
+  const { openNewIssue, openNewAgent, openComposer } = useDialog();
   const { isMobile, setSidebarOpen } = useSidebar();
   const searchQuery = query.trim();
 
@@ -114,6 +115,16 @@ export function CommandPalette() {
         <CommandEmpty>No results found.</CommandEmpty>
 
         <CommandGroup heading="Actions">
+          <CommandItem
+            onSelect={() => {
+              setOpen(false);
+              openComposer();
+            }}
+          >
+            <MessageSquarePlus className="mr-2 h-4 w-4" />
+            Open Composer
+            <span className="ml-auto text-xs text-muted-foreground">⇧Space</span>
+          </CommandItem>
           <CommandItem
             onSelect={() => {
               setOpen(false);

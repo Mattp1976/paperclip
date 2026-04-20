@@ -46,9 +46,9 @@ function ChartLegend({ items }: { items: { color: string; label: string }[] }) {
 
 export function ChartCard({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <div className="border border-border rounded-lg p-4 space-y-3">
+    <div className="rounded-2xl bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03] p-5 space-y-3 transition-shadow duration-200 hover:shadow-md hover:shadow-black/[0.05] dark:hover:shadow-black/20">
       <div>
-        <h3 className="text-xs font-medium text-muted-foreground">{title}</h3>
+        <h3 className="text-xs font-medium text-foreground/70">{title}</h3>
         {subtitle && <span className="text-[10px] text-muted-foreground/60">{subtitle}</span>}
       </div>
       {children}
@@ -88,7 +88,7 @@ export function RunActivityChart({ runs }: { runs: HeartbeatRun[] }) {
             <div key={day} className="flex-1 h-full flex flex-col justify-end" title={`${day}: ${total} runs`}>
               {total > 0 ? (
                 <div className="flex flex-col-reverse gap-px overflow-hidden" style={{ height: `${heightPct}%`, minHeight: 2 }}>
-                  {entry.succeeded > 0 && <div className="bg-emerald-500" style={{ flex: entry.succeeded }} />}
+                  {entry.succeeded > 0 && <div className="bg-green-600" style={{ flex: entry.succeeded }} />}
                   {entry.failed > 0 && <div className="bg-red-500" style={{ flex: entry.failed }} />}
                   {entry.other > 0 && <div className="bg-neutral-500" style={{ flex: entry.other }} />}
                 </div>
@@ -161,7 +161,7 @@ const statusColors: Record<string, string> = {
   todo: "#3b82f6",
   in_progress: "#8b5cf6",
   in_review: "#a855f7",
-  done: "#10b981",
+  done: "#15803d",
   blocked: "#ef4444",
   cancelled: "#6b7280",
   backlog: "#64748b",
@@ -245,7 +245,7 @@ export function SuccessRateChart({ runs }: { runs: HeartbeatRun[] }) {
         {days.map(day => {
           const entry = grouped.get(day)!;
           const rate = entry.total > 0 ? entry.succeeded / entry.total : 0;
-          const color = entry.total === 0 ? undefined : rate >= 0.8 ? "#10b981" : rate >= 0.5 ? "#eab308" : "#ef4444";
+          const color = entry.total === 0 ? undefined : rate >= 0.8 ? "#15803d" : rate >= 0.5 ? "#eab308" : "#ef4444";
           return (
             <div key={day} className="flex-1 h-full flex flex-col justify-end" title={`${day}: ${entry.total > 0 ? Math.round(rate * 100) : 0}% (${entry.succeeded}/${entry.total})`}>
               {entry.total > 0 ? (

@@ -294,13 +294,13 @@ export function Layout() {
               <CompanyRail />
               {isInstanceSettingsRoute ? <InstanceSidebar /> : <Sidebar />}
             </div>
-            <div className="border-t border-r border-border px-3 py-2 bg-background">
+            <div className="border-t border-r border-border/20 dark:border-border px-3 py-2 bg-stone-50/50 dark:bg-background">
               <div className="flex items-center gap-1">
                 <a
                   href="https://docs.paperclip.ing/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition-colors text-foreground/80 hover:bg-accent/50 hover:text-foreground flex-1 min-w-0"
+                  className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition-colors text-muted-foreground/70 hover:bg-black/5 dark:hover:bg-accent/50 hover:text-foreground rounded-lg flex-1 min-w-0"
                 >
                   <BookOpen className="h-4 w-4 shrink-0" />
                   <span className="truncate">Documentation</span>
@@ -308,12 +308,12 @@ export function Layout() {
                 {health?.version && (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="px-2 text-xs text-muted-foreground shrink-0 cursor-default">v</span>
+                      <span className="px-2 text-xs text-muted-foreground/50 shrink-0 cursor-default">v</span>
                     </TooltipTrigger>
                     <TooltipContent>v{health.version}</TooltipContent>
                   </Tooltip>
                 )}
-                <Button variant="ghost" size="icon-sm" className="text-muted-foreground shrink-0" asChild>
+                <Button variant="ghost" size="icon-sm" className="text-muted-foreground/50 hover:text-foreground shrink-0" asChild>
                   <Link
                     to={instanceSettingsTarget}
                     aria-label="Instance settings"
@@ -329,7 +329,7 @@ export function Layout() {
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  className="text-muted-foreground shrink-0"
+                  className="text-muted-foreground/50 hover:text-foreground shrink-0"
                   onClick={toggleTheme}
                   aria-label={`Switch to ${nextTheme} mode`}
                   title={`Switch to ${nextTheme} mode`}
@@ -352,13 +352,13 @@ export function Layout() {
                 {isInstanceSettingsRoute ? <InstanceSidebar /> : <Sidebar />}
               </div>
             </div>
-            <div className="border-t border-r border-border px-3 py-2">
+            <div className="border-t border-r border-border/20 dark:border-border px-3 py-2 bg-stone-50/50 dark:bg-background">
               <div className="flex items-center gap-1">
                 <a
                   href="https://docs.paperclip.ing/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition-colors text-foreground/80 hover:bg-accent/50 hover:text-foreground flex-1 min-w-0"
+                  className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition-colors text-muted-foreground/70 hover:bg-black/5 dark:hover:bg-accent/50 hover:text-foreground rounded-lg flex-1 min-w-0"
                 >
                   <BookOpen className="h-4 w-4 shrink-0" />
                   <span className="truncate">Documentation</span>
@@ -366,12 +366,12 @@ export function Layout() {
                 {health?.version && (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="px-2 text-xs text-muted-foreground shrink-0 cursor-default">v</span>
+                      <span className="px-2 text-xs text-muted-foreground/50 shrink-0 cursor-default">v</span>
                     </TooltipTrigger>
                     <TooltipContent>v{health.version}</TooltipContent>
                   </Tooltip>
                 )}
-                <Button variant="ghost" size="icon-sm" className="text-muted-foreground shrink-0" asChild>
+                <Button variant="ghost" size="icon-sm" className="text-muted-foreground/50 hover:text-foreground shrink-0" asChild>
                   <Link
                     to={instanceSettingsTarget}
                     aria-label="Instance settings"
@@ -387,7 +387,7 @@ export function Layout() {
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  className="text-muted-foreground shrink-0"
+                  className="text-muted-foreground/50 hover:text-foreground shrink-0"
                   onClick={toggleTheme}
                   aria-label={`Switch to ${nextTheme} mode`}
                   title={`Switch to ${nextTheme} mode`}
@@ -412,7 +412,7 @@ export function Layout() {
               id="main-content"
               tabIndex={-1}
               className={cn(
-                "flex-1 p-4 md:p-6",
+                "flex-1 p-4 md:p-8 bg-stone-50/40 dark:bg-background",
                 isMobile ? "overflow-visible pb-[calc(5rem+env(safe-area-inset-bottom))]" : "overflow-auto",
               )}
             >

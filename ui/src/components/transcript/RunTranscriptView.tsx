@@ -593,7 +593,7 @@ function TranscriptToolCard({
       ? "text-cyan-700 dark:text-cyan-300"
       : block.status === "error"
         ? "text-red-700 dark:text-red-300"
-        : "text-emerald-700 dark:text-emerald-300";
+        : "text-green-700 dark:text-green-300";
   const detailsClass = cn(
     "space-y-3",
     block.status === "error" && "rounded-xl border border-red-500/20 bg-red-500/[0.06] p-3",
@@ -603,7 +603,7 @@ function TranscriptToolCard({
     block.status === "error"
       ? "text-red-600 dark:text-red-300"
       : block.status === "completed"
-        ? "text-emerald-600 dark:text-emerald-300"
+        ? "text-green-700 dark:text-green-300"
         : "text-cyan-600 dark:text-cyan-300",
   );
   const summary = block.status === "running"
@@ -815,7 +815,7 @@ function TranscriptActivityRow({
   return (
     <div className="flex items-start gap-2">
       {block.status === "completed" ? (
-        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-300" />
+        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-700 dark:text-green-300" />
       ) : (
         <span className="relative mt-1 flex h-2.5 w-2.5 shrink-0">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-70" />
