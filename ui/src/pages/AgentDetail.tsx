@@ -37,6 +37,13 @@ import { PageSkeleton } from "../components/PageSkeleton";
 import { RunButton, PauseResumeButton } from "../components/AgentActionButtons";
 import { BudgetPolicyCard } from "../components/BudgetPolicyCard";
 import { PackageFileTree, buildFileTree } from "../components/PackageFileTree";
+import { WorkspaceFilesPanel } from "../components/WorkspaceFilesPanel";
+import { AgentPerformance } from "../components/AgentPerformance";
+import { AgentGuardrails } from "../components/AgentGuardrails";
+import { AgentIOPanel } from "../components/AgentIOPanel";
+import { AgentSecurityPanel } from "../components/AgentSecurityPanel";
+import { AgentMemoryPanel } from "../components/AgentMemoryPanel";
+import { LatestRunOutput } from "../components/LatestRunOutput";
 import { ScrollToBottom } from "../components/ScrollToBottom";
 import { formatCents, formatDate, relativeTime, formatTokens, visibleRunCostUsd } from "../lib/utils";
 import { cn } from "../lib/utils";
@@ -220,7 +227,7 @@ function scrollToContainerBottom(container: ScrollContainer, behavior: ScrollBeh
   container.scrollTo({ top: container.scrollHeight, behavior });
 }
 
-type AgentDetailView = "dashboard" | "instructions" | "configuration" | "skills" | "runs" | "budget";
+type AgentDetailView = "dashboard" | "instructions" | "configuration" | "skills" | "runs" | "io" | "budget" | "performance" | "guardrails" | "security" | "memory";
 
 function parseAgentDetailView(value: string | null): AgentDetailView {
   if (value === "instructions" || value === "prompts") return "instructions";
@@ -228,6 +235,11 @@ function parseAgentDetailView(value: string | null): AgentDetailView {
   if (value === "skills") return "skills";
   if (value === "budget") return "budget";
   if (value === "runs") return value;
+  if (value === "io" || value === "outputs") return "io";
+  if (value === "performance") return value;
+  if (value === "guardrails") return value;
+  if (value === "security") return value;
+  if (value === "memory") return value;
   return "dashboard";
 }
 
@@ -639,18 +651,7 @@ export function AgentDetail() {
       }
       return;
     }
-    const canonicalTab =
-      activeView === "instructions"
-        ? "instructions"
-        : activeView === "configuration"
-          ? "configuration"
-          : activeView === "skills"
-            ? "skills"
-            : activeView === "runs"
-              ? "runs"
-              : activeView === "budget"
-                ? "budget"
-              : "dashboard";
+    const canonicalTab = activeView === "dashboard" ? "dashboard" : activeView;
     if (routeAgentRef !== canonicalAgentRef || urlTab !== canonicalTab) {
       navigate(`/agents/${canonicalAgentRef}/${canonicalTab}`, { replace: true });
       return;
@@ -771,6 +772,16 @@ export function AgentDetail() {
       //   crumbs.push({ label: "Skills" });
       } else if (activeView === "runs") {
         crumbs.push({ label: "Runs" });
+      } else if (activeView === "io") {
+        crumbs.push({ label: "I/O" });
+      } else if (activeView === "performance") {
+        crumbs.push({ label: "Performance" });
+      } else if (activeView === "security") {
+        crumbs.push({ label: "Security" });
+      } else if (activeView === "memory") {
+        crumbs.push({ label: "Memory" });
+      } else if (activeView === "guardrails") {
+        crumbs.push({ label: "Guardrails" });
       } else if (activeView === "budget") {
         crumbs.push({ label: "Budget" });
       } else {
@@ -811,7 +822,7 @@ export function AgentDetail() {
             value={agent.icon}
             onChange={(icon) => updateIcon.mutate(icon)}
           >
-            <button className="shrink-0 flex items-center justify-center h-12 w-12 rounded-lg bg-accent hover:bg-accent/80 transition-colors">
+            <button className="shrink-0 flex items-center justify-center h-12 w-12 rounded-xl bg-stone-100 dark:bg-accent hover:bg-stone-200 dark:hover:bg-accent/80 transition-colors">
               <AgentIcon icon={agent.icon} className="h-6 w-6" />
             </button>
           </AgentIconPicker>
@@ -912,6 +923,11 @@ export function AgentDetail() {
               { value: "skills", label: "Skills" },
               { value: "configuration", label: "Configuration" },
               { value: "runs", label: "Runs" },
+              { value: "io", label: "I/O" },
+              { value: "performance", label: "Performance" },
+              { value: "security", label: "Security" },
+              { value: "memory", label: "Memory" },
+              { value: "guardrails", label: "Guardrails" },
               { value: "budget", label: "Budget" },
             ]}
             value={activeView}
@@ -1037,6 +1053,26 @@ export function AgentDetail() {
         />
       )}
 
+      {activeView === "io" && resolvedCompanyId && (
+        <AgentIOPanel agentId={agent.id} companyId={resolvedCompanyId} />
+      )}
+
+      {activeView === "performance" && resolvedCompanyId && (
+        <AgentPerformance agentId={agent.id} companyId={resolvedCompanyId} />
+      )}
+
+      {activeView === "security" && resolvedCompanyId && (
+        <AgentSecurityPanel agentId={agent.id} companyId={resolvedCompanyId} />
+      )}
+
+      {activeView === "memory" && resolvedCompanyId && (
+        <AgentMemoryPanel agentId={agent.id} companyId={resolvedCompanyId} />
+      )}
+
+      {activeView === "guardrails" && resolvedCompanyId && (
+        <AgentGuardrails agentId={agent.id} companyId={resolvedCompanyId} />
+      )}
+
       {activeView === "budget" && resolvedCompanyId ? (
         <div className="max-w-3xl">
           <BudgetPolicyCard
@@ -1101,8 +1137,8 @@ function LatestRunCard({ runs, agentId }: { runs: HeartbeatRun[]; agentId: strin
       <Link
         to={`/agents/${agentId}/runs/${run.id}`}
         className={cn(
-          "block border rounded-lg p-4 space-y-2 w-full no-underline transition-colors hover:bg-muted/50 cursor-pointer",
-          isLive ? "border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.08)]" : "border-border"
+          "block border rounded-xl p-4 space-y-2 w-full no-underline transition-colors hover:bg-muted/50 cursor-pointer",
+          isLive ? "border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.08)]" : "border-border/40 dark:border-border shadow-sm shadow-black/[0.02]"
         )}
       >
         <div className="flex items-center gap-2">
@@ -1150,8 +1186,8 @@ function AgentOverview({
 }) {
   return (
     <div className="space-y-8">
-      {/* Latest Run */}
-      <LatestRunCard runs={runs} agentId={agentRouteId} />
+      {/* Latest Output — full result visible without clicking into Runs */}
+      <LatestRunOutput runs={runs} agentRouteId={agentRouteId} />
 
       {/* Charts */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1180,7 +1216,7 @@ function AgentOverview({
         {assignedIssues.length === 0 ? (
           <p className="text-sm text-muted-foreground">No assigned issues.</p>
         ) : (
-          <div className="border border-border rounded-lg">
+          <div className="border border-border/40 dark:border-border rounded-xl overflow-hidden">
             {assignedIssues.slice(0, 10).map((issue) => (
               <EntityRow
                 key={issue.id}
@@ -1191,7 +1227,7 @@ function AgentOverview({
               />
             ))}
             {assignedIssues.length > 10 && (
-              <div className="px-3 py-2 text-xs text-muted-foreground text-center border-t border-border">
+              <div className="px-3 py-2 text-xs text-muted-foreground text-center border-t border-border/40 dark:border-border">
                 +{assignedIssues.length - 10} more issues
               </div>
             )}
@@ -1227,7 +1263,7 @@ function CostsSection({
   return (
     <div className="space-y-4">
       {runtimeState && (
-        <div className="border border-border rounded-lg p-4">
+        <div className="border border-border/40 dark:border-border rounded-xl p-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 tabular-nums">
             <div>
               <span className="text-xs text-muted-foreground block">Input tokens</span>
@@ -1249,10 +1285,10 @@ function CostsSection({
         </div>
       )}
       {runsWithCost.length > 0 && (
-        <div className="border border-border rounded-lg overflow-hidden">
+        <div className="border border-border/40 dark:border-border rounded-xl overflow-hidden">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-border bg-accent/20">
+              <tr className="border-b border-border/40 dark:border-border bg-stone-50/60 dark:bg-accent/20">
                 <th className="text-left px-3 py-2 font-medium text-muted-foreground">Date</th>
                 <th className="text-left px-3 py-2 font-medium text-muted-foreground">Run</th>
                 <th className="text-right px-3 py-2 font-medium text-muted-foreground">Input</th>
@@ -1264,7 +1300,7 @@ function CostsSection({
               {runsWithCost.slice(0, 10).map((run) => {
                 const metrics = runMetrics(run);
                 return (
-                  <tr key={run.id} className="border-b border-border last:border-b-0">
+                  <tr key={run.id} className="border-b border-border/40 dark:border-border last:border-b-0">
                     <td className="px-3 py-2">{formatDate(run.createdAt)}</td>
                     <td className="px-3 py-2 font-mono">{run.id.slice(0, 8)}</td>
                     <td className="px-3 py-2 text-right tabular-nums">{formatTokens(metrics.input)}</td>
