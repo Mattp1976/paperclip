@@ -8,7 +8,7 @@
  * Results are grouped by task (issueId) so a 5-agent swarm collaborating on
  * one task shows as ONE card, not five (per UX-REDESIGN-SPEC §P2).
  */
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { heartbeatsApi } from "../api/heartbeats";
@@ -21,8 +21,10 @@ import {
   ResultCardSkeleton,
   groupRunsByTask,
 } from "./ResultCard";
-import { Sparkles } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import type { HeartbeatRun, Agent } from "@mattparrytfc/shared";
+
+const FIRST_RESULT_TOOLTIP_KEY = "paperclip:onboarding:first-result-seen";
 
 interface LatestWorkFeedProps {
   companyId: string;
@@ -31,6 +33,26 @@ interface LatestWorkFeedProps {
 }
 
 export function LatestWorkFeed({ companyId, limit = 5 }: LatestWorkFeedProps) {
+  // First-result onboarding tooltip — shown once ever per device, then dismissed.
+  const [showFirstResultTip, setShowFirstResultTip] = useState(false);
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(FIRST_RESULT_TOOLTIP_KEY)) {
+        setShowFirstResultTip(true);
+      }
+    } catch {
+      // localStorage unavailable (e.g. private mode) — just skip the tip.
+    }
+  }, []);
+  const dismissFirstResultTip = () => {
+    setShowFirstResultTip(false);
+    try {
+      localStorage.setItem(FIRST_RESULT_TOOLTIP_KEY, "1");
+    } catch {
+      // ignore
+    }
+  };
+
   const { data: runs, isLoading: runsLoading } = useQuery({
     queryKey: queryKeys.heartbeats(companyId),
     queryFn: () => heartbeatsApi.list(companyId),
@@ -114,6 +136,28 @@ export function LatestWorkFeed({ companyId, limit = 5 }: LatestWorkFeedProps) {
       </div>
 
       <div className="space-y-3">
+        {showFirstResultTip && resultGroups.length > 0 && (
+          <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-500">
+            <div className="mt-0.5 rounded-full bg-primary/15 p-1.5 shrink-0">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">Your first result is here</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                This is what one of your agents produced. Click the card to see
+                the full task, or expand any section to read more.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={dismissFirstResultTip}
+              className="text-muted-foreground hover:text-foreground transition-colors shrink-0 p-0.5"
+              aria-label="Dismiss tip"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
         {resultGroups.map((group) => {
           const task = group.issueId ? issueMap.get(group.issueId) : null;
           return (

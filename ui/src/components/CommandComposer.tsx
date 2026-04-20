@@ -240,7 +240,7 @@ function RecentThread({
 /* ── Main Composer ────────────────────────────────────────────── */
 
 export function CommandComposer() {
-  const { composerOpen, closeComposer } = useDialog();
+  const { composerOpen, openComposer, closeComposer } = useDialog();
   const { selectedCompanyId } = useCompany();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -260,14 +260,13 @@ export function CommandComposer() {
       if (e.key === " " && e.shiftKey && !isInput) {
         e.preventDefault();
         if (!composerOpen) {
-          const ctx = (window as any).__dialogContext;
-          ctx?.openComposer?.();
+          openComposer();
         }
       }
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [composerOpen]);
+  }, [composerOpen, openComposer]);
 
   // Focus input when opened
   useEffect(() => {

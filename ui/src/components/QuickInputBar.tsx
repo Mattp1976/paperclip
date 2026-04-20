@@ -91,6 +91,9 @@ export function QuickInputBar() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [mode, setMode] = useState<QuickMode>("task");
+  // Track whether the user has manually overridden the mode in this draft.
+  // Once set, we stop auto-detecting until they clear the input.
+  const [modeManuallySet, setModeManuallySet] = useState(false);
   const [input, setInput] = useState("");
   const [focused, setFocused] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
@@ -136,7 +139,50 @@ export function QuickInputBar() {
 
   const effectiveAgentId = selectedAgentId ?? detectedAgent?.id ?? null;
 
+  // Smart mode detection — infer intent from the first few words of the input
+  // so a user typing "What is …" naturally lands in Ask mode without clicking.
+  // Only runs until the user manually overrides with Tab/click.
+  const detectedMode = useMemo<QuickMode | null>(() => {
+    const trimmed = input.trim();
+    if (trimmed.length < 3) return null;
+    const lower = trimmed.toLowerCase();
+
+    // Question shape — trailing ? or interrogative lead-ins
+    if (trimmed.endsWith("?")) return "ask";
+    if (/^(what|why|how|when|where|who|which|is|are|can|could|should|do|does|did|will|would)\b/.test(lower)) {
+      return "ask";
+    }
+
+    // Decision shape — deliberate framing
+    if (/^(should we|should i|decide|decision|pick|choose between|option [ab1-9]|vote)\b/.test(lower)) {
+      return "decision";
+    }
+
+    // Task shape — imperative verbs
+    if (/^(create|build|fix|add|make|write|implement|draft|update|delete|refactor|ship|deploy|investigate|research|schedule|send|prepare|generate|clean up|review|design|plan)\b/.test(lower)) {
+      return "task";
+    }
+
+    return null;
+  }, [input]);
+
+  // Auto-apply detected mode until the user picks something themselves.
+  useEffect(() => {
+    if (modeManuallySet) return;
+    if (detectedMode && detectedMode !== mode) {
+      setMode(detectedMode);
+    }
+  }, [detectedMode, modeManuallySet, mode]);
+
+  // Once the draft is cleared, let auto-detection take over again for the next one.
+  useEffect(() => {
+    if (input.trim().length === 0 && modeManuallySet) {
+      setModeManuallySet(false);
+    }
+  }, [input, modeManuallySet]);
+
   const cycleMode = useCallback(() => {
+    setModeManuallySet(true);
     setMode((prev) => {
       if (prev === "task") return "ask";
       if (prev === "ask") return "decision";
@@ -184,6 +230,7 @@ export function QuickInputBar() {
       // Show inline confirmation instead of navigating away
       setInput("");
       setSelectedAgentId(null);
+      setModeManuallySet(false);
       inputRef.current?.blur();
 
       // Clear any previous confirmation timer

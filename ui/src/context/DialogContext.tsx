@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 
 interface NewIssueDefaults {
   status?: string;
@@ -109,14 +109,6 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const closeComposer = useCallback(() => {
     setComposerOpen(false);
   }, []);
-
-  // Expose openComposer to window for keyboard shortcut in CommandComposer
-  useEffect(() => {
-    (window as any).__dialogContext = { openComposer };
-    return () => {
-      delete (window as any).__dialogContext;
-    };
-  }, [openComposer]);
 
   return (
     <DialogContext.Provider
