@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Link } from "@/lib/router";
 import {
   Pencil,
   Check,
@@ -26,6 +27,7 @@ import {
   CircleDot,
   DollarSign,
   Calendar,
+  Sparkles,
 } from "lucide-react";
 
 export function Companies() {
@@ -89,7 +91,13 @@ export function Companies() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end gap-2">
+        <Button size="sm" variant="outline" asChild>
+          <Link to="/templates">
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+            From Template
+          </Link>
+        </Button>
         <Button size="sm" onClick={() => openOnboarding()}>
           <Plus className="h-3.5 w-3.5 mr-1.5" />
           New Company

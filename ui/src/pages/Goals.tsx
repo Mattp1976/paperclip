@@ -17,7 +17,7 @@ export function Goals() {
   const { setBreadcrumbs } = useBreadcrumbs();
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Goals" }]);
+    setBreadcrumbs([]);
   }, [setBreadcrumbs]);
 
   const { data: goals, isLoading, error } = useQuery({
@@ -35,28 +35,40 @@ export function Goals() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Goals</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground/70">
+            Define objectives and track progress across your organisation.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => openNewGoal()}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-green-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-green-600 hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-green-600 dark:hover:bg-green-500 dark:text-green-950"
+          >
+            <Plus className="h-4 w-4" />
+            New Goal
+          </button>
+        </div>
+      </div>
+
       {error && <p className="text-sm text-destructive">{error.message}</p>}
 
       {goals && goals.length === 0 && (
         <EmptyState
           icon={Target}
           message="No goals yet."
+          description="Define objectives and key results to track progress across your organisation."
           action="Add Goal"
           onAction={() => openNewGoal()}
         />
       )}
 
       {goals && goals.length > 0 && (
-        <>
-          <div className="flex items-center justify-start">
-            <Button size="sm" variant="outline" onClick={() => openNewGoal()}>
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
-              New Goal
-            </Button>
-          </div>
-          <GoalTree goals={goals} goalLink={(goal) => `/goals/${goal.id}`} />
-        </>
+        <GoalTree goals={goals} goalLink={(goal) => `/goals/${goal.id}`} />
       )}
     </div>
   );

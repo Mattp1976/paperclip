@@ -55,13 +55,14 @@ export function Projects() {
         <EmptyState
           icon={Hexagon}
           message="No projects yet."
+          description="Organise related tasks and agents into projects to track larger initiatives."
           action="Add Project"
           onAction={openNewProject}
         />
       )}
 
       {projects.length > 0 && (
-        <div className="border border-border">
+        <div className="border border-border/40 dark:border-border rounded-xl overflow-hidden">
           {projects.map((project) => (
             <EntityRow
               key={project.id}

@@ -113,11 +113,11 @@ function FailedRunInboxRow({
   const displayError = runFailureMessage(run);
 
   return (
-    <div className="group border-b border-border px-2 py-2.5 last:border-b-0 sm:px-1 sm:pr-3 sm:py-2">
+    <div className="group border-b border-border/40 dark:border-border px-2 py-2.5 last:border-b-0 sm:px-1 sm:pr-3 sm:py-2">
       <div className="flex items-start gap-2 sm:items-center">
         <Link
           to={`/agents/${run.agentId}/runs/${run.id}`}
-          className="flex min-w-0 flex-1 items-start gap-2 no-underline text-inherit transition-colors hover:bg-accent/50"
+          className="flex min-w-0 flex-1 items-start gap-2 no-underline text-inherit transition-colors hover:bg-black/[0.03] dark:hover:bg-accent/50"
         >
           <span className="hidden h-2 w-2 shrink-0 sm:inline-flex" aria-hidden="true" />
           <span className="hidden h-3.5 w-3.5 shrink-0 sm:inline-flex" aria-hidden="true" />
@@ -311,7 +311,7 @@ export function Inbox() {
   });
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Inbox" }]);
+    setBreadcrumbs([]);
   }, [setBreadcrumbs]);
 
   useEffect(() => {
@@ -636,6 +636,14 @@ export function Inbox() {
 
   return (
     <div className="space-y-6">
+      {/* Page header */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Inbox</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground/70">
+          Approvals, alerts, and items that need your attention.
+        </p>
+      </div>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <Tabs value={tab} onValueChange={(value) => navigate(`/inbox/${value}`)}>
@@ -871,9 +879,9 @@ export function Inbox() {
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Alerts
             </h3>
-            <div className="divide-y divide-border border border-border">
+            <div className="divide-y divide-border/40 dark:divide-border border border-border/40 dark:border-border rounded-xl overflow-hidden">
               {showAggregateAgentError && (
-                <div className="group/alert relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/50">
+                <div className="group/alert relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-black/[0.03] dark:hover:bg-accent/50">
                   <Link
                     to="/agents"
                     className="flex flex-1 cursor-pointer items-center gap-3 no-underline text-inherit"
@@ -895,7 +903,7 @@ export function Inbox() {
                 </div>
               )}
               {showBudgetAlert && (
-                <div className="group/alert relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/50">
+                <div className="group/alert relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-black/[0.03] dark:hover:bg-accent/50">
                   <Link
                     to="/costs"
                     className="flex flex-1 cursor-pointer items-center gap-3 no-underline text-inherit"

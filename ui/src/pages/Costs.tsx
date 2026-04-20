@@ -168,7 +168,7 @@ export function Costs() {
   } = useDateRange();
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Costs" }]);
+    setBreadcrumbs([]);
   }, [setBreadcrumbs]);
 
   const [today, setToday] = useState(() => new Date().toDateString());
@@ -537,17 +537,17 @@ export function Costs() {
   const overviewError = spendError ?? financeError;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="space-y-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <h1 className="text-3xl font-semibold tracking-tight">Costs</h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">Costs</h1>
+                <p className="mt-1.5 text-sm text-muted-foreground/70">
                   Inference spend, platform fees, credits, and live quota windows.
                 </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               {PRESET_KEYS.map((key) => (
                 <Button
                   key={key}
@@ -691,7 +691,7 @@ export function Costs() {
                                 ? "bg-red-400"
                                 : spendData.summary.utilizationPercent > 70
                                   ? "bg-yellow-400"
-                                  : "bg-emerald-400",
+                                  : "bg-green-400",
                             )}
                             style={{ width: `${Math.min(100, spendData.summary.utilizationPercent)}%` }}
                           />

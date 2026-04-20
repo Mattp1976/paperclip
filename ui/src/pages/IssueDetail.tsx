@@ -21,6 +21,8 @@ import { CommentThread } from "../components/CommentThread";
 import { IssueDocumentsSection } from "../components/IssueDocumentsSection";
 import { IssueProperties } from "../components/IssueProperties";
 import { LiveRunWidget } from "../components/LiveRunWidget";
+import { RunSummaryCard } from "../components/RunSummaryCard";
+import { OutputArtifacts } from "../components/OutputArtifacts";
 import type { MentionOption } from "../components/MarkdownEditor";
 import { ScrollToBottom } from "../components/ScrollToBottom";
 import { StatusIcon } from "../components/StatusIcon";
@@ -913,6 +915,9 @@ export function IssueDetail() {
         extraActions={!hasAttachments ? attachmentUploadButton : undefined}
       />
 
+      {/* Output artifacts & work products */}
+      <OutputArtifacts issueId={issueId!} />
+
       {hasAttachments ? (
         <div
         className={cn(
@@ -1072,28 +1077,21 @@ export function IssueDetail() {
 
         <TabsContent value="activity">
           {linkedRuns && linkedRuns.length > 0 && (
-            <div className="mb-3 px-3 py-2 rounded-lg border border-border">
-              <div className="text-sm font-medium text-muted-foreground mb-1">Cost Summary</div>
-              {!issueCostSummary.hasCost && !issueCostSummary.hasTokens ? (
-                <div className="text-xs text-muted-foreground">No cost data yet.</div>
-              ) : (
-                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground tabular-nums">
-                  {issueCostSummary.hasCost && (
-                    <span className="font-medium text-foreground">
-                      ${issueCostSummary.cost.toFixed(4)}
-                    </span>
-                  )}
-                  {issueCostSummary.hasTokens && (
-                    <span>
-                      Tokens {formatTokens(issueCostSummary.totalTokens)}
-                      {issueCostSummary.cached > 0
-                        ? ` (in ${formatTokens(issueCostSummary.input)}, out ${formatTokens(issueCostSummary.output)}, cached ${formatTokens(issueCostSummary.cached)})`
-                        : ` (in ${formatTokens(issueCostSummary.input)}, out ${formatTokens(issueCostSummary.output)})`}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
+            <RunSummaryCard
+              runs={linkedRuns.map((r) => ({
+                runId: r.runId,
+                agentId: r.agentId,
+                status: r.status,
+                startedAt: r.startedAt ?? null,
+                finishedAt: r.finishedAt ?? null,
+                resultJson: r.resultJson ?? null,
+                usageJson: r.usageJson ?? null,
+                createdAt: r.createdAt,
+              }))}
+              agentMap={agentMap}
+              className="mb-3"
+              compact
+            />
           )}
           {!activity || activity.length === 0 ? (
             <p className="text-xs text-muted-foreground">No activity yet.</p>

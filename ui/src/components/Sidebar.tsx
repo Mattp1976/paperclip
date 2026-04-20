@@ -11,12 +11,17 @@ import {
   Boxes,
   Repeat,
   Settings,
+  FolderKanban,
+  Bot,
+  Plus,
+  CheckCircle2,
+  Orbit,
+  Ship,
+  FileStack,
+  Sparkles,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { SidebarSection } from "./SidebarSection";
 import { SidebarNavItem } from "./SidebarNavItem";
-import { SidebarProjects } from "./SidebarProjects";
-import { SidebarAgents } from "./SidebarAgents";
 import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
 import { heartbeatsApi } from "../api/heartbeats";
@@ -26,7 +31,7 @@ import { Button } from "@/components/ui/button";
 import { PluginSlotOutlet } from "@/plugins/slots";
 
 export function Sidebar() {
-  const { openNewIssue } = useDialog();
+  const { openNewIssue, openComposer } = useDialog();
   const { selectedCompanyId, selectedCompany } = useCompany();
   const inboxBadge = useInboxBadge(selectedCompanyId);
   const { data: liveRuns } = useQuery({
@@ -47,38 +52,41 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-60 h-full min-h-0 border-r border-border bg-background flex flex-col">
-      {/* Top bar: Company name (bold) + Search — aligned with top sections (no visible border) */}
-      <div className="flex items-center gap-1 px-3 h-12 shrink-0">
+    <aside className="w-[260px] h-full min-h-0 border-r border-border/30 bg-stone-50/50 dark:bg-background flex flex-col">
+      {/* Company header */}
+      <div className="flex items-center gap-3 px-5 h-14 shrink-0 border-b border-border/20">
         {selectedCompany?.brandColor && (
           <div
-            className="w-4 h-4 rounded-sm shrink-0 ml-1"
+            className="w-7 h-7 rounded-lg shrink-0 shadow-sm"
             style={{ backgroundColor: selectedCompany.brandColor }}
           />
         )}
-        <span className="flex-1 text-sm font-bold text-foreground truncate pl-1">
+        <span className="flex-1 text-sm font-semibold text-foreground truncate">
           {selectedCompany?.name ?? "Select company"}
         </span>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="text-muted-foreground shrink-0"
+        <button
           onClick={openSearch}
+          className="p-2 rounded-lg text-muted-foreground/40 hover:text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors shrink-0"
         >
           <Search className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
 
-      <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-auto-hide flex flex-col gap-4 px-3 py-2">
-        <div className="flex flex-col gap-0.5">
-          {/* New Issue button aligned with nav items */}
-          <button
-            onClick={() => openNewIssue()}
-            className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors"
-          >
-            <SquarePen className="h-4 w-4 shrink-0" />
-            <span className="truncate">New Issue</span>
-          </button>
+      {/* Quick actions */}
+      <div className="px-3 pt-4 pb-2">
+        <button
+          onClick={() => openNewIssue()}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-green-600 hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98]"
+        >
+          <Plus className="h-4 w-4" />
+          New Task
+        </button>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-auto-hide flex flex-col gap-7 px-3 py-4">
+        {/* Primary */}
+        <div className="flex flex-col gap-1">
           <SidebarNavItem to="/dashboard" label="Dashboard" icon={LayoutDashboard} liveCount={liveRunCount} />
           <SidebarNavItem
             to="/inbox"
@@ -88,41 +96,64 @@ export function Sidebar() {
             badgeTone={inboxBadge.failedRuns > 0 ? "danger" : "default"}
             alert={inboxBadge.failedRuns > 0}
           />
+          <SidebarNavItem to="/outputs" label="Outputs" icon={Sparkles} />
+          <SidebarNavItem to="/issues" label="Tasks" icon={CircleDot} />
+          <SidebarNavItem to="/approvals" label="Approvals" icon={CheckCircle2} />
           <PluginSlotOutlet
             slotTypes={["sidebar"]}
             context={pluginContext}
-            className="flex flex-col gap-0.5"
-            itemClassName="text-[13px] font-medium"
+            className="flex flex-col gap-1"
+            itemClassName="text-sm font-medium"
             missingBehavior="placeholder"
           />
         </div>
 
-        <SidebarSection label="Work">
-          <SidebarNavItem to="/issues" label="Issues" icon={CircleDot} />
-          <SidebarNavItem to="/routines" label="Routines" icon={Repeat} textBadge="Beta" textBadgeTone="amber" />
+        {/* Workspace */}
+        <div className="flex flex-col gap-1">
+          <div className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/40">
+            Workspace
+          </div>
+          <SidebarNavItem to="/projects" label="Projects" icon={FolderKanban} />
+          <SidebarNavItem to="/agents" label="Agents" icon={Bot} />
+          <SidebarNavItem to="/swarm" label="Swarm" icon={Orbit} />
+          <SidebarNavItem to="/fleet" label="Fleet" icon={Ship} />
           <SidebarNavItem to="/goals" label="Goals" icon={Target} />
-        </SidebarSection>
+          <SidebarNavItem to="/routines" label="Routines" icon={Repeat} textBadge="Beta" textBadgeTone="amber" />
+        </div>
 
-        <SidebarProjects />
-
-        <SidebarAgents />
-
-        <SidebarSection label="Company">
-          <SidebarNavItem to="/org" label="Org" icon={Network} />
+        {/* Company */}
+        <div className="flex flex-col gap-1">
+          <div className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/40">
+            Company
+          </div>
+          <SidebarNavItem to="/org" label="Organisation" icon={Network} />
           <SidebarNavItem to="/skills" label="Skills" icon={Boxes} />
+          <SidebarNavItem to="/templates" label="Templates" icon={FileStack} />
           <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />
           <SidebarNavItem to="/activity" label="Activity" icon={History} />
           <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />
-        </SidebarSection>
+        </div>
 
         <PluginSlotOutlet
           slotTypes={["sidebarPanel"]}
           context={pluginContext}
           className="flex flex-col gap-3"
-          itemClassName="rounded-lg border border-border p-3"
+          itemClassName="rounded-xl border border-border/30 p-3"
           missingBehavior="placeholder"
         />
       </nav>
+
+      {/* Bottom quick actions */}
+      <div className="shrink-0 border-t border-border/20 px-3 py-3">
+        <button
+          onClick={() => openComposer()}
+          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground transition-colors"
+        >
+          <SquarePen className="h-4 w-4 shrink-0" />
+          <span>Composer</span>
+          <span className="ml-auto text-[10px] text-muted-foreground/30 font-mono">⇧Space</span>
+        </button>
+      </div>
     </aside>
   );
 }

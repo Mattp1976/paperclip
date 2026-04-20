@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, useEffect, type ReactNode } from "react";
 
 interface NewIssueDefaults {
   status?: string;
@@ -38,6 +38,9 @@ interface DialogContextValue {
   onboardingOptions: OnboardingOptions;
   openOnboarding: (options?: OnboardingOptions) => void;
   closeOnboarding: () => void;
+  composerOpen: boolean;
+  openComposer: () => void;
+  closeComposer: () => void;
 }
 
 const DialogContext = createContext<DialogContextValue | null>(null);
@@ -51,6 +54,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const [newAgentOpen, setNewAgentOpen] = useState(false);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [onboardingOptions, setOnboardingOptions] = useState<OnboardingOptions>({});
+  const [composerOpen, setComposerOpen] = useState(false);
 
   const openNewIssue = useCallback((defaults: NewIssueDefaults = {}) => {
     setNewIssueDefaults(defaults);
@@ -98,6 +102,22 @@ export function DialogProvider({ children }: { children: ReactNode }) {
     setOnboardingOptions({});
   }, []);
 
+  const openComposer = useCallback(() => {
+    setComposerOpen(true);
+  }, []);
+
+  const closeComposer = useCallback(() => {
+    setComposerOpen(false);
+  }, []);
+
+  // Expose openComposer to window for keyboard shortcut in CommandComposer
+  useEffect(() => {
+    (window as any).__dialogContext = { openComposer };
+    return () => {
+      delete (window as any).__dialogContext;
+    };
+  }, [openComposer]);
+
   return (
     <DialogContext.Provider
       value={{
@@ -119,6 +139,9 @@ export function DialogProvider({ children }: { children: ReactNode }) {
         onboardingOptions,
         openOnboarding,
         closeOnboarding,
+        composerOpen,
+        openComposer,
+        closeComposer,
       }}
     >
       {children}

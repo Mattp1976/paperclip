@@ -100,7 +100,7 @@ function ensureMarkdownPath(p: string): string {
 }
 
 const ACTION_COLORS: Record<string, string> = {
-  create: "text-emerald-500 border-emerald-500/30",
+  create: "text-green-600 border-green-600/30",
   update: "text-amber-500 border-amber-500/30",
   overwrite: "text-red-500 border-red-500/30",
   replace: "text-red-500 border-red-500/30",
@@ -385,7 +385,7 @@ function ConflictResolutionList({
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 text-sm",
                   isSkipped && "opacity-40",
-                  isConfirmed && !isSkipped && "bg-emerald-500/5",
+                  isConfirmed && !isSkipped && "bg-green-600/5",
                 )}
               >
                 {/* Skip button on the left */}
@@ -407,7 +407,7 @@ function ConflictResolutionList({
                   isSkipped
                     ? "text-muted-foreground border-border"
                     : isConfirmed
-                      ? "text-emerald-500 border-emerald-500/30"
+                      ? "text-green-600 border-green-600/30"
                       : "text-amber-500 border-amber-500/30",
                 )}>
                   {item.kind}
@@ -424,7 +424,7 @@ function ConflictResolutionList({
                   <>
                     <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
                     {isConfirmed ? (
-                      <span className="min-w-0 flex-1 font-mono text-xs text-emerald-500">
+                      <span className="min-w-0 flex-1 font-mono text-xs text-green-600">
                         {currentName}
                       </span>
                     ) : (
@@ -444,7 +444,7 @@ function ConflictResolutionList({
                     className={cn(
                       "ml-auto shrink-0 rounded-md border px-2.5 py-1 text-xs transition-colors inline-flex items-center gap-1.5",
                       isConfirmed
-                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
+                        ? "border-green-600/30 bg-green-600/10 text-green-600"
                         : "border-border text-muted-foreground hover:bg-accent/50",
                     )}
                     onClick={() => onToggleConfirm(item.slug)}

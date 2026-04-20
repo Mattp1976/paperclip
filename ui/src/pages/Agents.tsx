@@ -114,7 +114,7 @@ export function Agents() {
   }, [agents]);
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Agents" }]);
+    setBreadcrumbs([]);
   }, [setBreadcrumbs]);
 
   if (!selectedCompanyId) {
@@ -129,7 +129,26 @@ export function Agents() {
   const filteredOrg = filterOrgTree(orgTree ?? [], tab, showTerminated);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Agents</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground/70">
+            Manage your AI workforce and monitor agent performance.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={openNewAgent}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-green-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-green-600 hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-green-600 dark:hover:bg-green-500 dark:text-green-950"
+          >
+            <Plus className="h-4 w-4" />
+            New Agent
+          </button>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Tabs value={tab} onValueChange={(v) => navigate(`/agents/${v}`)}>
           <PageTabBar
@@ -197,10 +216,6 @@ export function Agents() {
               </button>
             </div>
           )}
-          <Button size="sm" variant="outline" onClick={openNewAgent}>
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            New Agent
-          </Button>
         </div>
       </div>
 
@@ -213,7 +228,8 @@ export function Agents() {
       {agents && agents.length === 0 && (
         <EmptyState
           icon={Bot}
-          message="Create your first agent to get started."
+          message="No agents yet."
+          description="Agents run autonomously on schedules or tasks. Create your first one to get started."
           action="New Agent"
           onAction={openNewAgent}
         />
@@ -221,7 +237,7 @@ export function Agents() {
 
       {/* List view */}
       {effectiveView === "list" && filtered.length > 0 && (
-        <div className="border border-border">
+        <div className="border border-border/40 dark:border-border rounded-xl overflow-hidden">
           {filtered.map((agent) => {
             return (
               <EntityRow
@@ -324,7 +340,7 @@ function OrgTreeNode({
     <div style={{ paddingLeft: depth * 24 }}>
       <Link
         to={agent ? agentUrl(agent) : `/agents/${node.id}`}
-        className="flex items-center gap-3 px-3 py-2 hover:bg-accent/30 transition-colors w-full text-left no-underline text-inherit"
+        className="flex items-center gap-3 px-3 py-2 hover:bg-black/[0.03] dark:hover:bg-accent/30 transition-colors w-full text-left no-underline text-inherit"
       >
         <span className="relative flex h-2.5 w-2.5 shrink-0">
           <span className={`absolute inline-flex h-full w-full rounded-full ${statusColor}`} />
