@@ -1,6 +1,8 @@
 import { Router, type Request } from "express";
 import { generateKeyPairSync, randomUUID } from "node:crypto";
+import fs from "node:fs/promises";
 import path from "node:path";
+import { resolveDefaultAgentWorkspaceDir } from "../home-paths.js";
 import type { Db } from "@mattparrytfc/db";
 import { agents as agentsTable, companies, heartbeatRuns } from "@mattparrytfc/db";
 import { and, desc, eq, inArray, not, sql } from "drizzle-orm";
@@ -2269,6 +2271,74 @@ export function agentRoutes(db: Db) {
       agentName: agent.name,
       adapterType: agent.adapterType,
     });
+  });
+
+  // ── Agent workspace file browser ──────────────────────────────────
+  router.get("/agents/:id/workspace-files", async (req, res) => {
+    const agent = await svc.getById(req.params.id as string);
+    if (!agent) { res.status(404).json({ error: "Agent not found" }); return; }
+    assertCompanyAccess(req, agent.companyId);
+
+    const wsDir = resolveDefaultAgentWorkspaceDir(agent.id);
+    try {
+      await fs.access(wsDir);
+    } catch {
+      res.json({ root: wsDir, files: [] });
+      return;
+    }
+
+    const MAX_FILES = 200;
+    const files: { path: string; name: string; size: number; modified: string; isDirectory: boolean }[] = [];
+
+    async function walk(dir: string, rel: string) {
+      if (files.length >= MAX_FILES) return;
+      let entries;
+      try { entries = await fs.readdir(dir, { withFileTypes: true }); } catch { return; }
+      for (const entry of entries) {
+        if (files.length >= MAX_FILES) break;
+        if (entry.name.startsWith(".")) continue; // skip hidden
+        const full = path.join(dir, entry.name);
+        const relative = rel ? `${rel}/${entry.name}` : entry.name;
+        if (entry.isDirectory()) {
+          files.push({ path: relative, name: entry.name, size: 0, modified: "", isDirectory: true });
+          await walk(full, relative);
+        } else {
+          try {
+            const stat = await fs.stat(full);
+            files.push({ path: relative, name: entry.name, size: stat.size, modified: stat.mtime.toISOString(), isDirectory: false });
+          } catch {
+            files.push({ path: relative, name: entry.name, size: 0, modified: "", isDirectory: false });
+          }
+        }
+      }
+    }
+
+    await walk(wsDir, "");
+    res.json({ root: wsDir, files });
+  });
+
+  router.get("/agents/:id/workspace-file", async (req, res) => {
+    const agent = await svc.getById(req.params.id as string);
+    if (!agent) { res.status(404).json({ error: "Agent not found" }); return; }
+    assertCompanyAccess(req, agent.companyId);
+
+    const filePath = req.query.path as string | undefined;
+    if (!filePath) { res.status(400).json({ error: "?path= query param required" }); return; }
+
+    const wsDir = resolveDefaultAgentWorkspaceDir(agent.id);
+    const resolved = path.resolve(wsDir, filePath);
+    // Security: ensure the resolved path is still within the workspace
+    if (!resolved.startsWith(wsDir)) { res.status(403).json({ error: "Path traversal rejected" }); return; }
+
+    try {
+      const stat = await fs.stat(resolved);
+      if (stat.isDirectory()) { res.status(400).json({ error: "Cannot read a directory" }); return; }
+      if (stat.size > 2 * 1024 * 1024) { res.status(413).json({ error: "File too large (>2MB)" }); return; }
+      const content = await fs.readFile(resolved, "utf-8");
+      res.json({ path: filePath, size: stat.size, modified: stat.mtime.toISOString(), content });
+    } catch {
+      res.status(404).json({ error: "File not found" });
+    }
   });
 
   return router;

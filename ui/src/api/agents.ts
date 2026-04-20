@@ -191,3 +191,39 @@ export interface AvailableSkill {
   description: string;
   isPaperclipManaged: boolean;
 }
+
+/* ── Workspace file browser ──────────────────────────────────────── */
+
+export interface WorkspaceFileEntry {
+  path: string;
+  name: string;
+  size: number;
+  modified: string;
+  isDirectory: boolean;
+}
+
+export interface WorkspaceFileList {
+  root: string;
+  files: WorkspaceFileEntry[];
+}
+
+export interface WorkspaceFileContent {
+  path: string;
+  size: number;
+  modified: string;
+  content: string;
+}
+
+export const workspaceFilesApi = {
+  list: (agentId: string, companyId?: string) =>
+    api.get<WorkspaceFileList>(
+      withCompanyScope(`/agents/${encodeURIComponent(agentId)}/workspace-files`, companyId),
+    ),
+  read: (agentId: string, filePath: string, companyId?: string) =>
+    api.get<WorkspaceFileContent>(
+      withCompanyScope(
+        `/agents/${encodeURIComponent(agentId)}/workspace-file?path=${encodeURIComponent(filePath)}`,
+        companyId,
+      ),
+    ),
+};
