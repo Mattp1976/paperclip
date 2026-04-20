@@ -63,6 +63,7 @@ export function dashboardService(db: Db) {
 
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const trailing7Start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const [{ monthSpend }] = await db
         .select({
           monthSpend: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
@@ -74,8 +75,32 @@ export function dashboardService(db: Db) {
             gte(costEvents.occurredAt, monthStart),
           ),
         );
+      const [{ trailing7dSpend }] = await db
+        .select({
+          trailing7dSpend: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+        })
+        .from(costEvents)
+        .where(
+          and(
+            eq(costEvents.companyId, companyId),
+            gte(costEvents.occurredAt, trailing7Start),
+          ),
+        );
 
       const monthSpendCents = Number(monthSpend);
+      const trailing7dSpendCents = Number(trailing7dSpend);
+      // Project monthly spend from trailing-7d daily average × 30. If we have
+      // no recent spend, fall back to month-to-date extrapolation so early in
+      // the month we still surface *something* useful.
+      const trailing7dDailyCents = trailing7dSpendCents / 7;
+      const daysElapsed = Math.max(
+        1,
+        Math.ceil((now.getTime() - monthStart.getTime()) / 86_400_000),
+      );
+      const mtdDailyCents = monthSpendCents / daysElapsed;
+      const projectedDailyCents =
+        trailing7dSpendCents > 0 ? trailing7dDailyCents : mtdDailyCents;
+      const projectedMonthlyCents = Math.round(projectedDailyCents * 30);
       const utilization =
         company.budgetMonthlyCents > 0
           ? (monthSpendCents / company.budgetMonthlyCents) * 100
@@ -95,6 +120,8 @@ export function dashboardService(db: Db) {
           monthSpendCents,
           monthBudgetCents: company.budgetMonthlyCents,
           monthUtilizationPercent: Number(utilization.toFixed(2)),
+          trailing7dSpendCents,
+          projectedMonthlyCents,
         },
         pendingApprovals,
         budgets: {

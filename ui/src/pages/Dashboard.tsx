@@ -18,7 +18,7 @@ import { PriorityIcon } from "../components/PriorityIcon";
 import { ActivityRow } from "../components/ActivityRow";
 import { Identity } from "../components/Identity";
 import { timeAgo } from "../lib/timeAgo";
-import { cn, formatCents } from "../lib/utils";
+import { cn, formatCents, friendlyCost } from "../lib/utils";
 import { Bot, CircleDot, DollarSign, ShieldCheck, LayoutDashboard, PauseCircle, Plus } from "lucide-react";
 import { ActiveAgentsPanel } from "../components/ActiveAgentsPanel";
 import { FleetHealthOverview } from "../components/FleetHealthOverview";
@@ -307,14 +307,16 @@ export function Dashboard() {
             />
             <MetricCard
               icon={DollarSign}
-              value={formatCents(data.costs.monthSpendCents)}
+              value={friendlyCost(data.costs.monthSpendCents / 100)}
               label="Month Spend"
               to="/costs"
               description={
                 <span>
                   {data.costs.monthBudgetCents > 0
                     ? `${data.costs.monthUtilizationPercent}% of ${formatCents(data.costs.monthBudgetCents)} budget`
-                    : "Unlimited budget"}
+                    : data.costs.projectedMonthlyCents > 0
+                      ? `At this pace, ~${friendlyCost(data.costs.projectedMonthlyCents / 100)}/month`
+                      : "Unlimited budget"}
                 </span>
               }
             />

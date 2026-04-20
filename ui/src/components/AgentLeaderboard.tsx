@@ -5,7 +5,7 @@ import { costsApi } from "../api/costs";
 import { heartbeatsApi } from "../api/heartbeats";
 import { agentsApi } from "../api/agents";
 import { queryKeys } from "../lib/queryKeys";
-import { cn, formatCents, agentUrl } from "../lib/utils";
+import { cn, friendlyCost, agentUrl } from "../lib/utils";
 import { Identity } from "./Identity";
 import {
   Trophy,
@@ -261,7 +261,7 @@ function LeaderboardRow({ entry, rank }: { entry: LeaderboardEntry; rank: number
 
         {/* Cost */}
         <span className="text-[11px] text-muted-foreground tabular-nums w-14 text-right">
-          {formatCents(entry.costCents)}
+          {friendlyCost(entry.costCents / 100)}
         </span>
 
         {/* Score badge */}

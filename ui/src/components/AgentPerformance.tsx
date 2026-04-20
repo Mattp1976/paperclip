@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { heartbeatsApi } from "../api/heartbeats";
 import { queryKeys } from "../lib/queryKeys";
-import { formatCents, relativeTime } from "../lib/utils";
+import { friendlyCost, relativeTime } from "../lib/utils";
 import {
   CheckCircle2,
   XCircle,
@@ -143,13 +143,13 @@ function deriveInsights(runs: HeartbeatRun[]): Insight[] {
       insights.push({
         kind: "warning",
         title: "Cost increasing",
-        body: `Recent runs cost ${formatCents(Math.round(recentAvgCost))} on average vs ${formatCents(Math.round(olderAvgCost))} previously. The agent may be using more tokens per run.`,
+        body: `Recent runs cost ${friendlyCost(recentAvgCost / 100)} on average vs ${friendlyCost(olderAvgCost / 100)} previously. The agent may be using more tokens per run.`,
       });
     } else if (olderAvgCost > 0 && recentAvgCost < olderAvgCost * 0.7) {
       insights.push({
         kind: "success",
         title: "Cost decreasing",
-        body: `Recent runs cost ${formatCents(Math.round(recentAvgCost))} on average, down from ${formatCents(Math.round(olderAvgCost))}. The agent is becoming more efficient.`,
+        body: `Recent runs cost ${friendlyCost(recentAvgCost / 100)} on average, down from ${friendlyCost(olderAvgCost / 100)}. The agent is becoming more efficient.`,
       });
     }
   }
@@ -407,8 +407,8 @@ export function AgentPerformance({ agentId, companyId }: AgentPerformanceProps) 
         <StatCard
           icon={<DollarSign className="h-3.5 w-3.5" />}
           label="Total Cost"
-          value={formatCents(stats.totalCost)}
-          sub={`~${formatCents(Math.round(stats.totalCost / stats.total))} per run`}
+          value={friendlyCost(stats.totalCost / 100)}
+          sub={`~${friendlyCost(stats.totalCost / stats.total / 100)} per run`}
         />
         <StatCard
           icon={<Clock className="h-3.5 w-3.5" />}

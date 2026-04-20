@@ -16,6 +16,10 @@ export interface DashboardSummary {
     monthSpendCents: number;
     monthBudgetCents: number;
     monthUtilizationPercent: number;
+    /** Total spend over the trailing 7 days (rolling window). */
+    trailing7dSpendCents: number;
+    /** Projected monthly spend based on trailing 7-day daily average × 30. */
+    projectedMonthlyCents: number;
   };
   pendingApprovals: number;
   budgets: {

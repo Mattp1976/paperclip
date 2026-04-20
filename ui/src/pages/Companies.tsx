@@ -5,7 +5,7 @@ import { useDialog } from "../context/DialogContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { companiesApi } from "../api/companies";
 import { queryKeys } from "../lib/queryKeys";
-import { formatCents, relativeTime } from "../lib/utils";
+import { friendlyCost, relativeTime } from "../lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -255,9 +255,9 @@ export function Companies() {
                 <div className="flex items-center gap-1.5 tabular-nums">
                   <DollarSign className="h-3.5 w-3.5" />
                   <span>
-                    {formatCents(company.spentMonthlyCents)}
+                    {friendlyCost(company.spentMonthlyCents / 100)}
                     {company.budgetMonthlyCents > 0
-                      ? <> / {formatCents(company.budgetMonthlyCents)} <span className="text-xs">({budgetPct}%)</span></>
+                      ? <> / {friendlyCost(company.budgetMonthlyCents / 100)} <span className="text-xs">({budgetPct}%)</span></>
                       : <span className="text-xs ml-1">Unlimited budget</span>}
                   </span>
                 </div>
