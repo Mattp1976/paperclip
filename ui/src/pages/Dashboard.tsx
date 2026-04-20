@@ -19,10 +19,16 @@ import { ActivityRow } from "../components/ActivityRow";
 import { Identity } from "../components/Identity";
 import { timeAgo } from "../lib/timeAgo";
 import { cn, formatCents } from "../lib/utils";
-import { Bot, CircleDot, DollarSign, ShieldCheck, LayoutDashboard, PauseCircle } from "lucide-react";
+import { Bot, CircleDot, DollarSign, ShieldCheck, LayoutDashboard, PauseCircle, Plus } from "lucide-react";
 import { ActiveAgentsPanel } from "../components/ActiveAgentsPanel";
+import { FleetHealthOverview } from "../components/FleetHealthOverview";
+import { AgentLeaderboard } from "../components/AgentLeaderboard";
+import { BudgetForecast } from "../components/BudgetForecast";
 import { ChartCard, RunActivityChart, PriorityChart, IssueStatusChart, SuccessRateChart } from "../components/ActivityCharts";
+import { LatestWorkFeed } from "../components/LatestWorkFeed";
+import { LiveProgressStrip } from "../components/LiveProgressStrip";
 import { PageSkeleton } from "../components/PageSkeleton";
+import { QuickInputBar } from "../components/QuickInputBar";
 import type { Agent, Issue } from "@mattparrytfc/shared";
 import { PluginSlotOutlet } from "@/plugins/slots";
 
@@ -33,7 +39,7 @@ function getRecentIssues(issues: Issue[]): Issue[] {
 
 export function Dashboard() {
   const { selectedCompanyId, companies } = useCompany();
-  const { openOnboarding } = useDialog();
+  const { openOnboarding, openNewIssue } = useDialog();
   const { setBreadcrumbs } = useBreadcrumbs();
   const [animatedActivityIds, setAnimatedActivityIds] = useState<Set<string>>(new Set());
   const seenActivityIdsRef = useRef<Set<string>>(new Set());
@@ -47,7 +53,7 @@ export function Dashboard() {
   });
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Dashboard" }]);
+    setBreadcrumbs([]);
   }, [setBreadcrumbs]);
 
   const { data, isLoading, error } = useQuery({
@@ -186,55 +192,99 @@ export function Dashboard() {
   const hasNoAgents = agents !== undefined && agents.length === 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Page header */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Dashboard
+          </h1>
+          <p className="mt-1.5 text-sm text-muted-foreground/70">
+            Ask your agents anything, track progress, and see results.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => openNewIssue()}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-green-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-green-600 hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-green-600 dark:hover:bg-green-500 dark:text-green-950"
+          >
+            <Plus className="h-4 w-4" />
+            New Task
+          </button>
+        </div>
+      </div>
+
       {error && <p className="text-sm text-destructive">{error.message}</p>}
 
       {hasNoAgents && (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/25 dark:bg-amber-950/60">
-          <div className="flex items-center gap-2.5">
-            <Bot className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
-            <p className="text-sm text-amber-900 dark:text-amber-100">
-              You have no agents.
-            </p>
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 px-5 py-4 dark:border-amber-500/20 dark:bg-amber-950/40">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-amber-100 p-2.5 dark:bg-amber-900/40">
+              <Bot className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                No agents yet
+              </p>
+              <p className="text-xs text-amber-700/70 dark:text-amber-300/60 mt-0.5">
+                Create your first agent to get started.
+              </p>
+            </div>
           </div>
           <button
             onClick={() => openOnboarding({ initialStep: 2, companyId: selectedCompanyId! })}
-            className="text-sm font-medium text-amber-700 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 underline underline-offset-2 shrink-0"
+            className="rounded-xl bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-amber-950 shrink-0"
           >
-            Create one here
+            Create agent
           </button>
         </div>
       )}
 
-      <ActiveAgentsPanel companyId={selectedCompanyId!} />
-
       {data && (
         <>
-          {data.budgets.activeIncidents > 0 ? (
-            <div className="flex items-start justify-between gap-3 rounded-xl border border-red-500/20 bg-[linear-gradient(180deg,rgba(255,80,80,0.12),rgba(255,255,255,0.02))] px-4 py-3">
-              <div className="flex items-start gap-2.5">
-                <PauseCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />
+          {/* ── PRIMARY ZONE: Input → Progress → Results ─────────── */}
+
+          {/* Quick input — the primary action, always first */}
+          <QuickInputBar />
+
+          {/* Live progress — shows when agents are actively working */}
+          <LiveProgressStrip companyId={selectedCompanyId!} />
+
+          {/* Budget incident alert — urgent, so stays high */}
+          {data.budgets.activeIncidents > 0 && (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50/80 px-5 py-4 dark:border-red-500/20 dark:bg-red-950/40">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-red-100 p-2.5 dark:bg-red-900/40">
+                  <PauseCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-red-50">
-                    {data.budgets.activeIncidents} active budget incident{data.budgets.activeIncidents === 1 ? "" : "s"}
+                  <p className="text-sm font-medium text-red-900 dark:text-red-100">
+                    {data.budgets.activeIncidents} budget incident{data.budgets.activeIncidents === 1 ? "" : "s"}
                   </p>
-                  <p className="text-xs text-red-100/70">
-                    {data.budgets.pausedAgents} agents paused · {data.budgets.pausedProjects} projects paused · {data.budgets.pendingApprovals} pending budget approvals
+                  <p className="text-xs text-red-700/70 dark:text-red-200/70 mt-0.5">
+                    {data.budgets.pausedAgents} paused agents · {data.budgets.pausedProjects} paused projects
                   </p>
                 </div>
               </div>
-              <Link to="/costs" className="text-sm underline underline-offset-2 text-red-100">
-                Open budgets
+              <Link to="/costs" className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400 dark:text-red-950 shrink-0 no-underline">
+                View budgets
               </Link>
             </div>
-          ) : null}
+          )}
 
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-1 sm:gap-2">
+          {/* Latest results — promoted to hero position */}
+          <LatestWorkFeed companyId={selectedCompanyId!} limit={5} />
+
+          {/* ── SECONDARY ZONE: Metrics + Operations ─────────────── */}
+
+          {/* Key metrics — compact overview */}
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
             <MetricCard
               icon={Bot}
               value={data.agents.active + data.agents.running + data.agents.paused + data.agents.error}
-              label="Agents Enabled"
+              label="Agents"
               to="/agents"
+              accent
               description={
                 <span>
                   {data.agents.running} running{", "}
@@ -246,7 +296,7 @@ export function Dashboard() {
             <MetricCard
               icon={CircleDot}
               value={data.tasks.inProgress}
-              label="Tasks In Progress"
+              label="Active Tasks"
               to="/issues"
               description={
                 <span>
@@ -271,18 +321,22 @@ export function Dashboard() {
             <MetricCard
               icon={ShieldCheck}
               value={data.pendingApprovals + data.budgets.pendingApprovals}
-              label="Pending Approvals"
+              label="Approvals"
               to="/approvals"
               description={
                 <span>
                   {data.budgets.pendingApprovals > 0
-                    ? `${data.budgets.pendingApprovals} budget overrides awaiting board review`
+                    ? `${data.budgets.pendingApprovals} budget overrides awaiting review`
                     : "Awaiting board review"}
                 </span>
               }
             />
           </div>
 
+          {/* Live agents — compact strip */}
+          <ActiveAgentsPanel companyId={selectedCompanyId!} />
+
+          {/* Activity charts — pushed below the fold */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <ChartCard title="Run Activity" subtitle="Last 14 days">
               <RunActivityChart runs={runs ?? []} />
@@ -298,21 +352,29 @@ export function Dashboard() {
             </ChartCard>
           </div>
 
+          {/* Fleet health + forecast row */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <FleetHealthOverview companyId={selectedCompanyId!} />
+            <BudgetForecast companyId={selectedCompanyId!} />
+          </div>
+
+          <AgentLeaderboard companyId={selectedCompanyId!} />
+
           <PluginSlotOutlet
             slotTypes={["dashboardWidget"]}
             context={{ companyId: selectedCompanyId }}
-            className="grid gap-4 md:grid-cols-2"
-            itemClassName="rounded-lg border bg-card p-4 shadow-sm"
+            className="grid gap-3 md:grid-cols-2"
+            itemClassName="rounded-2xl bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03] p-5"
           />
 
           <div className="grid md:grid-cols-2 gap-4">
             {/* Recent Activity */}
             {recentActivity.length > 0 && (
               <div className="min-w-0">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                  Recent Activity
+                <h3 className="text-xs font-medium text-muted-foreground/70 mb-3">
+                  Recent activity
                 </h3>
-                <div className="border border-border divide-y divide-border overflow-hidden">
+                <div className="rounded-2xl bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03] divide-y divide-border/30 overflow-hidden">
                   {recentActivity.map((event) => (
                     <ActivityRow
                       key={event.id}
@@ -329,28 +391,25 @@ export function Dashboard() {
 
             {/* Recent Tasks */}
             <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                Recent Tasks
+              <h3 className="text-xs font-medium text-muted-foreground/70 mb-3">
+                Recent tasks
               </h3>
               {recentIssues.length === 0 ? (
-                <div className="border border-border p-4">
+                <div className="rounded-2xl bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03] p-4">
                   <p className="text-sm text-muted-foreground">No tasks yet.</p>
                 </div>
               ) : (
-                <div className="border border-border divide-y divide-border overflow-hidden">
+                <div className="rounded-2xl bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03] divide-y divide-border/30 overflow-hidden">
                   {recentIssues.slice(0, 10).map((issue) => (
                     <Link
                       key={issue.id}
                       to={`/issues/${issue.identifier ?? issue.id}`}
-                      className="px-4 py-3 text-sm cursor-pointer hover:bg-accent/50 transition-colors no-underline text-inherit block"
+                      className="px-4 py-3 text-sm cursor-pointer hover:bg-black/[0.03] dark:hover:bg-accent/50 transition-colors no-underline text-inherit block"
                     >
                       <div className="flex items-start gap-2 sm:items-center sm:gap-3">
-                        {/* Status icon - left column on mobile */}
                         <span className="shrink-0 sm:hidden">
                           <StatusIcon status={issue.status} />
                         </span>
-
-                        {/* Right column on mobile: title + metadata stacked */}
                         <span className="flex min-w-0 flex-1 flex-col gap-1 sm:contents">
                           <span className="line-clamp-2 text-sm sm:order-2 sm:flex-1 sm:min-w-0 sm:line-clamp-none sm:truncate">
                             {issue.title}

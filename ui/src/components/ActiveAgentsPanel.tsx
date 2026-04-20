@@ -4,15 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import type { Issue } from "@mattparrytfc/shared";
 import { heartbeatsApi, type LiveRunForIssue } from "../api/heartbeats";
 import { issuesApi } from "../api/issues";
-import type { TranscriptEntry } from "../adapters";
 import { queryKeys } from "../lib/queryKeys";
 import { cn, relativeTime } from "../lib/utils";
-import { ExternalLink } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Identity } from "./Identity";
-import { RunTranscriptView } from "./transcript/RunTranscriptView";
-import { useLiveRunTranscripts } from "./transcript/useLiveRunTranscripts";
 
-const MIN_DASHBOARD_RUNS = 4;
+const MIN_DASHBOARD_RUNS = 6;
 
 function isRunActive(run: LiveRunForIssue): boolean {
   return run.status === "queued" || run.status === "running";
@@ -43,114 +40,93 @@ export function ActiveAgentsPanel({ companyId }: ActiveAgentsPanelProps) {
     return map;
   }, [issues]);
 
-  const { transcriptByRun, hasOutputForRun } = useLiveRunTranscripts({
-    runs,
-    companyId,
-    maxChunksPerRun: 120,
-  });
+  if (runs.length === 0) return null;
+
+  const activeRuns = runs.filter(isRunActive);
+  const recentRuns = runs.filter((r) => !isRunActive(r));
 
   return (
-    <div>
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Agents
-      </h3>
-      {runs.length === 0 ? (
-        <div className="rounded-xl border border-border p-4">
-          <p className="text-sm text-muted-foreground">No recent agent runs.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
-          {runs.map((run) => (
-            <AgentRunCard
-              key={run.id}
-              run={run}
-              issue={run.issueId ? issueById.get(run.issueId) : undefined}
-              transcript={transcriptByRun.get(run.id) ?? []}
-              hasOutput={hasOutputForRun(run.id)}
-              isActive={isRunActive(run)}
-            />
-          ))}
+    <div className="rounded-2xl bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03] overflow-hidden">
+      {/* Active runs section */}
+      {activeRuns.length > 0 && (
+        <div className="px-5 pt-4 pb-3">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-600" />
+            </span>
+            <span className="text-xs font-medium text-foreground/70">{activeRuns.length} agent{activeRuns.length === 1 ? "" : "s"} running</span>
+          </div>
+          <div className="space-y-1">
+            {activeRuns.map((run) => {
+              const issue = run.issueId ? issueById.get(run.issueId) : undefined;
+              return (
+                <Link
+                  key={run.id}
+                  to={`/agents/${run.agentId}/runs/${run.id}`}
+                  className="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-accent/50 no-underline text-inherit"
+                >
+                  <Identity name={run.agentName} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    {issue?.title ? (
+                      <p className="text-sm truncate text-foreground/90">{issue.title}</p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Working...</p>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground/60 shrink-0">{relativeTime(run.createdAt)}</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </Link>
+              );
+            })}
+          </div>
         </div>
       )}
-    </div>
-  );
-}
 
-function AgentRunCard({
-  run,
-  issue,
-  transcript,
-  hasOutput,
-  isActive,
-}: {
-  run: LiveRunForIssue;
-  issue?: Issue;
-  transcript: TranscriptEntry[];
-  hasOutput: boolean;
-  isActive: boolean;
-}) {
-  return (
-    <div className={cn(
-      "flex h-[320px] flex-col overflow-hidden rounded-xl border shadow-sm",
-      isActive
-        ? "border-cyan-500/25 bg-cyan-500/[0.04] shadow-[0_16px_40px_rgba(6,182,212,0.08)]"
-        : "border-border bg-background/70",
-    )}>
-      <div className="border-b border-border/60 px-3 py-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              {isActive ? (
-                <span className="relative flex h-2.5 w-2.5 shrink-0">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-70" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-cyan-500" />
-                </span>
-              ) : (
-                <span className="inline-flex h-2.5 w-2.5 rounded-full bg-muted-foreground/35" />
-              )}
-              <Identity name={run.agentName} size="sm" className="[&>span:last-child]:!text-[11px]" />
+      {/* Divider if both sections exist */}
+      {activeRuns.length > 0 && recentRuns.length > 0 && (
+        <div className="border-t border-border/30" />
+      )}
+
+      {/* Recent completed runs */}
+      {recentRuns.length > 0 && (
+        <div className="px-5 pt-3 pb-3">
+          {activeRuns.length === 0 && (
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-flex h-2 w-2 rounded-full bg-muted-foreground/25" />
+              <span className="text-xs font-medium text-foreground/70">Recent activity</span>
             </div>
-            <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
-              <span>{isActive ? "Live now" : run.finishedAt ? `Finished ${relativeTime(run.finishedAt)}` : `Started ${relativeTime(run.createdAt)}`}</span>
-            </div>
+          )}
+          {activeRuns.length > 0 && (
+            <p className="text-xs text-muted-foreground/50 mb-2">Recent</p>
+          )}
+          <div className="space-y-1">
+            {recentRuns.slice(0, activeRuns.length > 0 ? 3 : 4).map((run) => {
+              const issue = run.issueId ? issueById.get(run.issueId) : undefined;
+              return (
+                <Link
+                  key={run.id}
+                  to={`/agents/${run.agentId}/runs/${run.id}`}
+                  className="group flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-accent/50 no-underline text-inherit"
+                >
+                  <Identity name={run.agentName} size="sm" className="opacity-60" />
+                  <div className="flex-1 min-w-0">
+                    {issue?.title ? (
+                      <p className="text-sm truncate text-muted-foreground">{issue.title}</p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground/60">Completed</p>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground/40 shrink-0">
+                    {run.finishedAt ? relativeTime(run.finishedAt) : relativeTime(run.createdAt)}
+                  </span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                </Link>
+              );
+            })}
           </div>
-
-          <Link
-            to={`/agents/${run.agentId}/runs/${run.id}`}
-            className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-background/70 px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ExternalLink className="h-2.5 w-2.5" />
-          </Link>
         </div>
-
-        {run.issueId && (
-          <div className="mt-3 rounded-lg border border-border/60 bg-background/60 px-2.5 py-2 text-xs">
-            <Link
-              to={`/issues/${issue?.identifier ?? run.issueId}`}
-              className={cn(
-                "line-clamp-2 hover:underline",
-                isActive ? "text-cyan-700 dark:text-cyan-300" : "text-muted-foreground hover:text-foreground",
-              )}
-              title={issue?.title ? `${issue?.identifier ?? run.issueId.slice(0, 8)} - ${issue.title}` : issue?.identifier ?? run.issueId.slice(0, 8)}
-            >
-              {issue?.identifier ?? run.issueId.slice(0, 8)}
-              {issue?.title ? ` - ${issue.title}` : ""}
-            </Link>
-          </div>
-        )}
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
-        <RunTranscriptView
-          entries={transcript}
-          density="compact"
-          limit={5}
-          streaming={isActive}
-          collapseStdout
-          thinkingClassName="!text-[10px] !leading-4"
-          emptyMessage={hasOutput ? "Waiting for transcript parsing..." : isActive ? "Waiting for output..." : "No transcript captured."}
-        />
-      </div>
+      )}
     </div>
   );
 }
