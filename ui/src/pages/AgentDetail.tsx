@@ -103,7 +103,7 @@ import {
 } from "../lib/agent-skills-state";
 
 const runStatusIcons: Record<string, { icon: typeof CheckCircle2; color: string }> = {
-  succeeded: { icon: CheckCircle2, color: "text-green-600 dark:text-green-400" },
+  succeeded: { icon: CheckCircle2, color: "text-[#5E7259] dark:text-[#C5D4BC]" },
   failed: { icon: XCircle, color: "text-red-600 dark:text-red-400" },
   running: { icon: Loader2, color: "text-cyan-600 dark:text-cyan-400" },
   queued: { icon: Clock, color: "text-yellow-600 dark:text-yellow-400" },
@@ -333,7 +333,7 @@ function workspaceOperationPhaseLabel(phase: WorkspaceOperation["phase"]) {
 function workspaceOperationStatusTone(status: WorkspaceOperation["status"]) {
   switch (status) {
     case "succeeded":
-      return "border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-300";
+      return "border-green-500/20 bg-[#A4BD95]/10 text-[#5E7259] dark:text-[#D7E4CB]";
     case "failed":
       return "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300";
     case "running":
@@ -1541,7 +1541,7 @@ function ConfigurationTab({
               aria-checked={canCreateAgents}
               className={cn(
                 "relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 disabled:cursor-not-allowed disabled:opacity-50",
-                canCreateAgents ? "bg-green-600" : "bg-muted",
+                canCreateAgents ? "bg-[#8FA781]" : "bg-muted",
               )}
               onClick={() =>
                 updatePermissions.mutate({
@@ -1572,7 +1572,7 @@ function ConfigurationTab({
               aria-checked={canAssignTasks}
               className={cn(
                 "relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 disabled:cursor-not-allowed disabled:opacity-50",
-                canAssignTasks ? "bg-green-600" : "bg-muted",
+                canAssignTasks ? "bg-[#8FA781]" : "bg-muted",
               )}
               onClick={() =>
                 updatePermissions.mutate({
@@ -3901,7 +3901,7 @@ function KeysTab({ agentId, companyId }: { agentId: string; companyId?: string }
             API key created — copy it now, it will not be shown again.
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 bg-neutral-100 dark:bg-neutral-950 rounded px-3 py-1.5 text-xs font-mono text-green-700 dark:text-green-300 truncate">
+            <code className="flex-1 bg-neutral-100 dark:bg-neutral-950 rounded px-3 py-1.5 text-xs font-mono text-[#5E7259] dark:text-[#D7E4CB] truncate">
               {tokenVisible ? newToken : newToken.replace(/./g, "•")}
             </code>
             <Button

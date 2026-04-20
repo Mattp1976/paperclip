@@ -284,7 +284,7 @@ export function Dashboard() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => openNewIssue()}
-            className="inline-flex items-center gap-1.5 rounded-2xl bg-green-700 px-5 py-3 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(20,83,45,0.15),0_12px_24px_-8px_rgba(20,83,45,0.3)] transition-all duration-200 hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(20,83,45,0.2),0_16px_32px_-8px_rgba(20,83,45,0.4)] active:translate-y-0 dark:bg-green-600 dark:hover:bg-green-500 dark:text-green-950"
+            className="inline-flex items-center gap-1.5 rounded-2xl bg-[#8FA781] px-5 py-3 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all duration-200 hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-[#A4BD95] dark:hover:bg-[#B5C4B1] dark:text-[#22251F]"
           >
             <Plus className="h-4 w-4" />
             New Task
@@ -322,11 +322,7 @@ export function Dashboard() {
 
       {data && (
         <>
-          {/* ── PRIMARY ZONE: Input → Progress → Results ─────────── */}
-
-          <QuickInputBar />
-
-          <LiveProgressStrip companyId={selectedCompanyId!} />
+          {/* ── BUDGET ALERT (urgent, stays near top) ─────────────── */}
 
           {data.budgets.activeIncidents > 0 && (
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50/80 px-5 py-4 dark:border-red-500/20 dark:bg-red-950/40">
@@ -353,8 +349,6 @@ export function Dashboard() {
               </Link>
             </div>
           )}
-
-          <LatestWorkFeed companyId={selectedCompanyId!} limit={5} />
 
           {/* ── KPI ROW: hero + 3 siblings ─────────────────────────── */}
 
@@ -435,6 +429,14 @@ export function Dashboard() {
               />
             </div>
           </div>
+
+          {/* ── PRIMARY ZONE: Input → Progress → Results ─────────── */}
+
+          <QuickInputBar />
+
+          <LiveProgressStrip companyId={selectedCompanyId!} />
+
+          <LatestWorkFeed companyId={selectedCompanyId!} limit={5} />
 
           {/* ── TEAM + GAUGE + SPEND ────────────────────────────────── */}
 

@@ -681,7 +681,7 @@ function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginSt
         <div
           className={`text-sm p-2 rounded border ${
             saveMessage.type === "success"
-              ? "text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950/30 dark:border-green-900"
+              ? "text-[#5E7259] bg-green-50 border-green-200 dark:text-[#C5D4BC] dark:bg-green-950/30 dark:border-green-900"
               : "text-destructive bg-destructive/10 border-destructive/20"
           }`}
         >
@@ -693,7 +693,7 @@ function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginSt
         <div
           className={`text-sm p-2 rounded border ${
             testResult.type === "success"
-              ? "text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950/30 dark:border-green-900"
+              ? "text-[#5E7259] bg-green-50 border-green-200 dark:text-[#C5D4BC] dark:bg-green-950/30 dark:border-green-900"
               : "text-destructive bg-destructive/10 border-destructive/20"
           }`}
         >
@@ -799,7 +799,7 @@ function formatTimestamp(epochMs: number): string {
 function JobStatusDot({ status }: { status: string }) {
   const colorClass =
     status === "success" || status === "succeeded"
-      ? "bg-green-500"
+      ? "bg-[#A4BD95]"
       : status === "failed"
         ? "bg-red-500"
         : status === "running"
@@ -821,7 +821,7 @@ function JobStatusDot({ status }: { status: string }) {
 function DeliveryStatusDot({ status }: { status: string }) {
   const colorClass =
     status === "processed" || status === "success"
-      ? "bg-green-500"
+      ? "bg-[#A4BD95]"
       : status === "failed"
         ? "bg-red-500"
         : status === "received"

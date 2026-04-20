@@ -341,7 +341,7 @@ export function ProviderQuotaCard({
                             ? "bg-red-400"
                             : qw.usedPercent >= 70
                               ? "bg-yellow-400"
-                              : "bg-green-400";
+                              : "bg-[#B5C4B1]";
                       return (
                         <div key={qw.label} className="space-y-1">
                           <div className="flex items-center justify-between gap-2 text-xs">

@@ -250,7 +250,7 @@ export function PluginManager() {
                         {installedPlugin ? (
                           <Badge
                             variant={installedPlugin.status === "ready" ? "default" : "secondary"}
-                            className={installedPlugin.status === "ready" ? "bg-green-600 hover:bg-green-700" : ""}
+                            className={installedPlugin.status === "ready" ? "bg-[#8FA781] hover:bg-[#8FA781]" : ""}
                           >
                             {installedPlugin.status}
                           </Badge>
@@ -385,7 +385,7 @@ export function PluginManager() {
                           }
                           className={cn(
                             "shrink-0",
-                            plugin.status === "ready" ? "bg-green-600 hover:bg-green-700" : ""
+                            plugin.status === "ready" ? "bg-[#8FA781] hover:bg-[#8FA781]" : ""
                           )}
                         >
                           {plugin.status}
@@ -404,7 +404,7 @@ export function PluginManager() {
                           }}
                           disabled={enableMutation.isPending || disableMutation.isPending}
                         >
-                          <Power className={cn("h-4 w-4", plugin.status === "ready" ? "text-green-600" : "")} />
+                          <Power className={cn("h-4 w-4", plugin.status === "ready" ? "text-[#5E7259]" : "")} />
                         </Button>
                         <Button
                           variant="outline"

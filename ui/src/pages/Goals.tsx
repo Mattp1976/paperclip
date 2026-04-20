@@ -47,7 +47,7 @@ export function Goals() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => openNewGoal()}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-green-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-green-600 hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-green-600 dark:hover:bg-green-500 dark:text-green-950"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#8FA781] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#8FA781] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#8FA781] dark:hover:bg-[#A4BD95] dark:text-[#22251F]"
           >
             <Plus className="h-4 w-4" />
             New Goal

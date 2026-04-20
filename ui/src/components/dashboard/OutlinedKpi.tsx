@@ -23,20 +23,20 @@ interface OutlinedKpiProps {
 
 const toneClasses: Record<NonNullable<OutlinedKpiProps["tone"]>, { icon: string; iconBg: string }> = {
   default: {
-    icon: "text-green-700 dark:text-green-400",
-    iconBg: "bg-green-100/80 dark:bg-green-950/50",
+    icon: "text-[#5E7259] dark:text-[#C5D4BC]",
+    iconBg: "bg-[#E4EEDC] dark:bg-[#3B4A37]/50",
   },
   amber: {
-    icon: "text-amber-700 dark:text-amber-400",
-    iconBg: "bg-amber-100/80 dark:bg-amber-950/50",
+    icon: "text-[#8A6A2E] dark:text-amber-300",
+    iconBg: "bg-[#F5E6C8] dark:bg-amber-950/50",
   },
   red: {
-    icon: "text-red-700 dark:text-red-400",
-    iconBg: "bg-red-100/80 dark:bg-red-950/50",
+    icon: "text-[#8A4A4A] dark:text-[#F0C7C7]",
+    iconBg: "bg-[#F5E5E5] dark:bg-red-950/50",
   },
   violet: {
-    icon: "text-violet-700 dark:text-violet-400",
-    iconBg: "bg-violet-100/80 dark:bg-violet-950/50",
+    icon: "text-[#6A5A8A] dark:text-violet-300",
+    iconBg: "bg-[#EAE3F0] dark:bg-violet-950/50",
   },
 };
 

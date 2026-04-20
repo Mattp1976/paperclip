@@ -133,7 +133,7 @@ function RunRow({
     <div
       className={cn(
         "group rounded-lg border transition-colors",
-        isSuccess && "border-green-600/20 bg-green-600/5",
+        isSuccess && "border-[#8FA781]/20 bg-[#8FA781]/5",
         isError && "border-red-500/20 bg-red-500/5",
         isRunning && "border-cyan-500/20 bg-cyan-500/5",
         !isSuccess && !isError && !isRunning && "border-border bg-card",
@@ -143,7 +143,7 @@ function RunRow({
       <div className="flex items-center gap-2.5 px-3 py-2.5">
         {/* Status icon */}
         {isSuccess && (
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-[#5E7259]" />
         )}
         {isError && <XCircle className="h-4 w-4 shrink-0 text-red-500" />}
         {isRunning && (
@@ -301,7 +301,7 @@ export function RunSummaryCard({
           </span>
 
           {stats.succeeded > 0 && (
-            <div className="flex items-center gap-1 text-xs text-green-700 dark:text-green-400">
+            <div className="flex items-center gap-1 text-xs text-[#5E7259] dark:text-[#C5D4BC]">
               <CheckCircle2 className="h-3 w-3" />
               <span>{stats.succeeded} succeeded</span>
             </div>

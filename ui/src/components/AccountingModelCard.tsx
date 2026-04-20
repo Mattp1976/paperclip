@@ -21,7 +21,7 @@ const SURFACES = [
     description: "Provider or biller windows that can stop traffic in real time.",
     icon: Gauge,
     points: ["provider quota windows", "biller credit systems", "errors surfaced directly"],
-    tone: "from-green-600/14 via-green-600/6 to-transparent",
+    tone: "from-[#8FA781]/14 via-green-600/6 to-transparent",
   },
 ] as const;
 

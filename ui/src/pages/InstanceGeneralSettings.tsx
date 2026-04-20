@@ -85,7 +85,7 @@ export function InstanceGeneralSettings() {
             disabled={toggleMutation.isPending}
             className={cn(
               "relative inline-flex h-5 w-9 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60",
-              censorUsernameInLogs ? "bg-green-600" : "bg-muted",
+              censorUsernameInLogs ? "bg-[#8FA781]" : "bg-muted",
             )}
             onClick={() => toggleMutation.mutate(!censorUsernameInLogs)}
           >

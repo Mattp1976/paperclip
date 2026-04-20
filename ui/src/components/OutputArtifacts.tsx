@@ -37,7 +37,7 @@ const TYPE_META: Record<
   pull_request: {
     icon: GitPullRequest,
     label: "Pull Request",
-    color: "text-green-600",
+    color: "text-[#5E7259]",
   },
   branch: {
     icon: GitBranch,
@@ -75,7 +75,7 @@ const REVIEW_BADGE: Record<
     icon: CheckCircle2,
     label: "Approved",
     className:
-      "text-green-700 dark:text-green-400 bg-green-600/10 border-green-600/20",
+      "text-[#5E7259] dark:text-[#C5D4BC] bg-[#8FA781]/10 border-[#8FA781]/20",
   },
   changes_requested: {
     icon: AlertCircle,

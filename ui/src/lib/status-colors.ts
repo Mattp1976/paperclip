@@ -15,7 +15,7 @@ export const issueStatusIcon: Record<string, string> = {
   todo: "text-blue-600 border-blue-600 dark:text-blue-400 dark:border-blue-400",
   in_progress: "text-yellow-600 border-yellow-600 dark:text-yellow-400 dark:border-yellow-400",
   in_review: "text-violet-600 border-violet-600 dark:text-violet-400 dark:border-violet-400",
-  done: "text-green-600 border-green-600 dark:text-green-400 dark:border-green-400",
+  done: "text-[#5E7259] border-[#8FA781] dark:text-[#C5D4BC] dark:border-green-400",
   cancelled: "text-neutral-500 border-neutral-500",
   blocked: "text-red-600 border-red-600 dark:text-red-400 dark:border-red-400",
 };
@@ -28,7 +28,7 @@ export const issueStatusText: Record<string, string> = {
   todo: "text-blue-600 dark:text-blue-400",
   in_progress: "text-yellow-600 dark:text-yellow-400",
   in_review: "text-violet-600 dark:text-violet-400",
-  done: "text-green-600 dark:text-green-400",
+  done: "text-[#5E7259] dark:text-[#C5D4BC]",
   cancelled: "text-neutral-500",
   blocked: "text-red-600 dark:text-red-400",
 };
@@ -41,7 +41,7 @@ export const issueStatusTextDefault = "text-muted-foreground";
 
 export const statusBadge: Record<string, string> = {
   // Agent statuses
-  active: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
+  active: "bg-green-100 text-[#5E7259] dark:bg-green-900/50 dark:text-[#D7E4CB]",
   running: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300",
   paused: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300",
   idle: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300",
@@ -49,13 +49,13 @@ export const statusBadge: Record<string, string> = {
 
   // Goal statuses
   planned: "bg-muted text-muted-foreground",
-  achieved: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
-  completed: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
+  achieved: "bg-green-100 text-[#5E7259] dark:bg-green-900/50 dark:text-[#D7E4CB]",
+  completed: "bg-green-100 text-[#5E7259] dark:bg-green-900/50 dark:text-[#D7E4CB]",
 
   // Run statuses
   failed: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300",
   timed_out: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300",
-  succeeded: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
+  succeeded: "bg-green-100 text-[#5E7259] dark:bg-green-900/50 dark:text-[#D7E4CB]",
   error: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300",
   terminated: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300",
   pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300",
@@ -63,7 +63,7 @@ export const statusBadge: Record<string, string> = {
   // Approval statuses
   pending_approval: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300",
   revision_requested: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300",
-  approved: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
+  approved: "bg-green-100 text-[#5E7259] dark:bg-green-900/50 dark:text-[#D7E4CB]",
   rejected: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300",
 
   // Issue statuses — consistent hues with issueStatusIcon above
@@ -72,7 +72,7 @@ export const statusBadge: Record<string, string> = {
   in_progress: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300",
   in_review: "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300",
   blocked: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300",
-  done: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
+  done: "bg-green-100 text-[#5E7259] dark:bg-green-900/50 dark:text-[#D7E4CB]",
   cancelled: "bg-muted text-muted-foreground",
 };
 
@@ -84,7 +84,7 @@ export const statusBadgeDefault = "bg-muted text-muted-foreground";
 
 export const agentStatusDot: Record<string, string> = {
   running: "bg-cyan-400 animate-pulse",
-  active: "bg-green-400",
+  active: "bg-[#B5C4B1]",
   paused: "bg-yellow-400",
   idle: "bg-yellow-400",
   pending_approval: "bg-amber-400",

@@ -276,7 +276,7 @@ export function BudgetForecast({ companyId }: { companyId: string }) {
                 "text-xs font-medium tabular-nums",
                 forecast.overBudgetProjected
                   ? "text-red-600 dark:text-red-400"
-                  : "text-green-600 dark:text-green-400",
+                  : "text-[#5E7259] dark:text-[#C5D4BC]",
               )}
             >
               {Math.round(
@@ -354,7 +354,7 @@ function ForecastKpi({
         className={cn(
           "text-sm font-semibold tabular-nums",
           alert && "text-red-600 dark:text-red-400",
-          positive === true && "text-green-600 dark:text-green-400",
+          positive === true && "text-[#5E7259] dark:text-[#C5D4BC]",
           positive === false && "text-red-600 dark:text-red-400",
         )}
       >

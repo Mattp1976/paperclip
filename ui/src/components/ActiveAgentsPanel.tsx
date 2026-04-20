@@ -52,8 +52,8 @@ export function ActiveAgentsPanel({ companyId }: ActiveAgentsPanelProps) {
         <div className="px-5 pt-4 pb-3">
           <div className="flex items-center gap-2 mb-3">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-600" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B5C4B1] opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#8FA781]" />
             </span>
             <span className="text-xs font-medium text-foreground/70">{activeRuns.length} agent{activeRuns.length === 1 ? "" : "s"} running</span>
           </div>

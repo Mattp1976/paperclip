@@ -25,7 +25,7 @@ function windowLabel(windowKind: BudgetPolicySummary["windowKind"]) {
 function statusTone(status: BudgetPolicySummary["status"]) {
   if (status === "hard_stop") return "text-red-300 border-red-500/30 bg-red-500/10";
   if (status === "warning") return "text-amber-200 border-amber-500/30 bg-amber-500/10";
-  return "text-green-200 border-green-600/30 bg-green-600/10";
+  return "text-green-200 border-[#8FA781]/30 bg-[#8FA781]/10";
 }
 
 export function BudgetPolicyCard({

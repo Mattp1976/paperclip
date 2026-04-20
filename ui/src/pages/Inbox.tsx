@@ -238,7 +238,7 @@ function ApprovalInboxRow({
           <div className="hidden shrink-0 items-center gap-2 sm:flex">
             <Button
               size="sm"
-              className="h-8 bg-green-700 px-3 text-white hover:bg-green-600"
+              className="h-8 bg-[#8FA781] px-3 text-white hover:bg-[#8FA781]"
               onClick={onApprove}
               disabled={isPending}
             >
@@ -260,7 +260,7 @@ function ApprovalInboxRow({
         <div className="mt-3 flex gap-2 sm:hidden">
           <Button
             size="sm"
-            className="h-8 bg-green-700 px-3 text-white hover:bg-green-600"
+            className="h-8 bg-[#8FA781] px-3 text-white hover:bg-[#8FA781]"
             onClick={onApprove}
             disabled={isPending}
           >

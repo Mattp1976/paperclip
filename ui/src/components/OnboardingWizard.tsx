@@ -745,7 +745,7 @@ export function OnboardingWizard() {
                           }}
                         >
                           {opt.recommended && (
-                            <span className="absolute -top-1.5 right-1.5 bg-green-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none">
+                            <span className="absolute -top-1.5 right-1.5 bg-[#A4BD95] text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none">
                               Recommended
                             </span>
                           )}
@@ -992,7 +992,7 @@ export function OnboardingWizard() {
 
                       {adapterEnvResult &&
                       adapterEnvResult.status === "pass" ? (
-                        <div className="flex items-center gap-2 rounded-md border border-green-300 dark:border-green-500/40 bg-green-50 dark:bg-green-500/10 px-3 py-2 text-xs text-green-700 dark:text-green-300 animate-in fade-in slide-in-from-bottom-1 duration-300">
+                        <div className="flex items-center gap-2 rounded-md border border-green-300 dark:border-green-500/40 bg-green-50 dark:bg-[#A4BD95]/10 px-3 py-2 text-xs text-[#5E7259] dark:text-[#D7E4CB] animate-in fade-in slide-in-from-bottom-1 duration-300">
                           <Check className="h-3.5 w-3.5 shrink-0" />
                           <span className="font-medium">Passed</span>
                         </div>
@@ -1304,7 +1304,7 @@ function AdapterEnvironmentResult({
       : "Failed";
   const statusClass =
     result.status === "pass"
-      ? "text-green-700 dark:text-green-300 border-green-300 dark:border-green-500/40 bg-green-50 dark:bg-green-500/10"
+      ? "text-[#5E7259] dark:text-[#D7E4CB] border-green-300 dark:border-green-500/40 bg-green-50 dark:bg-[#A4BD95]/10"
       : result.status === "warn"
       ? "text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10"
       : "text-red-700 dark:text-red-300 border-red-300 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10";

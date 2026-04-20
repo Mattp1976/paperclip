@@ -209,7 +209,7 @@ export function LiveProgressStrip({ companyId }: LiveProgressStripProps) {
           <div className="h-1 bg-green-100 dark:bg-green-900/30">
             <div
               className={cn(
-                "h-full bg-green-600 dark:bg-green-500 transition-all duration-700 ease-out",
+                "h-full bg-[#8FA781] dark:bg-[#A4BD95] transition-all duration-700 ease-out",
                 session.completedCount === 0 && "animate-pulse",
               )}
               style={{
@@ -228,8 +228,8 @@ export function LiveProgressStrip({ companyId }: LiveProgressStripProps) {
             {/* Header row */}
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-600/10 dark:bg-green-500/20">
-                  <Zap className="h-4 w-4 text-green-700 dark:text-green-400 animate-pulse" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#8FA781]/10 dark:bg-[#A4BD95]/20">
+                  <Zap className="h-4 w-4 text-[#5E7259] dark:text-[#C5D4BC] animate-pulse" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">
@@ -242,7 +242,7 @@ export function LiveProgressStrip({ companyId }: LiveProgressStripProps) {
               </div>
 
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-xs font-medium text-green-700 dark:text-green-400">
+                <span className="text-xs font-medium text-[#5E7259] dark:text-[#C5D4BC]">
                   {session.completedCount} of {session.totalCount} complete
                 </span>
               </div>
@@ -257,9 +257,9 @@ export function LiveProgressStrip({ companyId }: LiveProgressStripProps) {
                     className="flex items-center gap-2.5 text-sm"
                   >
                     {ap.status === "done" ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
+                      <CheckCircle2 className="h-4 w-4 text-[#5E7259] dark:text-[#C5D4BC] shrink-0" />
                     ) : ap.status === "working" ? (
-                      <Loader2 className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0 animate-spin" />
+                      <Loader2 className="h-4 w-4 text-[#5E7259] dark:text-[#C5D4BC] shrink-0 animate-spin" />
                     ) : (
                       <Circle className="h-4 w-4 text-muted-foreground/30 shrink-0" />
                     )}
@@ -294,7 +294,7 @@ export function LiveProgressStrip({ companyId }: LiveProgressStripProps) {
             {/* Single agent — simpler display */}
             {session.agents.length === 1 && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground/70">
-                <Loader2 className="h-3.5 w-3.5 text-green-600 dark:text-green-400 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 text-[#5E7259] dark:text-[#C5D4BC] animate-spin" />
                 <Identity name={session.agents[0].agentName} size="xs" />
                 <span className="text-xs">{session.agents[0].agentName} is working on it…</span>
               </div>

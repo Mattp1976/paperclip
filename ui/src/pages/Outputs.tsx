@@ -273,12 +273,12 @@ export function Outputs() {
       {stats.totalCost > 0 && (
         <div className="flex items-center gap-4 text-xs text-muted-foreground/60">
           <span className="flex items-center gap-1">
-            <CheckCircle2 className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+            <CheckCircle2 className="h-3.5 w-3.5 text-[#5E7259] dark:text-[#C5D4BC]" />
             {stats.completed} completed
           </span>
           {stats.inProgress > 0 && (
             <span className="flex items-center gap-1">
-              <Loader2 className="h-3.5 w-3.5 text-green-600 dark:text-green-400 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 text-[#5E7259] dark:text-[#C5D4BC] animate-spin" />
               {stats.inProgress} in progress
             </span>
           )}
@@ -301,7 +301,7 @@ export function Outputs() {
               className={cn(
                 "flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-all border-b-2 -mb-px",
                 isActive
-                  ? "border-green-600 text-green-700 dark:text-green-400 dark:border-green-400"
+                  ? "border-[#8FA781] text-[#5E7259] dark:text-[#C5D4BC] dark:border-green-400"
                   : "border-transparent text-muted-foreground/60 hover:text-foreground hover:border-border/40",
               )}
             >
@@ -311,7 +311,7 @@ export function Outputs() {
                 <span className={cn(
                   "rounded-full px-1.5 py-0.5 text-[10px] font-medium",
                   isActive
-                    ? "bg-green-600/10 text-green-700 dark:bg-green-500/20 dark:text-green-400"
+                    ? "bg-[#8FA781]/10 text-[#5E7259] dark:bg-[#A4BD95]/20 dark:text-[#C5D4BC]"
                     : "bg-muted/50 text-muted-foreground/50",
                 )}>
                   {tab.count}
@@ -336,7 +336,7 @@ export function Outputs() {
               "w-full rounded-xl border border-border/20 dark:border-border/40 bg-white dark:bg-card",
               "pl-9 pr-4 py-2.5 text-sm",
               "placeholder:text-muted-foreground/40",
-              "focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30",
+              "focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-[#8FA781]/30",
               "transition-all",
             )}
           />
@@ -352,7 +352,7 @@ export function Outputs() {
               className={cn(
                 "rounded-xl border border-border/20 dark:border-border/40 bg-white dark:bg-card",
                 "px-3 py-2.5 text-sm text-foreground",
-                "focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30",
+                "focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-[#8FA781]/30",
                 "transition-all appearance-none pr-8",
               )}
             >
@@ -459,7 +459,7 @@ export function Outputs() {
                         className="rounded-2xl border border-green-200/40 dark:border-green-500/15 bg-green-50/40 dark:bg-green-950/20 shadow-sm shadow-black/[0.02] px-5 py-4"
                       >
                         <div className="flex items-center gap-3">
-                          <Loader2 className="h-4 w-4 text-green-600 dark:text-green-400 animate-spin shrink-0" />
+                          <Loader2 className="h-4 w-4 text-[#5E7259] dark:text-[#C5D4BC] animate-spin shrink-0" />
                           <div className="flex items-center gap-1.5 min-w-0">
                             {agent && <Identity name={agent.name} size="xs" />}
                             <span className="text-sm font-medium text-foreground truncate">

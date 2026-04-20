@@ -7,7 +7,7 @@ import { timeAgo } from "../lib/timeAgo";
 import type { Approval, Agent } from "@mattparrytfc/shared";
 
 function statusIcon(status: string) {
-  if (status === "approved") return <CheckCircle2 className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />;
+  if (status === "approved") return <CheckCircle2 className="h-3.5 w-3.5 text-[#5E7259] dark:text-[#C5D4BC]" />;
   if (status === "rejected") return <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />;
   if (status === "revision_requested") return <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />;
   if (status === "pending") return <Clock className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-400" />;
@@ -74,7 +74,7 @@ export function ApprovalCard({
         <div className="flex gap-2 mt-4 pt-3 border-t border-border">
           <Button
             size="sm"
-            className="bg-green-700 hover:bg-green-600 text-white"
+            className="bg-[#8FA781] hover:bg-[#8FA781] text-white"
             onClick={onApprove}
             disabled={isPending}
           >

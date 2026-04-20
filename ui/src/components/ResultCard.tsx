@@ -200,8 +200,8 @@ export function ResultCard({
       <div className="flex items-center gap-3 px-5 pt-4 pb-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {/* Result icon */}
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-600/10 dark:bg-green-600/20">
-            <Sparkles className="h-4 w-4 text-green-700 dark:text-green-400" />
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#8FA781]/10 dark:bg-[#8FA781]/20">
+            <Sparkles className="h-4 w-4 text-[#5E7259] dark:text-[#C5D4BC]" />
           </div>
 
           {/* Contributors */}
@@ -381,7 +381,7 @@ export function ResultCard({
                 const isPrimary = idx === 0;
                 const statusIcon =
                   r.status === "succeeded" ? (
-                    <CheckCircle2 className="h-3 w-3 text-green-600 dark:text-green-400" />
+                    <CheckCircle2 className="h-3 w-3 text-[#5E7259] dark:text-[#C5D4BC]" />
                   ) : r.status === "failed" ? (
                     <XCircle className="h-3 w-3 text-red-500" />
                   ) : (
@@ -567,7 +567,7 @@ export function ResultCard({
                 dedupeKey: `feedback:up:${primaryRun.id}`,
               });
             }}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-green-600 dark:hover:text-green-400 hover:bg-muted/60 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-[#5E7259] dark:hover:text-green-400 hover:bg-muted/60 transition-colors"
             title="Approve this result"
           >
             <ThumbsUp className="h-3 w-3" />

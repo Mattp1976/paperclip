@@ -1,9 +1,9 @@
 /**
- * HeroKpi — the big filled "hero" KPI tile.
+ * HeroKpi — the anchor "hero" KPI tile.
  *
- * Visual anchor for the dashboard's KPI row. Matches the dark-green filled
- * tile in the reference: very large numeral, subtle sub-caption, circular
- * arrow badge top-right, layered decorative rings for depth.
+ * Soft sage pastel gradient; still the visual anchor of the KPI row but
+ * airy, daylight-friendly rather than dark green. Layered decorative
+ * rings for depth, oversized numeral, circular arrow badge top-right.
  */
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
@@ -35,54 +35,55 @@ export function HeroKpi({
     <div
       className={cn(
         "group relative h-full overflow-hidden rounded-[32px] p-8 transition-all duration-300",
-        "bg-gradient-to-br from-green-700 via-green-700 to-green-900 text-white",
-        "shadow-[0_2px_4px_rgba(20,83,45,0.15),0_24px_48px_-16px_rgba(20,83,45,0.35)]",
-        "dark:from-green-600 dark:via-green-700 dark:to-green-900 dark:shadow-green-950/40",
-        (to || onClick) && "cursor-pointer hover:-translate-y-1 hover:shadow-[0_4px_8px_rgba(20,83,45,0.2),0_32px_64px_-16px_rgba(20,83,45,0.45)]",
+        // Soft sage pastel hero — still anchors the row, but airy + daylight.
+        "bg-gradient-to-br from-[#D7E4CB] via-[#E2ECD6] to-[#EDF2E4] text-[#3D4A37]",
+        "shadow-[0_1px_2px_rgba(94,114,89,0.08),0_20px_40px_-12px_rgba(94,114,89,0.20)]",
+        "dark:from-[#3B4A37] dark:via-[#3F5140] dark:to-[#2E3A2B] dark:text-[#E4EEDC]",
+        (to || onClick) && "cursor-pointer hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(94,114,89,0.10),0_28px_56px_-12px_rgba(94,114,89,0.28)]",
       )}
     >
       {/* Decorative concentric rings — adds depth like the reference */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full border border-white/10"
+        className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full border border-white/50 dark:border-white/10"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-32 -top-16 h-72 w-72 rounded-full border border-white/5"
+        className="pointer-events-none absolute -right-32 -top-16 h-72 w-72 rounded-full border border-white/30 dark:border-white/5"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-8 bottom-0 h-40 w-40 rounded-full bg-white/[0.04] blur-2xl"
+        className="pointer-events-none absolute -right-8 bottom-0 h-40 w-40 rounded-full bg-white/30 dark:bg-white/[0.04] blur-2xl"
       />
 
       <div className="relative flex h-full flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="rounded-xl bg-white/15 p-2 backdrop-blur-sm">
-              <Icon className="h-4 w-4 text-white" strokeWidth={2.2} />
+            <div className="rounded-xl bg-white/70 dark:bg-white/10 p-2 backdrop-blur-sm">
+              <Icon className="h-4 w-4 text-[#5E7259] dark:text-[#C5D4BC]" strokeWidth={2.2} />
             </div>
-            <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-green-50/80">
+            <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[#5E7259]/85 dark:text-[#C5D4BC]/80">
               {label}
             </p>
           </div>
-          <div className="rounded-full bg-white/15 p-2.5 backdrop-blur-sm transition-all duration-300 group-hover:rotate-[12deg] group-hover:bg-white/25">
-            <ArrowUpRight className="h-4 w-4 text-white" strokeWidth={2.4} />
+          <div className="rounded-full bg-white/70 dark:bg-white/10 p-2.5 backdrop-blur-sm transition-all duration-300 group-hover:rotate-[12deg] group-hover:bg-white/90 dark:group-hover:bg-white/20">
+            <ArrowUpRight className="h-4 w-4 text-[#3D4A37] dark:text-[#E4EEDC]" strokeWidth={2.4} />
           </div>
         </div>
 
         <div className="mt-8 flex items-baseline gap-2">
-          <p className="text-5xl sm:text-6xl font-semibold tabular-nums tracking-tight text-white leading-none">
+          <p className="text-5xl sm:text-6xl font-semibold tabular-nums tracking-tight leading-none">
             {value}
           </p>
           {trend && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/60 dark:bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-[#3D4A37] dark:text-[#E4EEDC] backdrop-blur-sm">
               {trend}
             </span>
           )}
         </div>
 
         {description && (
-          <div className="mt-3 text-[13px] leading-relaxed text-green-50/80">
+          <div className="mt-3 text-[13px] leading-relaxed text-[#5E7259]/85 dark:text-[#C5D4BC]/80">
             {description}
           </div>
         )}

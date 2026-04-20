@@ -21,8 +21,12 @@
     <script>
       (() => {
         const key = "paperclip.theme";
-        const darkThemeColor = "#18181b";
-        const lightThemeColor = "#ffffff";
+        const versionKey = "paperclip.themeVersion";
+        // Bump this when the palette changes to reset all users onto the
+        // new default (light) so they experience the redesigned look first.
+        const paletteVersion = "pastel-2026-04";
+        const darkThemeColor = "#faf7f2";
+        const lightThemeColor = "#faf7f2";
         try {
           // URL-based theme reset: visiting ?theme=light or ?theme=dark will
           // overwrite the stored preference and strip the query param so
@@ -31,6 +35,7 @@
           const override = params.get("theme");
           if (override === "light" || override === "dark") {
             window.localStorage.setItem(key, override);
+            window.localStorage.setItem(versionKey, paletteVersion);
             params.delete("theme");
             const cleaned = params.toString();
             const newUrl =
@@ -38,6 +43,13 @@
               (cleaned ? "?" + cleaned : "") +
               window.location.hash;
             window.history.replaceState({}, "", newUrl);
+          }
+          // One-time migration: when the palette version bumps, reset any
+          // stored dark preference so users see the pastel light palette.
+          const storedVersion = window.localStorage.getItem(versionKey);
+          if (storedVersion !== paletteVersion) {
+            window.localStorage.setItem(key, "light");
+            window.localStorage.setItem(versionKey, paletteVersion);
           }
           const stored = window.localStorage.getItem(key);
           const theme = stored === "light" || stored === "dark" ? stored : "light";

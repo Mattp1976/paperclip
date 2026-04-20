@@ -106,19 +106,19 @@ export function PillRunChart({ runs }: PillRunChartProps) {
                   <div className="flex h-full flex-col-reverse">
                     {e.succeeded > 0 && (
                       <div
-                        className="bg-green-600 dark:bg-green-500"
+                        className="bg-[#8FA781] dark:bg-[#A4BD95]"
                         style={{ flex: e.succeeded }}
                       />
                     )}
                     {e.other > 0 && (
                       <div
-                        className="bg-neutral-400 dark:bg-neutral-500"
+                        className="bg-[#C8C0B4] dark:bg-[#7A7266]"
                         style={{ flex: e.other }}
                       />
                     )}
                     {e.failed > 0 && (
                       <div
-                        className="bg-red-500"
+                        className="bg-[#C47878] dark:bg-[#D9A5A5]"
                         style={{ flex: e.failed }}
                       />
                     )}
@@ -152,15 +152,15 @@ export function PillRunChart({ runs }: PillRunChartProps) {
 
       <div className="mt-3 flex items-center gap-3 border-t border-border/30 pt-3 text-[10px] text-muted-foreground/70">
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-green-600" />
+          <span className="h-2 w-2 rounded-full bg-[#8FA781]" />
           Succeeded
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-red-500" />
+          <span className="h-2 w-2 rounded-full bg-[#C47878]" />
           Failed
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-neutral-400" />
+          <span className="h-2 w-2 rounded-full bg-[#C8C0B4]" />
           Other
         </span>
         <span className="ml-auto flex items-center gap-1.5">

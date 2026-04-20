@@ -88,7 +88,7 @@ export function InstanceExperimentalSettings() {
             disabled={toggleMutation.isPending}
             className={cn(
               "relative inline-flex h-5 w-9 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60",
-              enableIsolatedWorkspaces ? "bg-green-600" : "bg-muted",
+              enableIsolatedWorkspaces ? "bg-[#8FA781]" : "bg-muted",
             )}
             onClick={() => toggleMutation.mutate({ enableIsolatedWorkspaces: !enableIsolatedWorkspaces })}
           >
@@ -117,7 +117,7 @@ export function InstanceExperimentalSettings() {
             disabled={toggleMutation.isPending}
             className={cn(
               "relative inline-flex h-5 w-9 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60",
-              autoRestartDevServerWhenIdle ? "bg-green-600" : "bg-muted",
+              autoRestartDevServerWhenIdle ? "bg-[#8FA781]" : "bg-muted",
             )}
             onClick={() =>
               toggleMutation.mutate({ autoRestartDevServerWhenIdle: !autoRestartDevServerWhenIdle })

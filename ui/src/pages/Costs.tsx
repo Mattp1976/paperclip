@@ -691,7 +691,7 @@ export function Costs() {
                                 ? "bg-red-400"
                                 : spendData.summary.utilizationPercent > 70
                                   ? "bg-yellow-400"
-                                  : "bg-green-400",
+                                  : "bg-[#B5C4B1]",
                             )}
                             style={{ width: `${Math.min(100, spendData.summary.utilizationPercent)}%` }}
                           />

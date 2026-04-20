@@ -22,7 +22,7 @@ import type { HeartbeatRun } from "@mattparrytfc/shared";
 /* ── helpers ──────────────────────────────────────────────────── */
 
 function statusIcon(s: string) {
-  if (s === "succeeded") return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+  if (s === "succeeded") return <CheckCircle2 className="h-4 w-4 text-[#5E7259]" />;
   if (s === "failed") return <XCircle className="h-4 w-4 text-red-500" />;
   if (s === "cancelled") return <Minus className="h-4 w-4 text-zinc-400" />;
   if (s === "timed_out") return <Clock className="h-4 w-4 text-amber-500" />;
@@ -241,7 +241,7 @@ function StatCard({
       <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
         {icon}
         {label}
-        {trend === "up" && <TrendingUp className="h-3 w-3 text-green-600 ml-auto" />}
+        {trend === "up" && <TrendingUp className="h-3 w-3 text-[#5E7259] ml-auto" />}
         {trend === "down" && <TrendingDown className="h-3 w-3 text-red-500 ml-auto" />}
         {trend === "flat" && <Minus className="h-3 w-3 text-zinc-400 ml-auto" />}
       </div>
@@ -255,12 +255,12 @@ function StatCard({
 
 function InsightCard({ insight }: { insight: Insight }) {
   const iconMap = {
-    success: <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />,
+    success: <CheckCircle2 className="h-4 w-4 text-[#5E7259] mt-0.5 shrink-0" />,
     warning: <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />,
     suggestion: <Lightbulb className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />,
   };
   const borderMap = {
-    success: "border-green-600/20",
+    success: "border-[#8FA781]/20",
     warning: "border-amber-500/20",
     suggestion: "border-blue-500/20",
   };
@@ -426,7 +426,7 @@ export function AgentPerformance({ agentId, companyId }: AgentPerformanceProps) 
             Run Activity (last 14 days)
           </h3>
           <span className="text-xs text-muted-foreground">
-            <span className="inline-block w-2 h-2 rounded-sm bg-green-600 mr-1" /> success
+            <span className="inline-block w-2 h-2 rounded-sm bg-[#8FA781] mr-1" /> success
             <span className="inline-block w-2 h-2 rounded-sm bg-red-500 ml-2 mr-1" /> failure
           </span>
         </div>

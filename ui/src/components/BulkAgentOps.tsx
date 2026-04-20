@@ -325,7 +325,7 @@ export function BulkAgentOps({ companyId }: BulkAgentOpsProps) {
                   <div
                     className={cn(
                       "h-full transition-all duration-300",
-                      failCount > 0 ? "bg-amber-500" : "bg-green-500",
+                      failCount > 0 ? "bg-amber-500" : "bg-[#A4BD95]",
                     )}
                     style={{ width: `${(progress.done / progress.total) * 100}%` }}
                   />
@@ -351,7 +351,7 @@ export function BulkAgentOps({ companyId }: BulkAgentOpsProps) {
               )}
 
               {!running && results.length > 0 && failCount === 0 && (
-                <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                <p className="text-xs text-[#5E7259] dark:text-[#C5D4BC] flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" />
                   All {successCount} operations completed successfully
                 </p>

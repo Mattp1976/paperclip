@@ -27,24 +27,24 @@ function statusChip(status: LiveRunForIssue["status"]) {
       return {
         label: "Running",
         className:
-          "bg-green-100/80 text-green-800 border-green-200/70 dark:bg-green-900/40 dark:text-green-200 dark:border-green-800/50",
-        dotClass: "bg-green-600",
+          "bg-[#E4EEDC] text-[#3D4A37] border-[#C5D4BC] dark:bg-[#3B4A37]/50 dark:text-[#C5D4BC] dark:border-[#5E7259]/50",
+        dotClass: "bg-[#8FA781]",
         pulse: true,
       };
     case "queued":
       return {
         label: "Queued",
         className:
-          "bg-amber-100/80 text-amber-800 border-amber-200/70 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-800/50",
-        dotClass: "bg-amber-500",
+          "bg-[#F5E6C8] text-[#7A5A1E] border-[#E6D4A8] dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-800/50",
+        dotClass: "bg-[#D4A860]",
         pulse: false,
       };
     case "succeeded":
       return {
         label: "Succeeded",
         className:
-          "bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50",
-        dotClass: "bg-emerald-500",
+          "bg-[#EDF2E4] text-[#5E7259] border-[#D7E4CB] dark:bg-[#3B4A37]/35 dark:text-[#C5D4BC] dark:border-[#5E7259]/40",
+        dotClass: "bg-[#8FA781]",
         pulse: false,
       };
     case "failed":
@@ -52,8 +52,8 @@ function statusChip(status: LiveRunForIssue["status"]) {
       return {
         label: status === "timed_out" ? "Timeout" : "Failed",
         className:
-          "bg-red-50 text-red-700 border-red-200/80 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800/50",
-        dotClass: "bg-red-500",
+          "bg-[#F5E5E5] text-[#7A3A3A] border-[#E6C7C7] dark:bg-red-950/40 dark:text-[#F0C7C7] dark:border-red-800/50",
+        dotClass: "bg-[#C47878]",
         pulse: false,
       };
     default:

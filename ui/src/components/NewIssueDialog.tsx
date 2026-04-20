@@ -1213,7 +1213,7 @@ export function NewIssueDialog() {
                     <button
                       className={cn(
                         "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
-                        assigneeChrome ? "bg-green-600" : "bg-muted"
+                        assigneeChrome ? "bg-[#8FA781]" : "bg-muted"
                       )}
                       onClick={() => setAssigneeChrome((value) => !value)}
                     >

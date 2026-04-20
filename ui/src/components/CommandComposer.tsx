@@ -48,7 +48,7 @@ const MODE_META: Record<ComposerMode, { icon: typeof MessageSquare; label: strin
     icon: ListTodo,
     label: "Task",
     placeholder: "Describe a task you want done...",
-    color: "text-green-600",
+    color: "text-[#5E7259]",
   },
   decision: {
     icon: MessageSquare,
@@ -425,14 +425,14 @@ export function CommandComposer() {
         <div className={cn(
           "w-full max-w-2xl rounded-xl border bg-background shadow-2xl overflow-hidden transition-colors duration-200",
           mode === "ask" && "border-blue-500/30",
-          mode === "task" && "border-green-600/30",
+          mode === "task" && "border-[#8FA781]/30",
           mode === "decision" && "border-amber-500/30",
         )}>
           {/* Mode accent bar */}
           <div className={cn(
             "h-1 w-full transition-colors duration-200",
             mode === "ask" && "bg-blue-500",
-            mode === "task" && "bg-green-600",
+            mode === "task" && "bg-[#8FA781]",
             mode === "decision" && "bg-amber-500",
           )} />
           {/* Header */}
@@ -521,7 +521,7 @@ export function CommandComposer() {
               className={cn(
                 "gap-1.5 transition-colors",
                 mode === "ask" && "bg-blue-600 hover:bg-blue-700",
-                mode === "task" && "bg-green-700 hover:bg-green-800",
+                mode === "task" && "bg-[#8FA781] hover:bg-[#7C9470]",
                 mode === "decision" && "bg-amber-600 hover:bg-amber-700",
               )}
             >

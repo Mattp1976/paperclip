@@ -6,9 +6,9 @@ import { cn } from "../lib/utils";
 const STATUS_CONFIG = {
   healthy: {
     icon: Activity,
-    color: "text-green-700 dark:text-green-400",
+    color: "text-[#5E7259] dark:text-[#C5D4BC]",
     bg: "bg-green-50 dark:bg-green-950/40",
-    border: "border-green-200 dark:border-green-800/50",
+    border: "border-green-200 dark:border-[#5E7259]/50",
     label: "Scheduler healthy",
   },
   degraded: {

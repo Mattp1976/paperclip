@@ -41,7 +41,7 @@ export function SidebarNavItem({
         cn(
           "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150",
           isActive
-            ? "bg-gradient-to-br from-green-700 to-green-800 text-white shadow-[0_1px_2px_rgba(20,83,45,0.15),0_8px_16px_-8px_rgba(20,83,45,0.4)] dark:from-green-600 dark:to-green-700"
+            ? "bg-gradient-to-br from-[#8FA781] to-[#7C9470] text-white shadow-[0_1px_2px_rgba(94,114,89,0.15),0_8px_16px_-8px_rgba(94,114,89,0.40)] dark:from-[#A4BD95] dark:to-[#8FA781] dark:text-[#22251F]"
             : "text-muted-foreground/80 hover:bg-white/70 dark:hover:bg-white/5 hover:text-foreground",
           className,
         )
@@ -82,20 +82,20 @@ export function SidebarNavItem({
                 <span
                   className={cn(
                     "animate-pulse absolute inline-flex h-full w-full rounded-full opacity-75",
-                    isActive ? "bg-white" : "bg-green-400",
+                    isActive ? "bg-white" : "bg-[#B5C4B1]",
                   )}
                 />
                 <span
                   className={cn(
                     "relative inline-flex rounded-full h-2 w-2",
-                    isActive ? "bg-white" : "bg-green-600",
+                    isActive ? "bg-white" : "bg-[#8FA781]",
                   )}
                 />
               </span>
               <span
                 className={cn(
                   "text-[11px] font-medium",
-                  isActive ? "text-white" : "text-green-700 dark:text-green-400",
+                  isActive ? "text-white" : "text-[#5E7259] dark:text-[#C5D4BC]",
                 )}
               >
                 {liveCount} live
@@ -107,10 +107,10 @@ export function SidebarNavItem({
               className={cn(
                 "ml-auto rounded-full px-1.5 py-0.5 text-xs leading-none font-medium",
                 isActive
-                  ? "bg-white/20 text-white"
+                  ? "bg-white/25 text-white"
                   : badgeTone === "danger"
-                    ? "bg-red-600/90 text-red-50"
-                    : "bg-green-700 text-white dark:bg-green-600",
+                    ? "bg-[#C47878] text-white"
+                    : "bg-[#8FA781] text-white dark:bg-[#A4BD95] dark:text-[#22251F]",
               )}
             >
               {badge}

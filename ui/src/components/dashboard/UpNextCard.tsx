@@ -135,9 +135,9 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
   })();
 
   const pillToneClass = {
-    amber: "bg-amber-100/80 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200",
-    green: "bg-green-100/80 text-green-900 dark:bg-green-900/40 dark:text-green-200",
-    red: "bg-red-100/80 text-red-900 dark:bg-red-900/40 dark:text-red-200",
+    amber: "bg-[#F5E6C8] text-[#7A5A1E] dark:bg-amber-900/40 dark:text-amber-200",
+    green: "bg-[#E4EEDC] text-[#3D4A37] dark:bg-[#3B4A37]/60 dark:text-[#C5D4BC]",
+    red: "bg-[#F5E5E5] text-[#7A3A3A] dark:bg-red-900/40 dark:text-[#F0C7C7]",
     neutral: "bg-muted text-foreground/80",
   }[content.pillTone];
 
@@ -171,8 +171,8 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
       </div>
 
       <div className="mt-7 flex items-start gap-4">
-        <div className="rounded-2xl bg-green-700/10 dark:bg-green-900/30 p-3">
-          <Icon className="h-5 w-5 text-green-700 dark:text-green-400" strokeWidth={2.2} />
+        <div className="rounded-2xl bg-[#E4EEDC] dark:bg-[#3B4A37]/50 p-3">
+          <Icon className="h-5 w-5 text-[#5E7259] dark:text-[#C5D4BC]" strokeWidth={2.2} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-lg font-semibold leading-snug text-foreground line-clamp-2 tracking-tight">
@@ -188,7 +188,7 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
         {content.ctaHref ? (
           <Link
             to={content.ctaHref}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-green-700 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(20,83,45,0.15),0_12px_24px_-8px_rgba(20,83,45,0.3)] transition-all hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(20,83,45,0.2),0_16px_32px_-8px_rgba(20,83,45,0.4)] active:translate-y-0 dark:bg-green-600 dark:text-green-950 dark:hover:bg-green-500 no-underline"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#8FA781] px-4 py-3.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-[#A4BD95] dark:text-[#22251F] dark:hover:bg-[#B5C4B1] no-underline"
           >
             {content.ctaLabel}
             <ArrowRight className="h-4 w-4" />
@@ -197,7 +197,7 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
           <button
             type="button"
             onClick={content.ctaOnClick}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-green-700 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(20,83,45,0.15),0_12px_24px_-8px_rgba(20,83,45,0.3)] transition-all hover:bg-green-600 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(20,83,45,0.2),0_16px_32px_-8px_rgba(20,83,45,0.4)] active:translate-y-0 dark:bg-green-600 dark:text-green-950 dark:hover:bg-green-500"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#8FA781] px-4 py-3.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-[#A4BD95] dark:text-[#22251F] dark:hover:bg-[#B5C4B1]"
           >
             <Plus className="h-4 w-4" />
             {content.ctaLabel}

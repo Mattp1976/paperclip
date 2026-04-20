@@ -88,7 +88,7 @@ export function RunActivityChart({ runs }: { runs: HeartbeatRun[] }) {
             <div key={day} className="flex-1 h-full flex flex-col justify-end" title={`${day}: ${total} runs`}>
               {total > 0 ? (
                 <div className="flex flex-col-reverse gap-px overflow-hidden" style={{ height: `${heightPct}%`, minHeight: 2 }}>
-                  {entry.succeeded > 0 && <div className="bg-green-600" style={{ flex: entry.succeeded }} />}
+                  {entry.succeeded > 0 && <div className="bg-[#8FA781]" style={{ flex: entry.succeeded }} />}
                   {entry.failed > 0 && <div className="bg-red-500" style={{ flex: entry.failed }} />}
                   {entry.other > 0 && <div className="bg-neutral-500" style={{ flex: entry.other }} />}
                 </div>

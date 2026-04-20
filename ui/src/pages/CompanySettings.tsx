@@ -320,7 +320,7 @@ export function CompanySettings() {
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={brandColor || "#6366f1"}
+                    value={brandColor || "#8FA781"}
                     onChange={(e) => setBrandColor(e.target.value)}
                     className="h-8 w-8 cursor-pointer rounded border border-border bg-transparent p-0"
                   />
@@ -426,7 +426,7 @@ export function CompanySettings() {
                 {snippetCopied && (
                   <span
                     key={snippetCopyDelightId}
-                    className="flex items-center gap-1 text-xs text-green-600 animate-pulse"
+                    className="flex items-center gap-1 text-xs text-[#5E7259] animate-pulse"
                   >
                     <Check className="h-3 w-3" />
                     Copied

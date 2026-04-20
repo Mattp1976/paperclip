@@ -101,16 +101,19 @@ function makeCompanyPatternDataUrl(seed: string, brandColor?: string | null, log
 
   const rand = mulberry32(hashString(seed));
 
+  // Pastel palette: low-saturation, mid-lightness base with a softer,
+  // slightly warmer foreground so icons read as airy watercolor chips
+  // rather than saturated brand swatches.
   const hue = brandColor ? hexToHue(brandColor) : Math.floor(rand() * 360);
   const [offR, offG, offB] = hslToRgb(
     hue,
-    54 + Math.floor(rand() * 14),
-    36 + Math.floor(rand() * 12),
+    22 + Math.floor(rand() * 10),   // 22–31% saturation (muted)
+    52 + Math.floor(rand() * 10),   // 52–61% lightness (mid-tone)
   );
   const [onR, onG, onB] = hslToRgb(
-    hue + (rand() > 0.5 ? 10 : -10),
-    86 + Math.floor(rand() * 10),
-    82 + Math.floor(rand() * 10),
+    hue + (rand() > 0.5 ? 8 : -8),
+    38 + Math.floor(rand() * 14),   // 38–51% saturation (still soft)
+    88 + Math.floor(rand() * 6),    // 88–93% lightness (pastel highlight)
   );
 
   const center = (logicalSize - 1) / 2;
@@ -203,7 +206,7 @@ export function CompanyPatternIcon({
         <div className="absolute inset-0 bg-muted" />
       )}
       {!logo && (
-        <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)]">
+        <span className="relative z-10 text-[#3D4A37]/90 drop-shadow-[0_1px_2px_rgba(255,255,255,0.55)]">
           {initial}
         </span>
       )}
