@@ -24,6 +24,21 @@
         const darkThemeColor = "#18181b";
         const lightThemeColor = "#ffffff";
         try {
+          // URL-based theme reset: visiting ?theme=light or ?theme=dark will
+          // overwrite the stored preference and strip the query param so
+          // reloads stay clean. Useful when the toggle isn't reachable.
+          const params = new URLSearchParams(window.location.search);
+          const override = params.get("theme");
+          if (override === "light" || override === "dark") {
+            window.localStorage.setItem(key, override);
+            params.delete("theme");
+            const cleaned = params.toString();
+            const newUrl =
+              window.location.pathname +
+              (cleaned ? "?" + cleaned : "") +
+              window.location.hash;
+            window.history.replaceState({}, "", newUrl);
+          }
           const stored = window.localStorage.getItem(key);
           const theme = stored === "light" || stored === "dark" ? stored : "light";
           const isDark = theme === "dark";
