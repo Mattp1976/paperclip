@@ -34,21 +34,21 @@ const QUICK_MODES: Record<
   task: {
     icon: ListTodo,
     label: "Task",
-    hint: "Describe what you need done...",
+    hint: "What would you like done?",
     color: "text-sage-ink",
     bg: "bg-primary/10 border-primary/20",
   },
   ask: {
     icon: HelpCircle,
     label: "Ask",
-    hint: "Ask a question to your agents...",
+    hint: "What would you like to know?",
     color: "text-blue-500",
     bg: "bg-blue-500/10 border-blue-500/20",
   },
   decision: {
     icon: MessageSquare,
     label: "Decide",
-    hint: "Describe a decision that needs to be made...",
+    hint: "What should your team decide?",
     color: "text-amber-500",
     bg: "bg-amber-500/10 border-amber-500/20",
   },
@@ -339,11 +339,11 @@ export function QuickInputBar() {
           <div className="flex items-start gap-3">
             <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#7C9470] dark:text-sage-soft" />
             <div className="text-xs leading-relaxed text-sage-body dark:text-sage-ink-dim">
-              <p className="font-medium">This is your agent composer.</p>
+              <p className="font-medium">Tell your team what you need.</p>
               <p className="mt-0.5 text-sage-body/75 dark:text-sage-ink-dim/75">
-                Type what you want an agent to do, ask, or decide. Pick an agent with a chip or
-                just say <span className="font-medium">"tell Eleanor …"</span> and one of your
-                agents will pick it up. <kbd className="rounded border border-border bg-background/60 px-1 py-0.5 font-mono text-[10px]">/</kbd> focuses the bar, <kbd className="rounded border border-border bg-background/60 px-1 py-0.5 font-mono text-[10px]">Tab</kbd> switches mode.
+                Type it in plain English — "draft an email to Jamie", "should we ship on Friday?",
+                "what did Eleanor finish yesterday?". Your agents pick it up from there. You can pick
+                someone specific with a chip, or just mention them by name ("ask Eleanor…").
               </p>
             </div>
           </div>
@@ -401,13 +401,10 @@ export function QuickInputBar() {
             className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none"
           />
           {!isExpanded && (
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
-              <kbd className="rounded border border-border bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none opacity-60">
+              <kbd className="rounded border border-border/60 bg-muted/40 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground/70">
                 /
               </kbd>
-              <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                to focus
-              </span>
             </div>
           )}
         </div>
@@ -439,8 +436,8 @@ export function QuickInputBar() {
       {isExpanded && activeAgents.length > 0 && (
         <div className="border-t border-border px-4 py-2.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] font-medium text-muted-foreground/60 shrink-0">
-              Assign to
+            <span className="text-[11px] text-muted-foreground shrink-0">
+              Who should handle this?
             </span>
             {activeAgents.map((agent) => (
               <AgentChip
@@ -478,21 +475,26 @@ export function QuickInputBar() {
             </div>
           )}
 
-          {/* Keyboard hints */}
-          <div className="mt-2 flex items-center gap-3 text-[10px] text-muted-foreground">
-            <span>
-              <kbd className="rounded border border-border bg-muted px-1 py-0.5 font-mono">
-                Enter
-              </kbd>{" "}
-              to send
-            </span>
-            <span>
-              <kbd className="rounded border border-border bg-muted px-1 py-0.5 font-mono">
-                Tab
-              </kbd>{" "}
-              switch mode
-            </span>
-          </div>
+          {/* Subtle keyboard hints — collapsed by default so the surface reads as a human prompt */}
+          <details className="group mt-2">
+            <summary className="inline-flex cursor-pointer items-center gap-1 text-[10px] text-muted-foreground/60 transition-colors hover:text-muted-foreground list-none [&::-webkit-details-marker]:hidden">
+              Keyboard shortcuts
+            </summary>
+            <div className="mt-1.5 flex items-center gap-3 text-[10px] text-muted-foreground/80">
+              <span>
+                <kbd className="rounded border border-border bg-muted px-1 py-0.5 font-mono">Enter</kbd>{" "}
+                to send
+              </span>
+              <span>
+                <kbd className="rounded border border-border bg-muted px-1 py-0.5 font-mono">Tab</kbd>{" "}
+                switches task / ask / decide
+              </span>
+              <span>
+                <kbd className="rounded border border-border bg-muted px-1 py-0.5 font-mono">/</kbd>{" "}
+                jumps here from anywhere
+              </span>
+            </div>
+          </details>
         </div>
       )}
 
