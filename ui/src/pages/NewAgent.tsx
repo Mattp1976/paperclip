@@ -18,6 +18,7 @@ import { Shield, User } from "lucide-react";
 import { cn, agentUrl } from "../lib/utils";
 import { roleLabels } from "../components/agent-config-primitives";
 import { AgentConfigForm, type CreateConfigValues } from "../components/AgentConfigForm";
+import { PageHeader } from "../components/PageHeader";
 import { defaultCreateValues } from "../components/agent-config-defaults";
 import { getUIAdapter } from "../adapters";
 import { AgentIcon } from "../components/AgentIconPicker";
@@ -213,12 +214,10 @@ export function NewAgent() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-lg font-semibold">New Agent</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Advanced agent configuration
-        </p>
-      </div>
+      <PageHeader
+        title="New Agent"
+        subtitle="Advanced agent configuration — name, role, reporting line, and per-skill permissions."
+      />
 
       <div className="border border-border">
         {/* Name */}

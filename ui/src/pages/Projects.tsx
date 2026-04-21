@@ -8,6 +8,7 @@ import { queryKeys } from "../lib/queryKeys";
 import { EntityRow } from "../components/EntityRow";
 import { StatusBadge } from "../components/StatusBadge";
 import { EmptyState } from "../components/EmptyState";
+import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { formatDate, projectUrl } from "../lib/utils";
 import { Button } from "@/components/ui/button";
@@ -41,13 +42,17 @@ export function Projects() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-end">
-        <Button size="sm" variant="outline" onClick={openNewProject}>
-          <Plus className="h-4 w-4 mr-1" />
-          Add Project
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Projects"
+        subtitle="Organise related tasks and agents into projects to track larger initiatives."
+        actions={
+          <Button variant="sage" onClick={openNewProject}>
+            <Plus className="mr-1.5 h-4 w-4" />
+            Add Project
+          </Button>
+        }
+      />
 
       {error && <p className="text-sm text-destructive">{error.message}</p>}
 

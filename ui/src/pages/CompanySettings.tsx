@@ -8,7 +8,8 @@ import { accessApi } from "../api/access";
 import { assetsApi } from "../api/assets";
 import { queryKeys } from "../lib/queryKeys";
 import { Button } from "@/components/ui/button";
-import { Settings, Check, Download, Upload } from "lucide-react";
+import { Check, Download, Upload } from "lucide-react";
+import { PageHeader } from "../components/PageHeader";
 import { CompanyPatternIcon } from "../components/CompanyPatternIcon";
 import {
   Field,
@@ -222,10 +223,10 @@ export function CompanySettings() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="flex items-center gap-2">
-        <Settings className="h-5 w-5 text-muted-foreground" />
-        <h1 className="text-lg font-semibold">Company Settings</h1>
-      </div>
+      <PageHeader
+        title="Company Settings"
+        subtitle="Company identity, brand colour, defaults, and integrations."
+      />
 
       {/* General */}
       <div className="space-y-4">

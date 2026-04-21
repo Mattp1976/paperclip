@@ -12,6 +12,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { agentStatusDot, agentStatusDotDefault } from "../lib/status-colors";
 import { EntityRow } from "../components/EntityRow";
 import { EmptyState } from "../components/EmptyState";
+import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { relativeTime, cn, agentRouteRef, agentUrl } from "../lib/utils";
 import { PageTabBar } from "../components/PageTabBar";
@@ -130,24 +131,16 @@ export function Agents() {
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Agents</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground/70">
-            Manage your AI workforce and monitor agent performance.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={openNewAgent}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#8FA781] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#8FA781] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#8FA781] dark:hover:bg-[#A4BD95] dark:text-[#22251F]"
-          >
-            <Plus className="h-4 w-4" />
+      <PageHeader
+        title="Agents"
+        subtitle="Manage your AI workforce and monitor agent performance."
+        actions={
+          <Button variant="sage" onClick={openNewAgent}>
+            <Plus className="mr-1.5 h-4 w-4" />
             New Agent
-          </button>
-        </div>
-      </div>
+          </Button>
+        }
+      />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Tabs value={tab} onValueChange={(v) => navigate(`/agents/${v}`)}>

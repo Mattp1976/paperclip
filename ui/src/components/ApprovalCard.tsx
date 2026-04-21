@@ -74,7 +74,7 @@ export function ApprovalCard({
         <div className="flex gap-2 mt-4 pt-3 border-t border-border">
           <Button
             size="sm"
-            className="bg-[#8FA781] hover:bg-[#8FA781] text-white"
+            variant="sage"
             onClick={onApprove}
             disabled={isPending}
           >

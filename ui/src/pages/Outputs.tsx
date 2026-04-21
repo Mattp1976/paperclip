@@ -23,6 +23,7 @@ import {
 import { issuesApi } from "../api/issues";
 import { Identity } from "../components/Identity";
 import { EmptyState } from "../components/EmptyState";
+import { PageHeader } from "../components/PageHeader";
 import { cn, friendlyCost, visibleRunCostUsd } from "../lib/utils";
 import { Sparkles, Search, Filter, Zap, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import type { HeartbeatRun, Agent } from "@mattparrytfc/shared";
@@ -259,15 +260,10 @@ export function Outputs() {
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Results
-        </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground/70">
-          Everything your agents have produced, in one place.
-        </p>
-      </div>
+      <PageHeader
+        title="Results"
+        subtitle="Everything your agents have produced, in one place."
+      />
 
       {/* Summary strip */}
       {stats.totalCost > 0 && (

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Clock3, ExternalLink, Settings } from "lucide-react";
+import { Clock3, ExternalLink } from "lucide-react";
+import { PageHeader } from "../components/PageHeader";
 import type { InstanceSchedulerHeartbeatAgent } from "@mattparrytfc/shared";
 import { Link } from "@/lib/router";
 import { heartbeatsApi } from "../api/heartbeats";
@@ -110,15 +111,11 @@ export function InstanceSettings() {
 
   return (
     <div className="max-w-5xl space-y-6">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Settings className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Scheduler Heartbeats</h1>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Agents with a timer heartbeat enabled across all of your companies.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Instance Settings"
+        title="Scheduler Heartbeats"
+        subtitle="Agents with a timer heartbeat enabled across all of your companies."
+      />
 
       <div className="flex gap-4 text-sm text-muted-foreground">
         <span><span className="font-semibold text-foreground">{activeCount}</span> active</span>

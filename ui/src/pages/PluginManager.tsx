@@ -13,6 +13,7 @@ import { useCompany } from "@/context/CompanyContext";
 import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import { pluginsApi } from "@/api/plugins";
 import { queryKeys } from "@/lib/queryKeys";
+import { PageHeader } from "../components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -160,20 +161,20 @@ export function PluginManager() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Puzzle className="h-6 w-6 text-muted-foreground" />
-          <h1 className="text-xl font-semibold">Plugin Manager</h1>
-        </div>
-        
-        <Dialog open={installDialogOpen} onOpenChange={setInstallDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Install Plugin
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
+      <Dialog open={installDialogOpen} onOpenChange={setInstallDialogOpen}>
+        <PageHeader
+          title="Plugin Manager"
+          subtitle="Extend Paperclip with additional skills, integrations, and UI surfaces. Plugins install from npm and can be enabled per company."
+          actions={
+            <DialogTrigger asChild>
+              <Button size="sm" variant="sage" className="gap-2">
+                <Plus className="h-4 w-4" />
+                Install Plugin
+              </Button>
+            </DialogTrigger>
+          }
+        />
+        <DialogContent>
             <DialogHeader>
               <DialogTitle>Install Plugin</DialogTitle>
               <DialogDescription>
@@ -201,8 +202,7 @@ export function PluginManager() {
               </Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
-      </div>
+      </Dialog>
 
       <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
         <div className="flex items-start gap-3">

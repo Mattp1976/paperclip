@@ -264,7 +264,7 @@ export function Swarm() {
         <div>
           <h1 className="text-lg font-semibold">Swarm</h1>
           <p className="text-xs text-muted-foreground">
-            {nodes.length} agents · {activeAgentIds.size} active
+            Live network view · {nodes.length} agents · {activeAgentIds.size} active
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs">

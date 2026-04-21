@@ -11,6 +11,8 @@ import { queryKeys } from "../lib/queryKeys";
 import { createIssueDetailLocationState } from "../lib/issueDetailBreadcrumb";
 import { EmptyState } from "../components/EmptyState";
 import { IssuesList } from "../components/IssuesList";
+import { PageHeader } from "../components/PageHeader";
+import { Button } from "@/components/ui/button";
 import { CircleDot, Plus } from "lucide-react";
 import { useDialog } from "../context/DialogContext";
 
@@ -77,7 +79,7 @@ export function Issues() {
   const issueLinkState = useMemo(
     () =>
       createIssueDetailLocationState(
-        "Issues",
+        "Tasks",
         `${location.pathname}${location.search}${location.hash}`,
       ),
     [location.pathname, location.search, location.hash],
@@ -102,28 +104,21 @@ export function Issues() {
   });
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={CircleDot} message="Select a company to view issues." />;
+    return <EmptyState icon={CircleDot} message="Select a company to view tasks." />;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Issues</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground/70">
-            Track tasks, bugs, and work items across your agents.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => openNewIssue()}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#8FA781] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#8FA781] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#8FA781] dark:hover:bg-[#A4BD95] dark:text-[#22251F]"
-          >
-            <Plus className="h-4 w-4" />
-            New Issue
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Tasks"
+        subtitle="Everything your agents are working on — assign, track, and review."
+        actions={
+          <Button variant="sage" onClick={() => openNewIssue()}>
+            <Plus className="mr-1.5 h-4 w-4" />
+            New Task
+          </Button>
+        }
+      />
     <IssuesList
       issues={issues ?? []}
       isLoading={isLoading}

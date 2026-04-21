@@ -5,6 +5,7 @@ import { FleetAnalytics } from "../components/FleetAnalytics";
 import { FleetHealthOverview } from "../components/FleetHealthOverview";
 import { AgentLeaderboard } from "../components/AgentLeaderboard";
 import { BulkAgentOps } from "../components/BulkAgentOps";
+import { PageHeader } from "../components/PageHeader";
 import { RunHistoryChart } from "../components/RunHistoryChart";
 
 export function Fleet() {
@@ -24,6 +25,10 @@ export function Fleet() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Fleet"
+        subtitle="Health, throughput, and leaderboards across every agent in this company."
+      />
       <FleetHealthOverview companyId={selectedCompanyId} />
       <RunHistoryChart companyId={selectedCompanyId} />
       <AgentLeaderboard companyId={selectedCompanyId} />

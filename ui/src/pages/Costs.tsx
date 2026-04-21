@@ -12,6 +12,7 @@ import type {
 import { ArrowDownLeft, ArrowUpRight, ChevronDown, ChevronRight, Coins, DollarSign, ReceiptText } from "lucide-react";
 import { budgetsApi } from "../api/budgets";
 import { costsApi } from "../api/costs";
+import { PageHeader } from "../components/PageHeader";
 import { BillerSpendCard } from "../components/BillerSpendCard";
 import { BudgetIncidentCard } from "../components/BudgetIncidentCard";
 import { BudgetPolicyCard } from "../components/BudgetPolicyCard";
@@ -80,15 +81,15 @@ function MetricTile({
   icon: ComponentType<{ className?: string }>;
 }) {
   return (
-    <div className="border border-border p-4">
-      <div className="flex items-center justify-between gap-3">
+    <div className="rounded-2xl border border-border/40 bg-white dark:bg-card p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-16px_rgba(0,0,0,0.05)]">
+      <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{label}</div>
-          <div className="mt-2 text-2xl font-semibold tabular-nums">{value}</div>
+          <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground/80">{label}</div>
+          <div className="mt-2 text-2xl font-semibold tabular-nums text-foreground">{value}</div>
           <div className="mt-1 text-xs leading-5 text-muted-foreground">{subtitle}</div>
         </div>
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-border">
-          <Icon className="h-4 w-4 text-muted-foreground" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E4ECDF] text-[#5E7259] dark:bg-[#3E4A3A] dark:text-[#C5D4BC]">
+          <Icon className="h-4 w-4" />
         </div>
       </div>
     </div>
@@ -539,27 +540,24 @@ export function Costs() {
   return (
     <div className="space-y-8">
       <div className="space-y-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight text-foreground">Costs</h1>
-                <p className="mt-1.5 text-sm text-muted-foreground/70">
-                  Inference spend, platform fees, credits, and live quota windows.
-                </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              {PRESET_KEYS.map((key) => (
-                <Button
-                  key={key}
-                  variant={preset === key ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setPreset(key)}
-                >
-                  {PRESET_LABELS[key]}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <PageHeader
+            title="Costs"
+            subtitle="Inference spend, platform fees, credits, and live quota windows."
+            actions={
+              <div className="flex flex-wrap items-center gap-1">
+                {PRESET_KEYS.map((key) => (
+                  <Button
+                    key={key}
+                    variant={preset === key ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setPreset(key)}
+                  >
+                    {PRESET_LABELS[key]}
+                  </Button>
+                ))}
+              </div>
+            }
+          />
 
           {preset === "custom" ? (
             <div className="flex flex-wrap items-center gap-2 border border-border p-3">

@@ -13,6 +13,7 @@ import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
 import { createIssueDetailLocationState } from "../lib/issueDetailBreadcrumb";
 import { EmptyState } from "../components/EmptyState";
+import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { IssueRow } from "../components/IssueRow";
 import { PriorityIcon } from "../components/PriorityIcon";
@@ -237,8 +238,9 @@ function ApprovalInboxRow({
         {showResolutionButtons ? (
           <div className="hidden shrink-0 items-center gap-2 sm:flex">
             <Button
+              variant="sage"
               size="sm"
-              className="h-8 bg-[#8FA781] px-3 text-white hover:bg-[#8FA781]"
+              className="h-8 px-3"
               onClick={onApprove}
               disabled={isPending}
             >
@@ -259,8 +261,9 @@ function ApprovalInboxRow({
       {showResolutionButtons ? (
         <div className="mt-3 flex gap-2 sm:hidden">
           <Button
+            variant="sage"
             size="sm"
-            className="h-8 bg-[#8FA781] px-3 text-white hover:bg-[#8FA781]"
+            className="h-8 px-3"
             onClick={onApprove}
             disabled={isPending}
           >
@@ -636,13 +639,10 @@ export function Inbox() {
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Inbox</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground/70">
-          Approvals, alerts, and items that need your attention.
-        </p>
-      </div>
+      <PageHeader
+        title="Inbox"
+        subtitle="Approvals, alerts, and items that need your attention."
+      />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">

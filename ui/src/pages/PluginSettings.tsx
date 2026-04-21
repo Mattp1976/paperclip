@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Puzzle, ArrowLeft, ShieldAlert, ActivitySquare, CheckCircle, XCircle, Loader2, Clock, Cpu, Webhook, CalendarClock, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ShieldAlert, ActivitySquare, CheckCircle, XCircle, Loader2, Clock, Cpu, Webhook, CalendarClock, AlertTriangle } from "lucide-react";
 import { useCompany } from "@/context/CompanyContext";
 import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import { Link, Navigate, useParams } from "@/lib/router";
@@ -19,6 +19,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { PageTabBar } from "@/components/PageTabBar";
+import { PageHeader } from "@/components/PageHeader";
 import {
   JsonSchemaForm,
   validateJsonSchemaForm,
@@ -145,22 +146,24 @@ export function PluginSettings() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <div className="flex items-center gap-4">
-        <Link to="/instance/settings/plugins">
+      <div className="flex items-start gap-4">
+        <Link to="/instance/settings/plugins" className="mt-1 shrink-0">
           <Button variant="outline" size="icon" className="h-8 w-8">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <div className="flex items-center gap-2">
-          <Puzzle className="h-6 w-6 text-muted-foreground" />
-          <h1 className="text-xl font-semibold">{plugin.manifestJson.displayName ?? plugin.packageName}</h1>
-          <Badge variant={statusVariant} className="ml-2">
-            {displayStatus}
-          </Badge>
-          <Badge variant="outline" className="ml-1">
-            v{plugin.manifestJson.version ?? plugin.version}
-          </Badge>
-        </div>
+        <PageHeader
+          eyebrow="Plugin"
+          title={plugin.manifestJson.displayName ?? plugin.packageName}
+          subtitle="Inspect and configure this plugin's runtime settings."
+          className="flex-1"
+          actions={
+            <>
+              <Badge variant={statusVariant}>{displayStatus}</Badge>
+              <Badge variant="outline">v{plugin.manifestJson.version ?? plugin.version}</Badge>
+            </>
+          }
+        />
       </div>
 
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "configuration" | "status")} className="space-y-6">

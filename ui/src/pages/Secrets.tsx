@@ -16,7 +16,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  KeyRound,
   Plus,
   RotateCw,
   Trash2,
@@ -27,6 +26,7 @@ import {
   ShieldCheck,
   Pencil,
 } from "lucide-react";
+import { PageHeader } from "../components/PageHeader";
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -528,28 +528,23 @@ export function Secrets() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <KeyRound className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Secrets &amp; API Keys</h1>
-          {secrets.length > 0 && (
-            <Badge variant="secondary" className="text-[10px]">
-              {secrets.length}
-            </Badge>
-          )}
-        </div>
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-1.5 h-3.5 w-3.5" />
-          Add secret
-        </Button>
-      </div>
-
-      {/* Description */}
-      <p className="text-sm text-muted-foreground">
-        Secrets are encrypted at rest and injected into agent environments at runtime.
-        Agents reference secrets by name — the actual values are never exposed in configuration.
-      </p>
+      <PageHeader
+        title="Secrets & API Keys"
+        subtitle="Encrypted at rest and injected into agent environments at runtime. Agents reference secrets by name — the actual values are never exposed in configuration."
+        actions={
+          <>
+            {secrets.length > 0 && (
+              <Badge variant="secondary" className="text-[10px]">
+                {secrets.length}
+              </Badge>
+            )}
+            <Button size="sm" variant="sage" onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
+              Add secret
+            </Button>
+          </>
+        }
+      />
 
       {/* Secret list */}
       {secretsQuery.isLoading ? (
