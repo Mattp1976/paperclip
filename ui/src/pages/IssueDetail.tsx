@@ -15,7 +15,7 @@ import { assigneeValueFromSelection, suggestedCommentAssigneeValue } from "../li
 import { queryKeys } from "../lib/queryKeys";
 import { readIssueDetailBreadcrumb } from "../lib/issueDetailBreadcrumb";
 import { useProjectOrder } from "../hooks/useProjectOrder";
-import { relativeTime, cn, formatTokens, visibleRunCostUsd } from "../lib/utils";
+import { relativeTime, cn, formatTokens, visibleRunCostUsd, issueUrl } from "../lib/utils";
 import { InlineEditor } from "../components/InlineEditor";
 import { CommentThread } from "../components/CommentThread";
 import { IssueDocumentsSection } from "../components/IssueDocumentsSection";
@@ -56,6 +56,7 @@ import {
 } from "lucide-react";
 import type { ActivityEvent } from "@mattparrytfc/shared";
 import type { Agent, IssueAttachment } from "@mattparrytfc/shared";
+import { deriveIssueUrlKey } from "@mattparrytfc/shared";
 
 type CommentReassignment = {
   assigneeAgentId: string | null;
@@ -574,10 +575,15 @@ export function IssueDetail() {
     ]);
   }, [setBreadcrumbs, sourceBreadcrumb, issue, issueId, hasLiveRuns]);
 
-  // Redirect to identifier-based URL if navigated via UUID
+  // Redirect to canonical `{identifier}-{slug}` URL when the current URL is
+  // either UUID-based, bare-identifier, or carries a stale slug (e.g. after
+  // the task title was edited). Bare identifier lookups still resolve on the
+  // server; we just want the address bar to reflect the current slug.
   useEffect(() => {
-    if (issue?.identifier && issueId !== issue.identifier) {
-      navigate(`/issues/${issue.identifier}`, { replace: true, state: location.state });
+    if (!issue?.identifier) return;
+    const canonicalUrlKey = deriveIssueUrlKey(issue) ?? issue.identifier;
+    if (issueId !== canonicalUrlKey) {
+      navigate(`/issues/${canonicalUrlKey}`, { replace: true, state: location.state });
     }
   }, [issue, issueId, navigate, location.state]);
 
@@ -686,7 +692,7 @@ export function IssueDetail() {
             <span key={ancestor.id} className="flex items-center gap-1">
               {i > 0 && <ChevronRight className="h-3 w-3 shrink-0" />}
               <Link
-                to={`/issues/${ancestor.identifier ?? ancestor.id}`}
+                to={issueUrl(ancestor)}
                 state={location.state}
                 className="hover:text-foreground transition-colors truncate max-w-[200px]"
                 title={ancestor.title}
@@ -1051,7 +1057,7 @@ export function IssueDetail() {
               {childIssues.map((child) => (
                 <Link
                   key={child.id}
-                  to={`/issues/${child.identifier ?? child.id}`}
+                  to={issueUrl(child)}
                   state={location.state}
                   className="flex items-center justify-between px-3 py-2 text-sm hover:bg-accent/20 transition-colors"
                 >

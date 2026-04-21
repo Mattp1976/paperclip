@@ -20,6 +20,7 @@ import {
 import { StatusIcon } from "./StatusIcon";
 import { PriorityIcon } from "./PriorityIcon";
 import { Identity } from "./Identity";
+import { issueUrl } from "../lib/utils";
 import type { Issue } from "@mattparrytfc/shared";
 
 const boardStatuses = [
@@ -141,7 +142,7 @@ function KanbanCard({
       } ${isOverlay ? "shadow-lg ring-1 ring-primary/20" : "hover:shadow-sm"}`}
     >
       <Link
-        to={`/issues/${issue.identifier ?? issue.id}`}
+        to={issueUrl(issue)}
         className="block no-underline text-inherit"
         onClick={(e) => {
           // Prevent navigation during drag

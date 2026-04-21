@@ -31,7 +31,7 @@ import {
   MessageSquarePlus,
 } from "lucide-react";
 import { Identity } from "./Identity";
-import { agentUrl, projectUrl } from "../lib/utils";
+import { agentUrl, issueUrl, projectUrl } from "../lib/utils";
 
 /**
  * Small pill shown on the right edge of a search result so the user can tell
@@ -213,7 +213,7 @@ export function CommandPalette() {
                       ? `${searchQuery} ${issue.identifier ?? ""} ${issue.title}`
                       : undefined
                   }
-                  onSelect={() => go(`/issues/${issue.identifier ?? issue.id}`)}
+                  onSelect={() => go(issueUrl(issue))}
                 >
                   <CircleDot className="mr-2 h-4 w-4" />
                   <span className="text-muted-foreground mr-2 font-mono text-xs">

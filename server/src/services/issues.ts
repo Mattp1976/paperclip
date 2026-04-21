@@ -19,7 +19,7 @@ import {
   projectWorkspaces,
   projects,
 } from "@mattparrytfc/db";
-import { extractProjectMentionIds } from "@mattparrytfc/shared";
+import { extractIssueIdentifier, extractProjectMentionIds } from "@mattparrytfc/shared";
 import { conflict, notFound, unprocessable } from "../errors.js";
 import {
   defaultIssueExecutionWorkspaceSettingsForProject,
@@ -674,10 +674,14 @@ export function issueService(db: Db) {
     },
 
     getByIdentifier: async (identifier: string) => {
+      // Accept both bare `PAP-42` and slug-extended `PAP-42-hire-first-engineer`
+      // forms. Lookup is always on the canonical `{PREFIX}-{NUMBER}` stored
+      // in the column.
+      const canonical = extractIssueIdentifier(identifier) ?? identifier.toUpperCase();
       const row = await db
         .select()
         .from(issues)
-        .where(eq(issues.identifier, identifier.toUpperCase()))
+        .where(eq(issues.identifier, canonical))
         .then((rows) => rows[0] ?? null);
       if (!row) return null;
       const [enriched] = await withIssueLabels(db, [row]);

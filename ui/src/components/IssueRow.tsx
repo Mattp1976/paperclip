@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { Issue } from "@mattparrytfc/shared";
 import { Link } from "@/lib/router";
-import { cn } from "../lib/utils";
+import { cn, issueUrl } from "../lib/utils";
 import { PriorityIcon } from "./PriorityIcon";
 import { StatusIcon } from "./StatusIcon";
 
@@ -34,14 +34,14 @@ export function IssueRow({
   onMarkRead,
   className,
 }: IssueRowProps) {
-  const issuePathId = issue.identifier ?? issue.id;
+  const issuePath = issueUrl(issue);
   const identifier = issue.identifier ?? issue.id.slice(0, 8);
   const showUnreadSlot = unreadState !== null;
   const showUnreadDot = unreadState === "visible" || unreadState === "fading";
 
   return (
     <Link
-      to={`/issues/${issuePathId}`}
+      to={issuePath}
       state={issueLinkState}
       className={cn(
         "flex items-start gap-2 border-b border-border/40 dark:border-border py-2.5 pl-2 pr-3 text-sm no-underline text-inherit transition-colors hover:bg-black/[0.03] dark:hover:bg-accent/50 last:border-b-0 sm:items-center sm:py-2 sm:pl-1",

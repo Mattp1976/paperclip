@@ -10,7 +10,7 @@ import { EntityRow } from "../components/EntityRow";
 import { EmptyState } from "../components/EmptyState";
 import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
-import { formatDate } from "../lib/utils";
+import { formatDate, issueUrl } from "../lib/utils";
 import { ListTodo } from "lucide-react";
 
 export function MyIssues() {
@@ -60,7 +60,7 @@ export function MyIssues() {
               key={issue.id}
               identifier={issue.identifier ?? issue.id.slice(0, 8)}
               title={issue.title}
-              to={`/issues/${issue.identifier ?? issue.id}`}
+              to={issueUrl(issue)}
               leading={
                 <>
                   <PriorityIcon priority={issue.priority} />

@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, ChevronRight, Sparkles } from "lucide-react";
 import type { ApprovalComment } from "@mattparrytfc/shared";
 import { MarkdownBody } from "../components/MarkdownBody";
+import { issueUrl } from "../lib/utils";
 
 export function ApprovalDetail() {
   const { approvalId } = useParams<{ approvalId: string }>();
@@ -159,7 +160,7 @@ export function ApprovalDetail() {
             (linkedIssues?.length ?? 0) > 1
               ? "Review linked issues"
               : "Review linked issue",
-          to: `/issues/${primaryLinkedIssue.identifier ?? primaryLinkedIssue.id}`,
+          to: issueUrl(primaryLinkedIssue),
         }
       : linkedAgentId
         ? {
@@ -246,7 +247,7 @@ export function ApprovalDetail() {
               {linkedIssues.map((issue) => (
                 <Link
                   key={issue.id}
-                  to={`/issues/${issue.identifier ?? issue.id}`}
+                  to={issueUrl(issue)}
                   className="block text-xs rounded border border-border/70 px-2 py-1.5 hover:bg-accent/20"
                 >
                   <span className="font-mono text-muted-foreground mr-2">

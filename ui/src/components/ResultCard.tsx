@@ -24,6 +24,7 @@ import {
   relativeTime,
   friendlyCost,
   friendlyDuration,
+  issueUrl,
 } from "../lib/utils";
 import { MarkdownBody } from "./MarkdownBody";
 import { Identity } from "./Identity";
@@ -171,9 +172,7 @@ export function ResultCard({
   const isMultiRun = sorted.length > 1;
   const isMultiAgent = contributors.length > 1;
   const cardTitle = task?.title ?? deriveTitle(primaryText);
-  const taskHref = task
-    ? `/issues/${task.identifier ?? task.id}`
-    : null;
+  const taskHref = task ? issueUrl(task) : null;
 
   // Preview truncation
   const previewLength = compact ? 240 : 600;

@@ -16,7 +16,7 @@ import { formatAssigneeUserLabel } from "../lib/assignees";
 import { StatusIcon } from "./StatusIcon";
 import { PriorityIcon } from "./PriorityIcon";
 import { Identity } from "./Identity";
-import { formatDate, cn, projectUrl } from "../lib/utils";
+import { formatDate, cn, issueUrl, projectUrl } from "../lib/utils";
 import { timeAgo } from "../lib/timeAgo";
 import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -746,7 +746,11 @@ export function IssueProperties({ issue, onUpdate, inline }: IssuePropertiesProp
         {issue.parentId && (
           <PropertyRow label="Parent">
             <Link
-              to={`/issues/${issue.ancestors?.[0]?.identifier ?? issue.parentId}`}
+              to={
+                issue.ancestors?.[0]
+                  ? issueUrl(issue.ancestors[0])
+                  : `/issues/${issue.parentId}`
+              }
               className="text-sm hover:underline"
             >
               {issue.ancestors?.[0]?.title ?? issue.parentId.slice(0, 8)}

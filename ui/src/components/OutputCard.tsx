@@ -182,7 +182,7 @@ export function OutputCard({
       {taskTitle && (
         <div className="px-5 pb-1">
           <Link
-            to={taskIdentifier ? `/issues/${taskIdentifier}` : "#"}
+            to={taskIdentifier ? buildIssueUrl({ id: "", identifier: taskIdentifier, title: taskTitle ?? null }) : "#"}
             className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors no-underline"
           >
             <ArrowRight className="h-2.5 w-2.5" />
@@ -242,7 +242,7 @@ export function OutputCard({
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           {taskIdentifier && (
             <Link
-              to={`/issues/${taskIdentifier}`}
+              to={buildIssueUrl({ id: "", identifier: taskIdentifier, title: taskTitle ?? null })}
               className="inline-flex items-center gap-1 text-xs text-muted-foreground/60 hover:text-foreground transition-colors no-underline"
               title="Run this task again"
             >

@@ -7,6 +7,7 @@ import { issuesApi } from "../api/issues";
 import { agentsApi } from "../api/agents";
 import { queryKeys } from "../lib/queryKeys";
 import { cn } from "@/lib/utils";
+import { issueUrl } from "../lib/utils";
 import { Identity } from "./Identity";
 import {
   ArrowRight,
@@ -275,7 +276,7 @@ export function QuickInputBar() {
 
       setConfirmation({
         agentName: assigneeName ?? null,
-        issueHref: `/issues/${issue.identifier ?? issue.id}`,
+        issueHref: issueUrl(issue),
         mode,
       });
 

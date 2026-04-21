@@ -45,7 +45,7 @@ import { AgentSecurityPanel } from "../components/AgentSecurityPanel";
 import { AgentMemoryPanel } from "../components/AgentMemoryPanel";
 import { LatestRunOutput } from "../components/LatestRunOutput";
 import { ScrollToBottom } from "../components/ScrollToBottom";
-import { formatCents, formatDate, relativeTime, formatTokens, visibleRunCostUsd } from "../lib/utils";
+import { formatCents, formatDate, relativeTime, formatTokens, visibleRunCostUsd, issueUrl } from "../lib/utils";
 import { cn } from "../lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -1227,7 +1227,7 @@ function AgentOverview({
                 key={issue.id}
                 identifier={issue.identifier ?? issue.id.slice(0, 8)}
                 title={issue.title}
-                to={`/issues/${issue.identifier ?? issue.id}`}
+                to={issueUrl(issue)}
                 trailing={<StatusBadge status={issue.status} />}
               />
             ))}
@@ -3212,7 +3212,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: Heartb
             {touchedIssues.map((issue) => (
               <Link
                 key={issue.issueId}
-                to={`/issues/${issue.identifier ?? issue.issueId}`}
+                to={issueUrl({ id: issue.issueId, identifier: issue.identifier, title: issue.title })}
                 className="flex items-center justify-between w-full px-3 py-2 text-xs hover:bg-accent/20 transition-colors text-left no-underline text-inherit"
               >
                 <div className="flex items-center gap-2 min-w-0">

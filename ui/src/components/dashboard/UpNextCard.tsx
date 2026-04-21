@@ -15,7 +15,7 @@ import { ArrowRight, ShieldCheck, Activity, Sparkles, CircleDot, Plus } from "lu
 import { heartbeatsApi } from "../../api/heartbeats";
 import { issuesApi } from "../../api/issues";
 import { queryKeys } from "../../lib/queryKeys";
-import { cn } from "../../lib/utils";
+import { cn, issueUrl } from "../../lib/utils";
 import { useDialog } from "../../context/DialogContext";
 import { Button } from "@/components/ui/button";
 
@@ -117,7 +117,7 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
           title: topOpenIssue!.title,
           body: `${topOpenIssue!.identifier ?? topOpenIssue!.id.slice(0, 8)} · Pick this up or assign a swarm.`,
           ctaLabel: "Open task",
-          ctaHref: `/issues/${topOpenIssue!.identifier ?? topOpenIssue!.id}`,
+          ctaHref: issueUrl(topOpenIssue!),
           ctaOnClick: undefined,
         };
       case "empty":

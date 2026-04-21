@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import type { Writable } from "node:stream";
+import { normalizeIssueSlug } from "@mattparrytfc/shared";
 
 // Issue-like shape — we only read the fields we need, so we keep the input loose
 // to avoid a hard coupling to the enriched Drizzle row type.
@@ -95,16 +96,9 @@ function formatStatus(status: string | null | undefined): string {
     .join(" ");
 }
 
-function slugifyForFilename(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-+|-+$)/g, "")
-    .slice(0, 60) || "task";
-}
-
 export function buildExportFilename(issue: IssueForExport): string {
-  const slug = slugifyForFilename(issue.title ?? "task");
+  // Share the same slug logic as UI URL keys so downloads match in-app names.
+  const slug = normalizeIssueSlug(issue.title ?? "") || "task";
   const id = issue.identifier ?? (issue.issueNumber ? `task-${issue.issueNumber}` : issue.id.slice(0, 8));
   return `${id}-${slug}.pdf`;
 }

@@ -26,6 +26,7 @@ import { useToast } from "../context/ToastContext";
 import { queryKeys } from "../lib/queryKeys";
 import { buildRoutineTriggerPatch } from "../lib/routine-trigger-patch";
 import { timeAgo } from "../lib/timeAgo";
+import { issueUrl } from "../lib/utils";
 import { EmptyState } from "../components/EmptyState";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { AgentIcon } from "../components/AgentIconPicker";
@@ -975,7 +976,7 @@ export function RoutineDetail() {
                       <span className="text-muted-foreground truncate">{run.trigger.label ?? run.trigger.kind}</span>
                     )}
                     {run.linkedIssue && (
-                      <Link to={`/issues/${run.linkedIssue.identifier ?? run.linkedIssue.id}`} className="text-muted-foreground hover:underline truncate">
+                      <Link to={issueUrl(run.linkedIssue)} className="text-muted-foreground hover:underline truncate">
                         {run.linkedIssue.identifier ?? run.linkedIssue.id.slice(0, 8)}
                       </Link>
                     )}

@@ -37,6 +37,7 @@ import { PriorityIcon } from "../components/PriorityIcon";
 import { ActivityRow } from "../components/ActivityRow";
 import { Identity } from "../components/Identity";
 import { timeAgo } from "../lib/timeAgo";
+import { issueUrl } from "../lib/utils";
 import {
   Bot,
   CircleDot,
@@ -575,7 +576,7 @@ export function Dashboard() {
                   {recentIssues.slice(0, 10).map((issue) => (
                     <Link
                       key={issue.id}
-                      to={`/issues/${issue.identifier ?? issue.id}`}
+                      to={issueUrl(issue)}
                       className="px-4 py-3 text-sm cursor-pointer hover:bg-black/[0.03] dark:hover:bg-accent/50 transition-colors no-underline text-inherit block"
                     >
                       <div className="flex items-start gap-2 sm:items-center sm:gap-3">

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { deriveAgentUrlKey, deriveProjectUrlKey } from "@mattparrytfc/shared";
+import { deriveAgentUrlKey, deriveIssueUrlKey, deriveProjectUrlKey } from "@mattparrytfc/shared";
 import type { BillingType, FinanceDirection, FinanceEventKind } from "@mattparrytfc/shared";
 
 export function cn(...inputs: ClassValue[]) {
@@ -193,9 +193,18 @@ export function financeDirectionDisplayName(direction: FinanceDirection): string
   return direction === "credit" ? "Credit" : "Debit";
 }
 
-/** Build an issue URL using the human-readable identifier when available. */
-export function issueUrl(issue: { id: string; identifier?: string | null }): string {
-  return `/issues/${issue.identifier ?? issue.id}`;
+/**
+ * Build an issue URL using the human-readable `{identifier}-{slug}` key when
+ * a title is available, falling back to bare identifier, then UUID. The
+ * server accepts all three forms.
+ */
+export function issueUrl(issue: {
+  id: string;
+  identifier?: string | null;
+  title?: string | null;
+}): string {
+  const urlKey = deriveIssueUrlKey(issue) ?? issue.identifier ?? issue.id;
+  return `/issues/${urlKey}`;
 }
 
 /** Build an agent route URL using the short URL key when available. */

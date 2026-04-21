@@ -7,6 +7,7 @@ import { issuesApi } from "../api/issues";
 import { agentsApi } from "../api/agents";
 import { projectsApi } from "../api/projects";
 import { queryKeys } from "../lib/queryKeys";
+import { issueUrl } from "../lib/utils";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Identity } from "./Identity";
@@ -386,7 +387,7 @@ export function CommandComposer() {
       closeComposer();
 
       if (result.type === "issue") {
-        navigate(`/issues/${result.issue.identifier ?? result.issue.id}`);
+        navigate(issueUrl(result.issue));
       } else if (result.type === "comment") {
         navigate(`/issues/${result.issueId}`);
       }
@@ -548,7 +549,7 @@ export function CommandComposer() {
                     agents={agents}
                     onClick={() => {
                       closeComposer();
-                      navigate(`/issues/${issue.identifier ?? issue.id}`);
+                      navigate(issueUrl(issue));
                     }}
                   />
                 ))}
