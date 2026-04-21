@@ -131,6 +131,12 @@ export type {
 } from "./heartbeat.js";
 export type { LiveEvent } from "./live.js";
 export type { DashboardSummary } from "./dashboard.js";
+export type {
+  AgentStandupEntry,
+  StandupBlocker,
+  StandupIssueRef,
+  StandupSnapshot,
+} from "./standup.js";
 export type { ActivityEvent } from "./activity.js";
 export type { SidebarBadges } from "./sidebar-badges.js";
 export type {
