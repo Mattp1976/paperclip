@@ -10,6 +10,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { Identity } from "../components/Identity";
 import { approvalLabel, typeIcon, defaultTypeIcon, ApprovalPayloadRenderer } from "../components/ApprovalPayload";
 import { PageSkeleton } from "../components/PageSkeleton";
+import { SoftCard } from "../components/SoftCard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, ChevronRight, Sparkles } from "lucide-react";
@@ -198,7 +199,7 @@ export function ApprovalDetail() {
           </div>
         </div>
       )}
-      <div className="border border-border rounded-lg p-4 space-y-3">
+      <SoftCard className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TypeIcon className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -321,9 +322,9 @@ export function ApprovalDetail() {
             </Button>
           )}
         </div>
-      </div>
+      </SoftCard>
 
-      <div className="border border-border rounded-lg p-4 space-y-3">
+      <SoftCard className="space-y-4">
         <h3 className="text-sm font-medium">Comments ({comments?.length ?? 0})</h3>
         <div className="space-y-2">
           {(comments ?? []).map((comment: ApprovalComment) => (
@@ -362,7 +363,7 @@ export function ApprovalDetail() {
             {addCommentMutation.isPending ? "Posting…" : "Post comment"}
           </Button>
         </div>
-      </div>
+      </SoftCard>
     </div>
   );
 }
