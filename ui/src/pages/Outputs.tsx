@@ -477,10 +477,10 @@ export function Outputs() {
                     return (
                       <div
                         key={item.key}
-                        className="rounded-2xl border border-red-200/40 dark:border-red-500/15 bg-red-50/40 dark:bg-red-950/20 shadow-sm shadow-black/[0.02] px-5 py-4"
+                        className="rounded-2xl border border-destructive/20 bg-destructive/5 shadow-sm shadow-black/[0.02] px-5 py-4"
                       >
                         <div className="flex items-center gap-3">
-                          <AlertCircle className="h-4 w-4 text-red-500 dark:text-red-400 shrink-0" />
+                          <AlertCircle className="h-4 w-4 text-destructive shrink-0" />
                           <div className="flex items-center gap-1.5 min-w-0">
                             {agent && <Identity name={agent.name} size="xs" />}
                             <span className="text-sm font-medium text-foreground truncate">
