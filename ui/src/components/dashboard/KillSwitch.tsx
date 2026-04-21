@@ -174,7 +174,7 @@ export function KillSwitch({ companyId, className }: KillSwitchProps) {
               <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
                 Agents to pause
               </div>
-              <div className="mt-1 text-2xl font-semibold text-[#3D4A37] dark:text-[#E4EEDC]">
+              <div className="mt-1 text-2xl font-semibold text-sage-body dark:text-sage-surface">
                 {runnableAgentCount}
               </div>
             </div>

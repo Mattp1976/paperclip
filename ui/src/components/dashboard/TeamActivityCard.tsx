@@ -27,7 +27,7 @@ function statusChip(status: LiveRunForIssue["status"]) {
       return {
         label: "Running",
         className:
-          "bg-[#E4EEDC] text-[#3D4A37] border-[#C5D4BC] dark:bg-[#3B4A37]/50 dark:border-[#5E7259]/50",
+          "bg-sage-surface text-sage-body border-[#C5D4BC] dark:bg-sage-body/50 dark:border-[#5E7259]/50",
         dotClass: "bg-primary",
         pulse: true,
       };
@@ -43,7 +43,7 @@ function statusChip(status: LiveRunForIssue["status"]) {
       return {
         label: "Succeeded",
         className:
-          "bg-[#EDF2E4] text-sage-ink border-[#D7E4CB] dark:bg-[#3B4A37]/35 dark:border-[#5E7259]/40",
+          "bg-[#EDF2E4] text-sage-ink border-sage-ink-dim dark:bg-sage-body/35 dark:border-[#5E7259]/40",
         dotClass: "bg-primary",
         pulse: false,
       };

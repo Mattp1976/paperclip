@@ -34,7 +34,7 @@ export function SpendHeroCard({
   return (
     <Link
       to="/costs"
-      className="group relative flex h-full flex-col overflow-hidden rounded-[32px] bg-[#FAF7F2] dark:bg-[#22251F] p-8 text-[#3D4A37] dark:text-[#E4EEDC] shadow-[0_1px_2px_rgba(94,114,89,0.08),0_20px_40px_-12px_rgba(94,114,89,0.20)] transition-all hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(94,114,89,0.10),0_28px_56px_-12px_rgba(94,114,89,0.28)] no-underline"
+      className="group relative flex h-full flex-col overflow-hidden rounded-[32px] bg-[#FAF7F2] dark:bg-[#22251F] p-8 text-sage-body dark:text-sage-surface shadow-[0_1px_2px_rgba(94,114,89,0.08),0_20px_40px_-12px_rgba(94,114,89,0.20)] transition-all hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(94,114,89,0.10),0_28px_56px_-12px_rgba(94,114,89,0.28)] no-underline"
     >
       {/* Layered swirl — soft pastel sage + rose + butter */}
       <div
@@ -118,12 +118,12 @@ export function SpendHeroCard({
           <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-sage-ink/80">
             This month
           </p>
-          <p className="text-sm font-medium text-[#3D4A37]/85 dark:text-[#E4EEDC]/85 mt-1.5">
+          <p className="text-sm font-medium text-sage-body/85 dark:text-sage-surface/85 mt-1.5">
             Total spend
           </p>
         </div>
         <div className="rounded-full bg-white/70 dark:bg-white/10 p-2.5 backdrop-blur-sm transition-all duration-300 group-hover:rotate-[12deg] group-hover:bg-white/90 dark:group-hover:bg-white/20">
-          <ArrowUpRight className="h-4 w-4 text-[#3D4A37] dark:text-[#E4EEDC]" strokeWidth={2.4} />
+          <ArrowUpRight className="h-4 w-4 text-sage-body dark:text-sage-surface" strokeWidth={2.4} />
         </div>
       </div>
 
@@ -132,7 +132,7 @@ export function SpendHeroCard({
           {friendlyCost(monthSpendCents / 100)}
         </p>
         {projected && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/60 dark:bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-[#3D4A37] dark:text-[#E4EEDC] backdrop-blur-sm">
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/60 dark:bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-sage-body dark:text-sage-surface backdrop-blur-sm">
             <TrendingUp className="h-3 w-3" />
             proj. {projected}
           </span>

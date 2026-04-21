@@ -137,7 +137,7 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
 
   const pillToneClass = {
     amber: "bg-[#F5E6C8] text-[#7A5A1E] dark:bg-amber-900/40 dark:text-amber-200",
-    green: "bg-[#E4EEDC] text-[#3D4A37] dark:bg-[#3B4A37]/60 dark:text-[#C5D4BC]",
+    green: "bg-sage-surface text-sage-body dark:bg-sage-body/60 dark:text-[#C5D4BC]",
     red: "bg-[#F5E5E5] text-[#7A3A3A] dark:bg-red-900/40 dark:text-[#F0C7C7]",
     neutral: "bg-muted text-foreground/80",
   }[content.pillTone];
@@ -172,7 +172,7 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
       </div>
 
       <div className="mt-7 flex items-start gap-4">
-        <div className="rounded-2xl bg-[#E4EEDC] dark:bg-[#3B4A37]/50 p-3">
+        <div className="rounded-2xl bg-sage-surface dark:bg-sage-body/50 p-3">
           <Icon className="h-5 w-5 text-sage-ink" strokeWidth={2.2} />
         </div>
         <div className="flex-1 min-w-0">

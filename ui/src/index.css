@@ -23,6 +23,9 @@
   --color-sage-ink: var(--sage-ink);
   --color-sage-soft: var(--sage-soft);
   --color-sage-mist: var(--sage-mist);
+  --color-sage-body: var(--sage-body);
+  --color-sage-surface: var(--sage-surface);
+  --color-sage-ink-dim: var(--sage-ink-dim);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -72,6 +75,9 @@
   --sage-ink: oklch(0.45 0.032 140);              /* deep sage for icons/labels; matches #5E7259 */
   --sage-soft: oklch(0.76 0.06 140);               /* success pastel / dark-mode primary lift; matches #A4BD95 */
   --sage-mist: oklch(0.81 0.045 140);              /* paler sage for healthy/active pills; matches #B5C4B1 */
+  --sage-body: oklch(0.34 0.025 140);              /* deep sage body text on light; matches #3D4A37 (≈#3B4A37 dark surface) */
+  --sage-surface: oklch(0.92 0.035 140);           /* pale sage surface (pill/icon bg); matches #E4EEDC */
+  --sage-ink-dim: oklch(0.87 0.035 140);           /* muted sage text for dark-mode foreground; matches #D7E4CB */
   --border: oklch(0.905 0.008 75);                /* warm taupe border */
   --input: oklch(0.905 0.008 75);
   --ring: oklch(0.68 0.055 140);
@@ -110,6 +116,9 @@
   --sage-ink: oklch(0.83 0.028 140);              /* pale sage for icons/labels on dark; matches #C5D4BC */
   --sage-soft: oklch(0.76 0.06 140);               /* fixed #A4BD95 across modes — success pastel + primary lift */
   --sage-mist: oklch(0.81 0.045 140);              /* fixed #B5C4B1 across modes — even paler success/active pill */
+  --sage-body: oklch(0.34 0.025 140);              /* fixed #3D4A37 across modes — text on light, surface@opacity on dark */
+  --sage-surface: oklch(0.92 0.035 140);           /* fixed #E4EEDC across modes — used as text on dark */
+  --sage-ink-dim: oklch(0.87 0.035 140);           /* fixed #D7E4CB across modes — dark-mode body text */
   --border: oklch(0.31 0.012 60);
   --input: oklch(0.31 0.012 60);
   --ring: oklch(0.72 0.07 140);

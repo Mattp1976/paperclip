@@ -36,9 +36,9 @@ export function HeroKpi({
       className={cn(
         "group relative h-full overflow-hidden rounded-[32px] p-8 transition-all duration-300",
         // Soft sage pastel hero — still anchors the row, but airy + daylight.
-        "bg-gradient-to-br from-[#D7E4CB] via-[#E2ECD6] to-[#EDF2E4] text-[#3D4A37]",
+        "bg-gradient-to-br from-sage-ink-dim via-[#E2ECD6] to-[#EDF2E4] text-sage-body",
         "shadow-[0_1px_2px_rgba(94,114,89,0.08),0_20px_40px_-12px_rgba(94,114,89,0.20)]",
-        "dark:from-[#3B4A37] dark:via-[#3F5140] dark:to-[#2E3A2B] dark:text-[#E4EEDC]",
+        "dark:from-sage-body dark:via-[#3F5140] dark:to-[#2E3A2B] dark:text-sage-surface",
         (to || onClick) && "cursor-pointer hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(94,114,89,0.10),0_28px_56px_-12px_rgba(94,114,89,0.28)]",
       )}
     >
@@ -67,7 +67,7 @@ export function HeroKpi({
             </p>
           </div>
           <div className="rounded-full bg-white/70 dark:bg-white/10 p-2.5 backdrop-blur-sm transition-all duration-300 group-hover:rotate-[12deg] group-hover:bg-white/90 dark:group-hover:bg-white/20">
-            <ArrowUpRight className="h-4 w-4 text-[#3D4A37] dark:text-[#E4EEDC]" strokeWidth={2.4} />
+            <ArrowUpRight className="h-4 w-4 text-sage-body dark:text-sage-surface" strokeWidth={2.4} />
           </div>
         </div>
 
@@ -76,7 +76,7 @@ export function HeroKpi({
             {value}
           </p>
           {trend && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/60 dark:bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-[#3D4A37] dark:text-[#E4EEDC] backdrop-blur-sm">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/60 dark:bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-sage-body dark:text-sage-surface backdrop-blur-sm">
               {trend}
             </span>
           )}

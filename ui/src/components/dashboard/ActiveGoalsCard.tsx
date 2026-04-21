@@ -30,7 +30,7 @@ const LEVEL_LABEL: Record<Goal["level"], string> = {
 
 const LEVEL_STYLE: Record<Goal["level"], string> = {
   company:
-    "bg-primary/12 text-[#5F7355] border-primary/25 dark:bg-sage-soft/15 dark:text-[#D7E4CB] dark:border-primary/30",
+    "bg-primary/12 text-[#5F7355] border-primary/25 dark:bg-sage-soft/15 dark:text-sage-ink-dim dark:border-primary/30",
   team:
     "bg-[#D9A5A5]/18 text-[#8B5555] border-[#D9A5A5]/30 dark:bg-[#D9A5A5]/15 dark:text-[#E8BEBE] dark:border-[#D9A5A5]/30",
   agent:
