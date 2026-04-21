@@ -10,6 +10,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        /**
+         * sage — the canonical "do the thing" CTA. Encodes the button treatment
+         * used on Dashboard / Goals / ActiveGoalsCard so every primary action
+         * reads as the same button rather than 20 copy-pasted Tailwind blobs.
+         * Hover transitions to the deeper sage `#7C9470`; dark mode lifts to
+         * the lighter sage `#A4BD95` for readability on the darker surface.
+         */
+        sage:
+          "bg-[#8FA781] text-white shadow-sm hover:bg-[#7C9470] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#A4BD95] dark:text-[#22251F] dark:hover:bg-[#B5C4B1]",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
