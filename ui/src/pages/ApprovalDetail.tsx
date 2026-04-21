@@ -264,8 +264,8 @@ export function ApprovalDetail() {
           {isActionable && !isBudgetApproval && (
             <>
               <Button
+                variant="sage"
                 size="sm"
-                className="bg-[#8FA781] hover:bg-[#8FA781] text-white"
                 onClick={() => approveMutation.mutate()}
                 disabled={approveMutation.isPending}
               >
