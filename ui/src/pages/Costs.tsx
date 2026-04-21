@@ -289,16 +289,33 @@ export function Costs() {
     onSuccess: invalidateBudgetViews,
   });
 
+  // Cost fan-out uses allSettled so one broken endpoint (e.g. a 500 from
+  // by-project when an issue is missing a project) doesn't wipe the entire
+  // overview tab. We still surface per-field errors so failures are visible.
   const { data: spendData, isLoading: spendLoading, error: spendError } = useQuery({
     queryKey: queryKeys.costs(companyId, from || undefined, to || undefined),
     queryFn: async () => {
-      const [summary, byAgent, byProject, byAgentModel] = await Promise.all([
+      const results = await Promise.allSettled([
         costsApi.summary(companyId, from || undefined, to || undefined),
         costsApi.byAgent(companyId, from || undefined, to || undefined),
         costsApi.byProject(companyId, from || undefined, to || undefined),
         costsApi.byAgentModel(companyId, from || undefined, to || undefined),
       ]);
-      return { summary, byAgent, byProject, byAgentModel };
+      const [summaryR, byAgentR, byProjectR, byAgentModelR] = results;
+      const errors: Record<string, string> = {};
+      if (summaryR.status === "rejected") errors.summary = (summaryR.reason as Error).message;
+      if (byAgentR.status === "rejected") errors.byAgent = (byAgentR.reason as Error).message;
+      if (byProjectR.status === "rejected") errors.byProject = (byProjectR.reason as Error).message;
+      if (byAgentModelR.status === "rejected") errors.byAgentModel = (byAgentModelR.reason as Error).message;
+      return {
+        summary: summaryR.status === "fulfilled"
+          ? summaryR.value
+          : { companyId, spendCents: 0, budgetCents: 0, utilizationPercent: 0 },
+        byAgent: byAgentR.status === "fulfilled" ? byAgentR.value : [],
+        byProject: byProjectR.status === "fulfilled" ? byProjectR.value : [],
+        byAgentModel: byAgentModelR.status === "fulfilled" ? byAgentModelR.value : [],
+        errors,
+      };
     },
     enabled: !!selectedCompanyId && customReady,
   });
@@ -311,13 +328,27 @@ export function Costs() {
       queryKeys.financeEvents(companyId, from || undefined, to || undefined, 18),
     ],
     queryFn: async () => {
-      const [summary, byBiller, byKind, events] = await Promise.all([
+      const results = await Promise.allSettled([
         costsApi.financeSummary(companyId, from || undefined, to || undefined),
         costsApi.financeByBiller(companyId, from || undefined, to || undefined),
         costsApi.financeByKind(companyId, from || undefined, to || undefined),
         costsApi.financeEvents(companyId, from || undefined, to || undefined, 18),
       ]);
-      return { summary, byBiller, byKind, events };
+      const [summaryR, byBillerR, byKindR, eventsR] = results;
+      const errors: Record<string, string> = {};
+      if (summaryR.status === "rejected") errors.summary = (summaryR.reason as Error).message;
+      if (byBillerR.status === "rejected") errors.byBiller = (byBillerR.reason as Error).message;
+      if (byKindR.status === "rejected") errors.byKind = (byKindR.reason as Error).message;
+      if (eventsR.status === "rejected") errors.events = (eventsR.reason as Error).message;
+      return {
+        summary: summaryR.status === "fulfilled"
+          ? summaryR.value
+          : { companyId, debitCents: 0, creditCents: 0, netCents: 0, estimatedDebitCents: 0, eventCount: 0 },
+        byBiller: byBillerR.status === "fulfilled" ? byBillerR.value : [],
+        byKind: byKindR.status === "fulfilled" ? byKindR.value : [],
+        events: eventsR.status === "fulfilled" ? eventsR.value : [],
+        errors,
+      };
     },
     enabled: !!selectedCompanyId && customReady,
   });
@@ -595,6 +626,13 @@ export function Costs() {
   const showCustomPrompt = preset === "custom" && !customReady;
   const showOverviewLoading = (spendLoading || financeLoading) && customReady;
   const overviewError = spendError ?? financeError;
+  const partialErrors: Array<{ scope: "spend" | "finance"; field: string; message: string }> = [];
+  for (const [field, message] of Object.entries(spendData?.errors ?? {})) {
+    partialErrors.push({ scope: "spend", field, message });
+  }
+  for (const [field, message] of Object.entries(financeData?.errors ?? {})) {
+    partialErrors.push({ scope: "finance", field, message });
+  }
 
   return (
     <div className="space-y-8">
@@ -692,6 +730,19 @@ export function Costs() {
             <p className="text-sm text-destructive">{(overviewError as Error).message}</p>
           ) : (
             <>
+              {partialErrors.length > 0 ? (
+                <div className="rounded-md border border-amber-500/30 bg-amber-50/60 px-3 py-2 text-xs text-amber-900 dark:border-amber-400/30 dark:bg-amber-900/10 dark:text-amber-100">
+                  <div className="font-medium">Some cost panels failed to load</div>
+                  <ul className="mt-1 space-y-0.5 text-[11px] tabular-nums opacity-90">
+                    {partialErrors.map((e) => (
+                      <li key={`${e.scope}:${e.field}`}>
+                        <span className="font-mono">{e.scope}.{e.field}</span>: {e.message}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
               {activeBudgetIncidents.length > 0 ? (
                 <div className="grid gap-4 xl:grid-cols-2">
                   {activeBudgetIncidents.slice(0, 2).map((incident) => (
