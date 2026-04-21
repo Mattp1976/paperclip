@@ -134,7 +134,7 @@ function RunRow({
       className={cn(
         "group rounded-lg border transition-colors",
         isSuccess && "border-[#8FA781]/20 bg-[#8FA781]/5",
-        isError && "border-red-500/20 bg-red-500/5",
+        isError && "border-destructive/20 bg-destructive/5",
         isRunning && "border-cyan-500/20 bg-cyan-500/5",
         !isSuccess && !isError && !isRunning && "border-border bg-card",
       )}
@@ -145,7 +145,7 @@ function RunRow({
         {isSuccess && (
           <CheckCircle2 className="h-4 w-4 shrink-0 text-[#5E7259]" />
         )}
-        {isError && <XCircle className="h-4 w-4 shrink-0 text-red-500" />}
+        {isError && <XCircle className="h-4 w-4 shrink-0 text-destructive" />}
         {isRunning && (
           <div className="relative h-4 w-4 shrink-0">
             <span className="absolute inset-0 animate-ping rounded-full bg-cyan-400 opacity-40" />
@@ -230,10 +230,10 @@ function RunRow({
 
       {/* Error message */}
       {isError && result && (
-        <div className="border-t border-red-500/20 px-3 py-2">
+        <div className="border-t border-destructive/20 px-3 py-2">
           <div className="flex items-start gap-1.5">
-            <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0 text-red-500" />
-            <p className="text-xs text-red-600 dark:text-red-400 leading-relaxed">
+            <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0 text-destructive" />
+            <p className="text-xs text-destructive leading-relaxed">
               {typeof result.error === "string"
                 ? result.error
                 : typeof result.message === "string"

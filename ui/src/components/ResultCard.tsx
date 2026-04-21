@@ -383,7 +383,7 @@ export function ResultCard({
                   r.status === "succeeded" ? (
                     <CheckCircle2 className="h-3 w-3 text-[#5E7259] dark:text-[#C5D4BC]" />
                   ) : r.status === "failed" ? (
-                    <XCircle className="h-3 w-3 text-red-500" />
+                    <XCircle className="h-3 w-3 text-destructive" />
                   ) : (
                     <Clock3 className="h-3 w-3 text-muted-foreground/60" />
                   );
@@ -582,7 +582,7 @@ export function ResultCard({
                 dedupeKey: `feedback:down:${primaryRun.id}`,
               });
             }}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-red-500 hover:bg-muted/60 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-destructive hover:bg-muted/60 transition-colors"
             title="Reject this result"
           >
             <ThumbsDown className="h-3 w-3" />
