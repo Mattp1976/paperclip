@@ -89,6 +89,12 @@ export type {
 } from "./issue.js";
 export type { AgentPeerNote, AgentPeerNoteKind } from "./agent-peer-note.js";
 export { AGENT_PEER_NOTE_KINDS } from "./agent-peer-note.js";
+export type {
+  AgentQuestion,
+  AgentQuestionForUser,
+  AgentQuestionStatus,
+} from "./agent-question.js";
+export { AGENT_QUESTION_STATUSES } from "./agent-question.js";
 export type { Goal } from "./goal.js";
 export type { Approval, ApprovalComment } from "./approval.js";
 export type {

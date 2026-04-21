@@ -46,6 +46,13 @@ export {
   type AgentPeerNoteInsert,
   type AgentPeerNoteKind,
 } from "./agent_peer_notes.js";
+export {
+  agentQuestions,
+  AGENT_QUESTION_STATUSES,
+  type AgentQuestion,
+  type AgentQuestionInsert,
+  type AgentQuestionStatus,
+} from "./agent_questions.js";
 export { costEvents } from "./cost_events.js";
 export { financeEvents } from "./finance_events.js";
 export { approvals } from "./approvals.js";

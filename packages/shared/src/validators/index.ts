@@ -145,6 +145,13 @@ export {
 } from "./agent-peer-note.js";
 
 export {
+  askAgentQuestionSchema,
+  answerAgentQuestionSchema,
+  type AskAgentQuestion,
+  type AnswerAgentQuestion,
+} from "./agent-question.js";
+
+export {
   createIssueWorkProductSchema,
   updateIssueWorkProductSchema,
   issueWorkProductTypeSchema,
