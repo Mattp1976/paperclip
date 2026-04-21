@@ -109,7 +109,7 @@ export function SidebarNavItem({
                 isActive
                   ? "bg-white/25 text-white"
                   : badgeTone === "danger"
-                    ? "bg-[#C47878] text-white"
+                    ? "bg-rose-deep text-white"
                     : "bg-primary text-white dark:text-[#22251F]",
               )}
             >

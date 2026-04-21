@@ -133,8 +133,8 @@ export function KillSwitch({ companyId, className }: KillSwitchProps) {
           "group relative inline-flex items-center gap-2 rounded-2xl px-3.5 py-2 text-sm font-semibold transition-all duration-200",
           "disabled:cursor-not-allowed disabled:opacity-50",
           isArmed
-            ? "bg-[#C47878] text-white shadow-[0_2px_4px_rgba(165,89,89,0.18),0_12px_24px_-8px_rgba(165,89,89,0.40)] hover:bg-[#B56868] hover:-translate-y-0.5 active:translate-y-0 dark:bg-[#D9A5A5] dark:text-[#22251F] dark:hover:bg-[#E2B2B2]"
-            : "border border-[#D9A5A5]/70 bg-[#F5E5E5]/40 text-[#7A3A3A] hover:bg-[#F5E5E5] hover:border-[#D9A5A5] dark:border-[#7A3A3A]/60 dark:bg-[#3B2525]/40 dark:text-[#F0C7C7] dark:hover:bg-[#3B2525]/70",
+            ? "bg-rose-deep text-white shadow-[0_2px_4px_rgba(165,89,89,0.18),0_12px_24px_-8px_rgba(165,89,89,0.40)] hover:bg-[#B56868] hover:-translate-y-0.5 active:translate-y-0 dark:bg-rose-soft dark:text-[#22251F] dark:hover:bg-[#E2B2B2]"
+            : "border border-rose-soft/70 bg-rose-surface/40 text-rose-text hover:bg-rose-surface hover:border-rose-soft dark:border-rose-text/60 dark:bg-[#3B2525]/40 dark:text-rose-text-dim dark:hover:bg-[#3B2525]/70",
           className,
         )}
       >
@@ -157,7 +157,7 @@ export function KillSwitch({ companyId, className }: KillSwitchProps) {
         <DialogContent className="sm:max-w-[460px]">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#F5E5E5] text-[#7A3A3A] dark:bg-[#3B2525] dark:text-[#F0C7C7]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-surface text-rose-text dark:bg-[#3B2525] dark:text-rose-text-dim">
                 <AlertTriangle className="h-5 w-5" strokeWidth={2.2} />
               </div>
               <DialogTitle className="text-lg">Engage kill switch?</DialogTitle>
@@ -182,7 +182,7 @@ export function KillSwitch({ companyId, className }: KillSwitchProps) {
               <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
                 Live runs to cancel
               </div>
-              <div className="mt-1 text-2xl font-semibold text-[#7A3A3A] dark:text-[#F0C7C7]">
+              <div className="mt-1 text-2xl font-semibold text-rose-text dark:text-rose-text-dim">
                 {liveRunCount}
               </div>
             </div>
@@ -199,7 +199,7 @@ export function KillSwitch({ companyId, className }: KillSwitchProps) {
             <Button
               onClick={handleConfirm}
               disabled={killMutation.isPending || nothingToStop}
-              className="bg-[#C47878] text-white hover:bg-[#B56868] dark:bg-[#D9A5A5] dark:text-[#22251F] dark:hover:bg-[#E2B2B2]"
+              className="bg-rose-deep text-white hover:bg-[#B56868] dark:bg-rose-soft dark:text-[#22251F] dark:hover:bg-[#E2B2B2]"
             >
               {killMutation.isPending ? (
                 <>

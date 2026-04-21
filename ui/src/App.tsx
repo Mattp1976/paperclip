@@ -281,7 +281,7 @@ function OnboardingRoutePage() {
           </div>
         </div>
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-sage-soft/20 blur-3xl dark:bg-primary/15" />
-        <div className="pointer-events-none absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-[#D9A5A5]/15 blur-3xl dark:bg-[#D9A5A5]/10" />
+        <div className="pointer-events-none absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-rose-soft/15 blur-3xl dark:bg-rose-soft/10" />
       </div>
     </div>
   );

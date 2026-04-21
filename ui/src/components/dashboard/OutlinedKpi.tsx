@@ -31,8 +31,8 @@ const toneClasses: Record<NonNullable<OutlinedKpiProps["tone"]>, { icon: string;
     iconBg: "bg-[#F5E6C8] dark:bg-amber-950/50",
   },
   red: {
-    icon: "text-[#8A4A4A] dark:text-[#F0C7C7]",
-    iconBg: "bg-[#F5E5E5] dark:bg-red-950/50",
+    icon: "text-[#8A4A4A] dark:text-rose-text-dim",
+    iconBg: "bg-rose-surface dark:bg-red-950/50",
   },
   violet: {
     icon: "text-[#6A5A8A] dark:text-violet-300",

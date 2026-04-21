@@ -52,8 +52,8 @@ function statusChip(status: LiveRunForIssue["status"]) {
       return {
         label: status === "timed_out" ? "Timeout" : "Failed",
         className:
-          "bg-[#F5E5E5] text-[#7A3A3A] border-[#E6C7C7] dark:bg-red-950/40 dark:text-[#F0C7C7] dark:border-red-800/50",
-        dotClass: "bg-[#C47878]",
+          "bg-rose-surface text-rose-text border-[#E6C7C7] dark:bg-red-950/40 dark:text-rose-text-dim dark:border-red-800/50",
+        dotClass: "bg-rose-deep",
         pulse: false,
       };
     default:

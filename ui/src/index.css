@@ -26,6 +26,11 @@
   --color-sage-body: var(--sage-body);
   --color-sage-surface: var(--sage-surface);
   --color-sage-ink-dim: var(--sage-ink-dim);
+  --color-rose-soft: var(--rose-soft);
+  --color-rose-deep: var(--rose-deep);
+  --color-rose-text: var(--rose-text);
+  --color-rose-surface: var(--rose-surface);
+  --color-rose-text-dim: var(--rose-text-dim);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -78,6 +83,11 @@
   --sage-body: oklch(0.34 0.025 140);              /* deep sage body text on light; matches #3D4A37 (≈#3B4A37 dark surface) */
   --sage-surface: oklch(0.92 0.035 140);           /* pale sage surface (pill/icon bg); matches #E4EEDC */
   --sage-ink-dim: oklch(0.87 0.035 140);           /* muted sage text for dark-mode foreground; matches #D7E4CB */
+  --rose-soft: oklch(0.77 0.07 20);                /* rose pastel (danger pill bg, decorative blobs); matches #D9A5A5 */
+  --rose-deep: oklch(0.64 0.10 20);                /* rose action (KillSwitch bg, danger stroke); matches #C47878 */
+  --rose-text: oklch(0.42 0.08 20);                /* deep rose body text on light; matches #7A3A3A */
+  --rose-surface: oklch(0.93 0.03 20);             /* very pale rose surface (hover bg); matches #F5E5E5 */
+  --rose-text-dim: oklch(0.87 0.05 20);            /* light rose text for dark-mode foreground; matches #F0C7C7 */
   --border: oklch(0.905 0.008 75);                /* warm taupe border */
   --input: oklch(0.905 0.008 75);
   --ring: oklch(0.68 0.055 140);
@@ -119,6 +129,11 @@
   --sage-body: oklch(0.34 0.025 140);              /* fixed #3D4A37 across modes — text on light, surface@opacity on dark */
   --sage-surface: oklch(0.92 0.035 140);           /* fixed #E4EEDC across modes — used as text on dark */
   --sage-ink-dim: oklch(0.87 0.035 140);           /* fixed #D7E4CB across modes — dark-mode body text */
+  --rose-soft: oklch(0.77 0.07 20);                /* fixed #D9A5A5 across modes — rose pastel */
+  --rose-deep: oklch(0.64 0.10 20);                /* fixed #C47878 across modes — rose action */
+  --rose-text: oklch(0.42 0.08 20);                /* fixed #7A3A3A across modes — deep rose text */
+  --rose-surface: oklch(0.93 0.03 20);             /* fixed #F5E5E5 across modes — pale rose bg */
+  --rose-text-dim: oklch(0.87 0.05 20);            /* fixed #F0C7C7 across modes — dark-mode rose text */
   --border: oklch(0.31 0.012 60);
   --input: oklch(0.31 0.012 60);
   --ring: oklch(0.72 0.07 140);

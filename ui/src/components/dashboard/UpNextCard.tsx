@@ -138,7 +138,7 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
   const pillToneClass = {
     amber: "bg-[#F5E6C8] text-[#7A5A1E] dark:bg-amber-900/40 dark:text-amber-200",
     green: "bg-sage-surface text-sage-body dark:bg-sage-body/60 dark:text-[#C5D4BC]",
-    red: "bg-[#F5E5E5] text-[#7A3A3A] dark:bg-red-900/40 dark:text-[#F0C7C7]",
+    red: "bg-rose-surface text-rose-text dark:bg-red-900/40 dark:text-rose-text-dim",
     neutral: "bg-muted text-foreground/80",
   }[content.pillTone];
 
