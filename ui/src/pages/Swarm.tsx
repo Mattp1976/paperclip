@@ -1,39 +1,58 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { X } from "lucide-react";
 import { agentsApi } from "../api/agents";
-import { heartbeatsApi } from "../api/heartbeats";
+import { heartbeatsApi, type LiveRunForIssue } from "../api/heartbeats";
 import { useCompany } from "../context/CompanyContext";
 import { queryKeys } from "../lib/queryKeys";
-import { cn } from "../lib/utils";
+import { relativeTime } from "../lib/utils";
 import type { Agent } from "@mattparrytfc/shared";
 
-/* ── colour helpers ─────────────────────────────────────────── */
-const MODEL_COLORS: Record<string, string> = {
-  "claude-opus-4-6": "#f59e0b",        // amber/gold for Opus
-  "claude-sonnet-4-6": "#3b82f6",      // blue for Sonnet
-  "claude-haiku-4-5-20251001": "#15803d", // green for Haiku
+/* ── palette (design-system tokens) ─────────────────────────── */
+/**
+ * Model colours use the chart-* CSS tokens so they follow the
+ * sage/rose/taupe palette and flip cleanly in dark mode.
+ *   Opus   → butter  (chart-4)
+ *   Sonnet → lavender (chart-5)
+ *   Haiku  → sage    (chart-1 / primary)
+ *   other  → taupe   (chart-3)
+ */
+const MODEL_TOKEN: Record<string, string> = {
+  "claude-opus-4-6": "var(--chart-4)",
+  "claude-sonnet-4-6": "var(--chart-5)",
+  "claude-haiku-4-5-20251001": "var(--chart-1)",
 };
-const STATUS_RING: Record<string, string> = {
-  idle: "#64748b",
-  running: "#3b82f6",
-  error: "#ef4444",
-  paused: "#a855f7",
+const STATUS_TOKEN: Record<string, string> = {
+  idle: "var(--muted-foreground)",
+  running: "var(--sage-ink)",
+  error: "var(--rose-deep)",
+  paused: "var(--chart-3)",
+};
+const STATUS_LABEL: Record<string, string> = {
+  idle: "Idle",
+  running: "Running",
+  error: "Error",
+  paused: "Paused",
 };
 const TIER_LABEL: Record<string, string> = {
   "claude-opus-4-6": "Opus",
   "claude-sonnet-4-6": "Sonnet",
   "claude-haiku-4-5-20251001": "Haiku",
 };
+function agentModel(agent: Agent): string | undefined {
+  return (agent.adapterConfig as Record<string, unknown>)?.model as string | undefined;
+}
 function modelColor(agent: Agent) {
-  const m = (agent.adapterConfig as Record<string, unknown>)?.model as string | undefined;
-  return MODEL_COLORS[m ?? ""] ?? "#94a3b8";
+  return MODEL_TOKEN[agentModel(agent) ?? ""] ?? "var(--chart-3)";
 }
 function tierLabel(agent: Agent) {
-  const m = (agent.adapterConfig as Record<string, unknown>)?.model as string | undefined;
-  return TIER_LABEL[m ?? ""] ?? "Default";
+  return TIER_LABEL[agentModel(agent) ?? ""] ?? "Default";
 }
-function statusRing(status: string) {
-  return STATUS_RING[status] ?? "#64748b";
+function statusColor(status: string) {
+  return STATUS_TOKEN[status] ?? "var(--muted-foreground)";
+}
+function statusLabel(status: string) {
+  return STATUS_LABEL[status] ?? status;
 }
 
 /* ── types ──────────────────────────────────────────────────── */
@@ -61,16 +80,25 @@ function agentTier(agent: Agent): number {
   const r = agent.role;
   const n = (agent.name ?? "").toLowerCase();
   if (r === "ceo" || r === "cto" || r === "cfo" || r === "cmo") return 1;
-  if (n.includes("chief") || n.includes("coo") || n.includes("cso") || n.includes("chro") || n.includes("general counsel")) return 1;
-  if (n.startsWith("md ") || n.startsWith("vp ") || n.includes("director") || n.includes("head of")) return 2;
+  if (
+    n.includes("chief") ||
+    n.includes("coo") ||
+    n.includes("cso") ||
+    n.includes("chro") ||
+    n.includes("general counsel")
+  )
+    return 1;
+  if (n.startsWith("md ") || n.startsWith("vp ") || n.includes("director") || n.includes("head of"))
+    return 2;
   return 3;
 }
 
 /* ── force simulation (no d3 dependency — hand-rolled) ──────── */
 function initNodes(agents: Agent[], w: number, h: number): SimNode[] {
-  const cx = w / 2, cy = h / 2;
+  const cx = w / 2,
+    cy = h / 2;
   return agents
-    .filter(a => a.name !== "_DELETED")
+    .filter((a) => a.name !== "_DELETED")
     .map((a, i, arr) => {
       const tier = agentTier(a);
       const angle = (2 * Math.PI * i) / arr.length;
@@ -85,7 +113,8 @@ function initNodes(agents: Agent[], w: number, h: number): SimNode[] {
         agent: a,
         x: cx + Math.cos(angle) * spread + (Math.random() - 0.5) * 40,
         y: cy + Math.sin(angle) * spread + (Math.random() - 0.5) * 40,
-        vx: 0, vy: 0,
+        vx: 0,
+        vy: 0,
         radius: tier === 1 ? 22 : tier === 2 ? 14 : 9,
         tier,
       };
@@ -93,15 +122,22 @@ function initNodes(agents: Agent[], w: number, h: number): SimNode[] {
 }
 
 function initLinks(nodes: SimNode[]): SimLink[] {
-  const ids = new Set(nodes.map(n => n.id));
+  const ids = new Set(nodes.map((n) => n.id));
   return nodes
-    .filter(n => n.reportsTo && ids.has(n.reportsTo))
-    .map(n => ({ source: n.id, target: n.reportsTo! }));
+    .filter((n) => n.reportsTo && ids.has(n.reportsTo))
+    .map((n) => ({ source: n.id, target: n.reportsTo! }));
 }
 
-function tickSimulation(nodes: SimNode[], links: SimLink[], w: number, h: number, alpha: number) {
-  const nodeMap = new Map(nodes.map(n => [n.id, n]));
-  const cx = w / 2, cy = h / 2;
+function tickSimulation(
+  nodes: SimNode[],
+  links: SimLink[],
+  w: number,
+  h: number,
+  alpha: number,
+) {
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+  const cx = w / 2,
+    cy = h / 2;
 
   // Centre gravity
   for (const n of nodes) {
@@ -112,15 +148,20 @@ function tickSimulation(nodes: SimNode[], links: SimLink[], w: number, h: number
   // Repulsion between all nodes
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
-      const a = nodes[i], b = nodes[j];
-      let dx = b.x - a.x, dy = b.y - a.y;
+      const a = nodes[i],
+        b = nodes[j];
+      let dx = b.x - a.x,
+        dy = b.y - a.y;
       let dist = Math.sqrt(dx * dx + dy * dy) || 1;
       const minDist = (a.radius + b.radius) * 2.5;
       if (dist < minDist) {
         const force = ((minDist - dist) / dist) * 0.5 * alpha;
-        const fx = dx * force, fy = dy * force;
-        a.vx -= fx; a.vy -= fy;
-        b.vx += fx; b.vy += fy;
+        const fx = dx * force,
+          fy = dy * force;
+        a.vx -= fx;
+        a.vy -= fy;
+        b.vx += fx;
+        b.vy += fy;
       }
     }
   }
@@ -130,19 +171,24 @@ function tickSimulation(nodes: SimNode[], links: SimLink[], w: number, h: number
     const s = nodeMap.get(link.source);
     const t = nodeMap.get(link.target);
     if (!s || !t) continue;
-    let dx = t.x - s.x, dy = t.y - s.y;
+    let dx = t.x - s.x,
+      dy = t.y - s.y;
     let dist = Math.sqrt(dx * dx + dy * dy) || 1;
     const ideal = 60 + s.radius + t.radius;
     const force = (dist - ideal) * 0.003 * alpha;
-    const fx = (dx / dist) * force, fy = (dy / dist) * force;
-    s.vx += fx; s.vy += fy;
-    t.vx -= fx; t.vy -= fy;
+    const fx = (dx / dist) * force,
+      fy = (dy / dist) * force;
+    s.vx += fx;
+    s.vy += fy;
+    t.vx -= fx;
+    t.vy -= fy;
   }
 
   // Tier layering — push C-suite toward centre, juniors outward
   for (const n of nodes) {
     const targetR = n.tier === 1 ? 0 : n.tier === 2 ? 160 : 300;
-    const dx = n.x - cx, dy = n.y - cy;
+    const dx = n.x - cx,
+      dy = n.y - cy;
     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
     const force = (dist - targetR) * 0.003 * alpha;
     n.vx -= (dx / dist) * force;
@@ -155,7 +201,6 @@ function tickSimulation(nodes: SimNode[], links: SimLink[], w: number, h: number
     n.vy *= 0.6;
     n.x += n.vx;
     n.y += n.vy;
-    // Keep in bounds
     n.x = Math.max(n.radius, Math.min(w - n.radius, n.x));
     n.y = Math.max(n.radius, Math.min(h - n.radius, n.y));
   }
@@ -189,22 +234,32 @@ export function Swarm() {
     refetchInterval: 2000,
   });
 
-  // Build active agent set from live runs
-  const activeAgentIds = useMemo(() => {
-    const set = new Set<string>();
-    if (liveRuns) {
-      for (const run of liveRuns) {
-        if ((run as any).agentId) set.add((run as any).agentId);
+  // Map agentId → most-recent live run (so clicking shows real work)
+  const liveRunByAgent = useMemo(() => {
+    const m = new Map<string, LiveRunForIssue>();
+    if (!liveRuns) return m;
+    for (const run of liveRuns) {
+      const existing = m.get(run.agentId);
+      if (!existing) {
+        m.set(run.agentId, run);
+        continue;
       }
+      const runTs = new Date(run.startedAt ?? run.createdAt).getTime();
+      const existingTs = new Date(existing.startedAt ?? existing.createdAt).getTime();
+      if (runTs > existingTs) m.set(run.agentId, run);
     }
-    return set;
+    return m;
   }, [liveRuns]);
+
+  const activeAgentIds = useMemo(() => {
+    return new Set(liveRunByAgent.keys());
+  }, [liveRunByAgent]);
 
   // Resize observer
   useEffect(() => {
     const container = svgRef.current?.parentElement;
     if (!container) return;
-    const ro = new ResizeObserver(entries => {
+    const ro = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
       if (width > 0 && height > 0) setDimensions({ w: width, h: height });
     });
@@ -216,12 +271,16 @@ export function Swarm() {
   useEffect(() => {
     if (!agents?.length) return;
     const { w, h } = dimensions;
-    // Preserve positions if we already have nodes
-    const existing = new Map(nodesRef.current.map(n => [n.id, n]));
+    const existing = new Map(nodesRef.current.map((n) => [n.id, n]));
     const fresh = initNodes(agents, w, h);
     for (const n of fresh) {
       const prev = existing.get(n.id);
-      if (prev) { n.x = prev.x; n.y = prev.y; n.vx = prev.vx; n.vy = prev.vy; }
+      if (prev) {
+        n.x = prev.x;
+        n.y = prev.y;
+        n.vx = prev.vx;
+        n.vy = prev.vy;
+      }
     }
     nodesRef.current = fresh;
     linksRef.current = initLinks(fresh);
@@ -244,7 +303,7 @@ export function Swarm() {
         alpha = Math.max(0.01, alpha * 0.995);
         tickSimulation(nodesRef.current, linksRef.current, w, h, alpha);
         frame++;
-        if (frame % 2 === 0) forceRender(f => f + 1);
+        if (frame % 2 === 0) forceRender((f) => f + 1);
       }
       animRef.current = requestAnimationFrame(tick);
     }
@@ -254,32 +313,55 @@ export function Swarm() {
 
   const nodes = nodesRef.current;
   const links = linksRef.current;
-  const nodeMap = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
+  const nodeMap = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
   const { w, h } = dimensions;
+
+  // Tier-colour counts (for header legend)
+  const modelCounts = useMemo(() => {
+    const c: Record<string, number> = { Opus: 0, Sonnet: 0, Haiku: 0, Default: 0 };
+    for (const n of nodes) c[tierLabel(n.agent)] = (c[tierLabel(n.agent)] ?? 0) + 1;
+    return c;
+  }, [nodes]);
+
+  // Status counts (live)
+  const statusCounts = useMemo(() => {
+    let running = 0,
+      idle = 0,
+      error = 0;
+    for (const n of nodes) {
+      if (n.status === "running") running++;
+      else if (n.status === "error") error++;
+      else idle++;
+    }
+    return { running, idle, error };
+  }, [nodes]);
+
+  const selectedLiveRun = selected ? liveRunByAgent.get(selected.id) ?? null : null;
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div>
-          <h1 className="text-lg font-semibold">Swarm</h1>
+      {/* Header — airier spacing, status-first counts */}
+      <div className="flex items-start justify-between gap-6 border-b border-border px-5 py-4">
+        <div className="space-y-0.5">
+          <h1 className="text-lg font-semibold text-foreground">Swarm</h1>
           <p className="text-xs text-muted-foreground">
-            Live network view · {nodes.length} agents · {activeAgentIds.size} active
+            Live network view · {nodes.length} agents ·{" "}
+            <span className="font-medium text-sage-ink">{statusCounts.running} running</span>
+            {statusCounts.error > 0 && (
+              <>
+                {" · "}
+                <span className="font-medium text-rose-deep">{statusCounts.error} error</span>
+              </>
+            )}
           </p>
         </div>
-        <div className="flex items-center gap-4 text-xs">
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: "#f59e0b" }} />
-            Opus ({nodes.filter(n => tierLabel(n.agent) === "Opus").length})
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: "#3b82f6" }} />
-            Sonnet ({nodes.filter(n => tierLabel(n.agent) === "Sonnet").length})
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: "#10b981" }} />
-            Haiku ({nodes.filter(n => tierLabel(n.agent) === "Haiku").length})
-          </span>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <LegendSwatch color="var(--chart-4)" label={`Opus · ${modelCounts.Opus}`} />
+          <LegendSwatch color="var(--chart-5)" label={`Sonnet · ${modelCounts.Sonnet}`} />
+          <LegendSwatch color="var(--chart-1)" label={`Haiku · ${modelCounts.Haiku}`} />
+          {modelCounts.Default > 0 && (
+            <LegendSwatch color="var(--chart-3)" label={`Other · ${modelCounts.Default}`} />
+          )}
         </div>
       </div>
 
@@ -287,33 +369,36 @@ export function Swarm() {
       <div className="relative flex-1 overflow-hidden bg-background">
         <svg ref={svgRef} width={w} height={h} className="h-full w-full">
           <defs>
-            {/* Glow filter for active agents */}
-            <filter id="glow">
+            <filter id="swarm-glow">
               <feGaussianBlur stdDeviation="3" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            {/* Pulse animation */}
-            <radialGradient id="pulse-grad">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+            <radialGradient id="swarm-pulse">
+              <stop offset="0%" stopColor="var(--sage-ink)" stopOpacity="0.45" />
+              <stop offset="100%" stopColor="var(--sage-ink)" stopOpacity="0" />
             </radialGradient>
           </defs>
 
-          {/* Links */}
-          <g opacity={0.15}>
+          {/* Links — brighter when either endpoint is live */}
+          <g>
             {links.map((link, i) => {
               const s = nodeMap.get(link.source);
               const t = nodeMap.get(link.target);
               if (!s || !t) return null;
+              const live = s.status === "running" || t.status === "running";
               return (
                 <line
                   key={i}
-                  x1={s.x} y1={s.y} x2={t.x} y2={t.y}
-                  stroke="currentColor"
-                  strokeWidth={1}
+                  x1={s.x}
+                  y1={s.y}
+                  x2={t.x}
+                  y2={t.y}
+                  stroke={live ? "var(--sage-ink)" : "var(--border)"}
+                  strokeWidth={live ? 1.5 : 1}
+                  opacity={live ? 0.6 : 0.35}
                 />
               );
             })}
@@ -321,12 +406,12 @@ export function Swarm() {
 
           {/* Nodes */}
           <g>
-            {nodes.map(node => {
+            {nodes.map((node) => {
               const isActive = node.status === "running";
               const isHov = hovered?.id === node.id;
               const isSel = selected?.id === node.id;
               const fill = modelColor(node.agent);
-              const ring = statusRing(node.status);
+              const ring = statusColor(node.status);
               return (
                 <g
                   key={node.id}
@@ -336,37 +421,44 @@ export function Swarm() {
                   onMouseLeave={() => setHovered(null)}
                   onClick={() => setSelected(node === selected ? null : node)}
                 >
-                  {/* Active pulse ring */}
                   {isActive && (
-                    <circle r={node.radius * 2.2} fill="url(#pulse-grad)" opacity={0.6}>
-                      <animate attributeName="r" from={node.radius * 1.5} to={node.radius * 2.8} dur="1.5s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite" />
+                    <circle r={node.radius * 2.2} fill="url(#swarm-pulse)" opacity={0.6}>
+                      <animate
+                        attributeName="r"
+                        from={node.radius * 1.5}
+                        to={node.radius * 2.8}
+                        dur="1.5s"
+                        repeatCount="indefinite"
+                      />
+                      <animate
+                        attributeName="opacity"
+                        from="0.6"
+                        to="0"
+                        dur="1.5s"
+                        repeatCount="indefinite"
+                      />
                     </circle>
                   )}
-                  {/* Status ring */}
                   <circle
                     r={node.radius + 2}
                     fill="none"
                     stroke={ring}
                     strokeWidth={isActive ? 2.5 : 1.5}
-                    opacity={isActive ? 1 : 0.5}
+                    opacity={isActive ? 1 : 0.55}
                   />
-
-                  {/* Main circle */}
                   <circle
                     r={node.radius}
                     fill={fill}
-                    opacity={isHov || isSel ? 1 : 0.85}
-                    filter={isActive ? "url(#glow)" : undefined}
-                    stroke={isSel ? "#fff" : "none"}
+                    opacity={isHov || isSel ? 1 : 0.9}
+                    filter={isActive ? "url(#swarm-glow)" : undefined}
+                    stroke={isSel ? "var(--foreground)" : "none"}
                     strokeWidth={isSel ? 2 : 0}
                   />
-                  {/* Label for tier-1 nodes */}
                   {node.tier === 1 && (
                     <text
                       y={node.radius + 14}
                       textAnchor="middle"
-                      className="fill-muted-foreground"
+                      fill="var(--muted-foreground)"
                       style={{ fontSize: 9, fontWeight: 500, pointerEvents: "none" }}
                     >
                       {node.name}
@@ -384,67 +476,143 @@ export function Swarm() {
             className="pointer-events-none absolute z-10 rounded-md border border-border bg-popover px-3 py-2 text-xs shadow-lg"
             style={{ left: hovered.x + hovered.radius + 12, top: hovered.y - 10 }}
           >
-            <div className="font-semibold text-foreground">{hovered.name}</div>
+            <div className="font-semibold text-popover-foreground">{hovered.name}</div>
             <div className="text-muted-foreground">{hovered.title}</div>
             <div className="mt-1 flex items-center gap-2">
-              <span className="inline-block h-2 w-2 rounded-full" style={{ background: modelColor(hovered.agent) }} />
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ background: modelColor(hovered.agent) }}
+              />
               <span>{tierLabel(hovered.agent)}</span>
               <span className="text-muted-foreground">·</span>
-              <span style={{ color: statusRing(hovered.status) }}>{hovered.status}</span>
+              <span style={{ color: statusColor(hovered.status) }}>
+                {statusLabel(hovered.status)}
+              </span>
             </div>
           </div>
         )}
 
         {/* Selected agent panel */}
         {selected && (
-          <div className="absolute bottom-4 right-4 z-20 w-72 rounded-lg border border-border bg-card p-4 shadow-xl">
-            <div className="mb-3 flex items-start justify-between">
-              <div>
-                <div className="text-sm font-semibold text-foreground">{selected.name}</div>
-                <div className="text-xs text-muted-foreground">{selected.title}</div>
+          <div className="absolute bottom-5 right-5 z-20 w-80 rounded-xl border border-border bg-card p-5 shadow-xl">
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-semibold text-card-foreground">
+                  {selected.name}
+                </div>
+                <div className="truncate text-xs text-muted-foreground">{selected.title}</div>
               </div>
               <button
+                type="button"
                 onClick={() => setSelected(null)}
-                className="text-muted-foreground hover:text-foreground"
+                className="-m-1 p-1 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Close"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Model tier</span>
-                <span className="flex items-center gap-1.5">
-                  <span className="inline-block h-2 w-2 rounded-full" style={{ background: modelColor(selected.agent) }} />
-                  {tierLabel(selected.agent)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Status</span>
-                <span style={{ color: statusRing(selected.status) }}>{selected.status}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Role</span>
-                <span>{selected.role}</span>
-              </div>
 
-              {selected.reportsTo && nodeMap.get(selected.reportsTo) && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Reports to</span>
-                  <span>{nodeMap.get(selected.reportsTo)!.name}</span>
+            {/* Current work — shown only when a live run exists */}
+            {selectedLiveRun ? (
+              <div className="mb-3 rounded-lg bg-sage-surface px-3 py-2.5 text-xs">
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <span className="font-medium text-sage-body">Current work</span>
+                  <span className="flex items-center gap-1 text-sage-body/80">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sage-ink opacity-75" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-sage-ink" />
+                    </span>
+                    Live
+                  </span>
                 </div>
-              )}
-              <div className="pt-2">
-                <a
-                  href={`/agents/${selected.id}`}
-                  className="text-primary hover:underline"
-                >
-                  View agent details →
-                </a>
+                <div className="line-clamp-2 text-sage-body">
+                  {selectedLiveRun.triggerDetail ?? "Running…"}
+                </div>
+                <div className="mt-1.5 flex items-center justify-between text-[11px] text-sage-body/70">
+                  <span>
+                    {selectedLiveRun.invocationSource.replace(/_/g, " ")} ·{" "}
+                    {selectedLiveRun.status}
+                  </span>
+                  <span>
+                    {relativeTime(selectedLiveRun.startedAt ?? selectedLiveRun.createdAt)}
+                  </span>
+                </div>
+                {selectedLiveRun.issueId && (
+                  <a
+                    href={`/issues/${selectedLiveRun.issueId}`}
+                    className="mt-2 inline-block text-[11px] font-medium text-sage-ink hover:underline"
+                  >
+                    View task →
+                  </a>
+                )}
               </div>
+            ) : (
+              <div className="mb-3 rounded-lg bg-muted/60 px-3 py-2.5 text-xs text-muted-foreground">
+                Not running right now.
+              </div>
+            )}
+
+            <div className="space-y-2 text-xs">
+              <Row
+                label="Model tier"
+                value={
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className="inline-block h-2 w-2 rounded-full"
+                      style={{ background: modelColor(selected.agent) }}
+                    />
+                    {tierLabel(selected.agent)}
+                  </span>
+                }
+              />
+              <Row
+                label="Status"
+                value={
+                  <span style={{ color: statusColor(selected.status) }}>
+                    {statusLabel(selected.status)}
+                  </span>
+                }
+              />
+              <Row label="Role" value={selected.role} />
+              {selected.reportsTo && nodeMap.get(selected.reportsTo) && (
+                <Row label="Reports to" value={nodeMap.get(selected.reportsTo)!.name} />
+              )}
+            </div>
+
+            <div className="mt-3 border-t border-border pt-3">
+              <a
+                href={`/agents/${selected.id}`}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                View agent details →
+              </a>
             </div>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ── tiny sub-components kept local to avoid noise ──────────── */
+function LegendSwatch({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span
+        className="inline-block h-2.5 w-2.5 rounded-full"
+        style={{ background: color }}
+        aria-hidden
+      />
+      {label}
+    </span>
+  );
+}
+
+function Row({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="text-card-foreground">{value}</span>
     </div>
   );
 }
