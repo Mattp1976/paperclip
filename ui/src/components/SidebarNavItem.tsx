@@ -95,7 +95,7 @@ export function SidebarNavItem({
               <span
                 className={cn(
                   "text-[11px] font-medium",
-                  isActive ? "text-white" : "text-[#5E7259] dark:text-[#C5D4BC]",
+                  isActive ? "text-white" : "text-sage-ink",
                 )}
               >
                 {liveCount} live

@@ -191,7 +191,7 @@ export function FleetHealthOverview({ companyId }: { companyId: string }) {
             className={cn(
               "text-sm font-semibold tabular-nums",
               healthScore >= 90
-                ? "text-[#5E7259] dark:text-[#C5D4BC]"
+                ? "text-sage-ink"
                 : healthScore >= 70
                   ? "text-amber-600 dark:text-amber-400"
                   : "text-red-600 dark:text-red-400",
@@ -289,7 +289,7 @@ function HealthPill({ severity, count }: { severity: Severity; count: number }) 
   const colors = {
     critical: "bg-red-500/10 text-red-600 dark:text-red-400",
     warning: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    healthy: "bg-[#A4BD95]/10 text-[#5E7259] dark:text-[#C5D4BC]",
+    healthy: "bg-[#A4BD95]/10 text-sage-ink",
   };
 
   return (

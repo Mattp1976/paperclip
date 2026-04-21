@@ -60,9 +60,9 @@ export function HeroKpi({
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="rounded-xl bg-white/70 dark:bg-white/10 p-2 backdrop-blur-sm">
-              <Icon className="h-4 w-4 text-[#5E7259] dark:text-[#C5D4BC]" strokeWidth={2.2} />
+              <Icon className="h-4 w-4 text-sage-ink" strokeWidth={2.2} />
             </div>
-            <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[#5E7259]/85 dark:text-[#C5D4BC]/80">
+            <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-sage-ink/85">
               {label}
             </p>
           </div>
@@ -83,7 +83,7 @@ export function HeroKpi({
         </div>
 
         {description && (
-          <div className="mt-3 text-[13px] leading-relaxed text-[#5E7259]/85 dark:text-[#C5D4BC]/80">
+          <div className="mt-3 text-[13px] leading-relaxed text-sage-ink/85">
             {description}
           </div>
         )}

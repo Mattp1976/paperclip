@@ -143,7 +143,7 @@ function RunRow({
       <div className="flex items-center gap-2.5 px-3 py-2.5">
         {/* Status icon */}
         {isSuccess && (
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-[#5E7259]" />
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-sage-ink" />
         )}
         {isError && <XCircle className="h-4 w-4 shrink-0 text-destructive" />}
         {isRunning && (
@@ -301,7 +301,7 @@ export function RunSummaryCard({
           </span>
 
           {stats.succeeded > 0 && (
-            <div className="flex items-center gap-1 text-xs text-[#5E7259] dark:text-[#C5D4BC]">
+            <div className="flex items-center gap-1 text-xs text-sage-ink">
               <CheckCircle2 className="h-3 w-3" />
               <span>{stats.succeeded} succeeded</span>
             </div>

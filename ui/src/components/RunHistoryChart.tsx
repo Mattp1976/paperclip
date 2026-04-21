@@ -265,7 +265,7 @@ function KpiCard({
       <p
         className={cn(
           "text-lg font-semibold tabular-nums",
-          tone === "green" && "text-[#5E7259] dark:text-[#C5D4BC]",
+          tone === "green" && "text-sage-ink",
           tone === "amber" && "text-amber-600 dark:text-amber-400",
           tone === "red" && "text-red-600 dark:text-red-400",
         )}

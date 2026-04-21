@@ -61,7 +61,7 @@ function SaveIndicator({ state }: { state: ProjectFieldSaveState }) {
   }
   if (state === "saved") {
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] text-[#5E7259] dark:text-[#C5D4BC]">
+      <span className="inline-flex items-center gap-1 text-[11px] text-sage-ink">
         <Check className="h-3 w-3" />
         Saved
       </span>
@@ -737,7 +737,7 @@ export function ProjectProperties({ project, onUpdate, onFieldUpdate, getFieldSa
                           className={cn(
                             "rounded-full px-1.5 py-0.5 text-[10px] uppercase tracking-wide",
                             service.status === "running"
-                              ? "bg-[#A4BD95]/15 text-[#5E7259] dark:text-[#D7E4CB]"
+                              ? "bg-[#A4BD95]/15 text-sage-ink"
                               : service.status === "failed"
                                 ? "bg-red-500/15 text-red-700 dark:text-red-300"
                                 : "bg-muted text-muted-foreground",

@@ -115,7 +115,7 @@ export function SpendHeroCard({
 
       <div className="relative flex items-start justify-between gap-3">
         <div>
-          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[#5E7259]/80 dark:text-[#C5D4BC]/80">
+          <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-sage-ink/80">
             This month
           </p>
           <p className="text-sm font-medium text-[#3D4A37]/85 dark:text-[#E4EEDC]/85 mt-1.5">
@@ -139,7 +139,7 @@ export function SpendHeroCard({
         )}
       </div>
 
-      <p className="relative mt-3 text-[13px] leading-relaxed text-[#5E7259]/80 dark:text-[#C5D4BC]/80">
+      <p className="relative mt-3 text-[13px] leading-relaxed text-sage-ink/80">
         {hasBudget
           ? `${Math.round(utilizationPercent)}% of ${formatCents(monthBudgetCents)} budget`
           : "No monthly budget set"}
@@ -152,7 +152,7 @@ export function SpendHeroCard({
             style={{ width: `${hasBudget ? barPct : 0}%` }}
           />
         </div>
-        <div className="mt-2.5 flex items-center justify-between text-[10px] text-[#5E7259]/70 dark:text-[#C5D4BC]/70">
+        <div className="mt-2.5 flex items-center justify-between text-[10px] text-sage-ink/70">
           <span>Start of month</span>
           <span>{hasBudget ? formatCents(monthBudgetCents) : "Unlimited"}</span>
         </div>

@@ -34,7 +34,7 @@ const QUICK_MODES: Record<
     icon: ListTodo,
     label: "Task",
     hint: "Describe what you need done...",
-    color: "text-[#5E7259]",
+    color: "text-sage-ink",
     bg: "bg-[#8FA781]/10 border-[#8FA781]/20",
   },
   ask: {
@@ -500,7 +500,7 @@ export function QuickInputBar() {
         <div className="border-t border-green-200/60 dark:border-green-500/20 bg-green-50/50 dark:bg-green-950/20 px-4 py-3 rounded-b-2xl">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
-              <CheckCircle2 className="h-4 w-4 text-[#5E7259] dark:text-[#C5D4BC] shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-sage-ink shrink-0" />
               <span className="text-sm text-[#3D4A37] dark:text-[#D7E4CB] font-medium truncate">
                 {confirmation.mode === "ask"
                   ? "Question sent"
@@ -513,7 +513,7 @@ export function QuickInputBar() {
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-[#5E7259]/60 dark:text-[#C5D4BC]/60 hidden sm:inline">
+              <span className="text-xs text-sage-ink/60 hidden sm:inline">
                 Watch below for results
               </span>
               <a
@@ -523,14 +523,14 @@ export function QuickInputBar() {
                   setConfirmation(null);
                   navigate(confirmation.issueHref);
                 }}
-                className="text-xs text-[#5E7259] dark:text-[#C5D4BC] font-medium hover:underline"
+                className="text-xs text-sage-ink font-medium hover:underline"
               >
                 View details →
               </a>
               <button
                 type="button"
                 onClick={() => setConfirmation(null)}
-                className="text-[#5E7259]/50 hover:text-[#5E7259] dark:text-[#C5D4BC]/50 dark:hover:text-green-400 transition-colors"
+                className="text-sage-ink/50 hover:text-sage-ink/50 dark:hover:text-green-400 transition-colors"
                 aria-label="Dismiss"
               >
                 ×

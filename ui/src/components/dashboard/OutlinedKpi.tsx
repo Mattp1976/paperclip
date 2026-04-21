@@ -23,7 +23,7 @@ interface OutlinedKpiProps {
 
 const toneClasses: Record<NonNullable<OutlinedKpiProps["tone"]>, { icon: string; iconBg: string }> = {
   default: {
-    icon: "text-[#5E7259] dark:text-[#C5D4BC]",
+    icon: "text-sage-ink",
     iconBg: "bg-[#E4EEDC] dark:bg-[#3B4A37]/50",
   },
   amber: {

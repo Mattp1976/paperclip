@@ -114,7 +114,7 @@ const TEMPLATES: CompanyTemplate[] = [
     name: "Engineering Team",
     description: "A structured engineering team with a tech lead, backend and frontend engineers, and a QA specialist.",
     icon: Code2,
-    color: "text-[#5E7259]",
+    color: "text-sage-ink",
     bgColor: "bg-[#8FA781]/10",
     companyName: "Engineering Squad",
     companyDescription: "A focused engineering team building and maintaining software products.",

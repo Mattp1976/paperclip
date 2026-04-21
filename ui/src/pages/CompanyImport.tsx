@@ -100,7 +100,7 @@ function ensureMarkdownPath(p: string): string {
 }
 
 const ACTION_COLORS: Record<string, string> = {
-  create: "text-[#5E7259] border-[#8FA781]/30",
+  create: "text-sage-ink border-[#8FA781]/30",
   update: "text-amber-500 border-amber-500/30",
   overwrite: "text-red-500 border-red-500/30",
   replace: "text-red-500 border-red-500/30",
@@ -407,7 +407,7 @@ function ConflictResolutionList({
                   isSkipped
                     ? "text-muted-foreground border-border"
                     : isConfirmed
-                      ? "text-[#5E7259] border-[#8FA781]/30"
+                      ? "text-sage-ink border-[#8FA781]/30"
                       : "text-amber-500 border-amber-500/30",
                 )}>
                   {item.kind}
@@ -424,7 +424,7 @@ function ConflictResolutionList({
                   <>
                     <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
                     {isConfirmed ? (
-                      <span className="min-w-0 flex-1 font-mono text-xs text-[#5E7259]">
+                      <span className="min-w-0 flex-1 font-mono text-xs text-sage-ink">
                         {currentName}
                       </span>
                     ) : (
@@ -444,7 +444,7 @@ function ConflictResolutionList({
                     className={cn(
                       "ml-auto shrink-0 rounded-md border px-2.5 py-1 text-xs transition-colors inline-flex items-center gap-1.5",
                       isConfirmed
-                        ? "border-[#8FA781]/30 bg-[#8FA781]/10 text-[#5E7259]"
+                        ? "border-[#8FA781]/30 bg-[#8FA781]/10 text-sage-ink"
                         : "border-border text-muted-foreground hover:bg-accent/50",
                     )}
                     onClick={() => onToggleConfirm(item.slug)}

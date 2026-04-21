@@ -20,6 +20,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-sage-ink: var(--sage-ink);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -66,6 +67,7 @@
   --accent-foreground: oklch(0.28 0.012 60);
   --destructive: oklch(0.66 0.12 20);             /* dusty rose (was red) */
   --destructive-foreground: oklch(0.99 0.005 75);
+  --sage-ink: oklch(0.45 0.032 140);              /* deep sage for icons/labels; matches #5E7259 */
   --border: oklch(0.905 0.008 75);                /* warm taupe border */
   --input: oklch(0.905 0.008 75);
   --ring: oklch(0.68 0.055 140);
@@ -101,6 +103,7 @@
   --accent-foreground: oklch(0.95 0.008 75);
   --destructive: oklch(0.70 0.12 20);
   --destructive-foreground: oklch(0.95 0.008 75);
+  --sage-ink: oklch(0.83 0.028 140);              /* pale sage for icons/labels on dark; matches #C5D4BC */
   --border: oklch(0.31 0.012 60);
   --input: oklch(0.31 0.012 60);
   --ring: oklch(0.72 0.07 140);

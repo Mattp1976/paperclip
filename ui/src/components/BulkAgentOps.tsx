@@ -351,7 +351,7 @@ export function BulkAgentOps({ companyId }: BulkAgentOpsProps) {
               )}
 
               {!running && results.length > 0 && failCount === 0 && (
-                <p className="text-xs text-[#5E7259] dark:text-[#C5D4BC] flex items-center gap-1">
+                <p className="text-xs text-sage-ink flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" />
                   All {successCount} operations completed successfully
                 </p>

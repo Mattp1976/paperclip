@@ -178,12 +178,12 @@ export function ApprovalDetail() {
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-2">
               <div className="relative mt-0.5">
-                <CheckCircle2 className="h-4 w-4 text-[#5E7259] dark:text-[#D7E4CB]" />
+                <CheckCircle2 className="h-4 w-4 text-sage-ink" />
                 <Sparkles className="h-3 w-3 text-green-500 dark:text-[#E4EEDC] absolute -right-2 -top-1 animate-pulse" />
               </div>
               <div>
                 <p className="text-sm text-[#3D4A37] dark:text-green-100 font-medium">Approval confirmed</p>
-                <p className="text-xs text-[#5E7259] dark:text-[#E4EEDC]/90">
+                <p className="text-xs text-sage-ink dark:text-[#E4EEDC]/90">
                   Requesting agent was notified to review this approval and linked issues.
                 </p>
               </div>

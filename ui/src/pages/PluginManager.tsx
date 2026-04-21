@@ -404,7 +404,7 @@ export function PluginManager() {
                           }}
                           disabled={enableMutation.isPending || disableMutation.isPending}
                         >
-                          <Power className={cn("h-4 w-4", plugin.status === "ready" ? "text-[#5E7259]" : "")} />
+                          <Power className={cn("h-4 w-4", plugin.status === "ready" ? "text-sage-ink" : "")} />
                         </Button>
                         <Button
                           variant="outline"

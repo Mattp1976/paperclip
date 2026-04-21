@@ -172,7 +172,7 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
 
       <div className="mt-7 flex items-start gap-4">
         <div className="rounded-2xl bg-[#E4EEDC] dark:bg-[#3B4A37]/50 p-3">
-          <Icon className="h-5 w-5 text-[#5E7259] dark:text-[#C5D4BC]" strokeWidth={2.2} />
+          <Icon className="h-5 w-5 text-sage-ink" strokeWidth={2.2} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-lg font-semibold leading-snug text-foreground line-clamp-2 tracking-tight">

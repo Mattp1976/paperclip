@@ -88,7 +88,7 @@ function MetricTile({
           <div className="mt-2 text-2xl font-semibold tabular-nums text-foreground">{value}</div>
           <div className="mt-1 text-xs leading-5 text-muted-foreground">{subtitle}</div>
         </div>
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E4ECDF] text-[#5E7259] dark:bg-[#3E4A3A] dark:text-[#C5D4BC]">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E4ECDF] text-sage-ink dark:bg-[#3E4A3A]">
           <Icon className="h-4 w-4" />
         </div>
       </div>

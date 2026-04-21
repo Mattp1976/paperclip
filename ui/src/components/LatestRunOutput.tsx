@@ -96,7 +96,7 @@ function CopyButton({ text }: { text: string }) {
       }}
       className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
     >
-      {copied ? <Check className="h-3 w-3 text-[#5E7259]" /> : <Copy className="h-3 w-3" />}
+      {copied ? <Check className="h-3 w-3 text-sage-ink" /> : <Copy className="h-3 w-3" />}
       {copied ? "Copied" : "Copy"}
     </button>
   );
@@ -156,7 +156,7 @@ function SingleRunOutput({
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400" />
           </span>
         )}
-        {isSuccess && <CheckCircle2 className="h-4 w-4 shrink-0 text-[#5E7259]" />}
+        {isSuccess && <CheckCircle2 className="h-4 w-4 shrink-0 text-sage-ink" />}
         {isError && <XCircle className="h-4 w-4 shrink-0 text-red-500" />}
         {!isLive && !isSuccess && !isError && <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />}
 

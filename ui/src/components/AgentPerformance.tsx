@@ -22,7 +22,7 @@ import type { HeartbeatRun } from "@mattparrytfc/shared";
 /* ── helpers ──────────────────────────────────────────────────── */
 
 function statusIcon(s: string) {
-  if (s === "succeeded") return <CheckCircle2 className="h-4 w-4 text-[#5E7259]" />;
+  if (s === "succeeded") return <CheckCircle2 className="h-4 w-4 text-sage-ink" />;
   if (s === "failed") return <XCircle className="h-4 w-4 text-destructive" />;
   if (s === "cancelled") return <Minus className="h-4 w-4 text-zinc-400" />;
   if (s === "timed_out") return <Clock className="h-4 w-4 text-amber-500" />;
@@ -241,7 +241,7 @@ function StatCard({
       <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
         {icon}
         {label}
-        {trend === "up" && <TrendingUp className="h-3 w-3 text-[#5E7259] ml-auto" />}
+        {trend === "up" && <TrendingUp className="h-3 w-3 text-sage-ink ml-auto" />}
         {trend === "down" && <TrendingDown className="h-3 w-3 text-destructive ml-auto" />}
         {trend === "flat" && <Minus className="h-3 w-3 text-zinc-400 ml-auto" />}
       </div>
@@ -255,7 +255,7 @@ function StatCard({
 
 function InsightCard({ insight }: { insight: Insight }) {
   const iconMap = {
-    success: <CheckCircle2 className="h-4 w-4 text-[#5E7259] mt-0.5 shrink-0" />,
+    success: <CheckCircle2 className="h-4 w-4 text-sage-ink mt-0.5 shrink-0" />,
     warning: <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />,
     suggestion: <Lightbulb className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />,
   };

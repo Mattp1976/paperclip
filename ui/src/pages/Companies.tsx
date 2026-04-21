@@ -178,7 +178,7 @@ export function Companies() {
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${
                           company.status === "active"
-                            ? "bg-[#A4BD95]/10 text-[#5E7259] dark:text-[#C5D4BC]"
+                            ? "bg-[#A4BD95]/10 text-sage-ink"
                             : company.status === "paused"
                               ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
                               : "bg-muted text-muted-foreground"

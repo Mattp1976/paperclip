@@ -48,7 +48,7 @@ const MODE_META: Record<ComposerMode, { icon: typeof MessageSquare; label: strin
     icon: ListTodo,
     label: "Task",
     placeholder: "Describe a task you want done...",
-    color: "text-[#5E7259]",
+    color: "text-sage-ink",
   },
   decision: {
     icon: MessageSquare,
