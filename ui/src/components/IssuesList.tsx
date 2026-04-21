@@ -333,7 +333,7 @@ export function IssuesList({
                 setIssueSearch(e.target.value);
                 onSearchChange?.(e.target.value);
               }}
-              placeholder="Search issues..."
+              placeholder="Search tasks..."
               className="pl-7 text-xs sm:text-sm"
               aria-label="Search issues"
             />
@@ -614,8 +614,8 @@ export function IssuesList({
       {!isLoading && filtered.length === 0 && viewState.viewMode === "list" && (
         <EmptyState
           icon={CircleDot}
-          message="No issues match the current filters or search."
-          action="Create Issue"
+          message="No tasks match the current filters or search."
+          action="New Task"
           onAction={() => openNewIssue(newIssueDefaults())}
         />
       )}

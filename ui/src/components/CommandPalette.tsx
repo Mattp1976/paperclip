@@ -33,6 +33,20 @@ import {
 import { Identity } from "./Identity";
 import { agentUrl, projectUrl } from "../lib/utils";
 
+/**
+ * Small pill shown on the right edge of a search result so the user can tell
+ * at a glance what kind of thing they're about to open — Task vs. Agent vs.
+ * Project. Group headings already say the same thing, but on narrow screens
+ * or when scanning quickly the per-row pill is the bit that actually reads.
+ */
+function ScopeLabel({ label }: { label: string }) {
+  return (
+    <span className="ml-auto shrink-0 rounded-md border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground/80">
+      {label}
+    </span>
+  );
+}
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -107,7 +121,7 @@ export function CommandPalette() {
         if (v && isMobile) setSidebarOpen(false);
       }}>
       <CommandInput
-        placeholder="Search issues, agents, projects..."
+        placeholder="Search tasks, agents, projects..."
         value={query}
         onValueChange={setQuery}
       />
@@ -132,7 +146,7 @@ export function CommandPalette() {
             }}
           >
             <SquarePen className="mr-2 h-4 w-4" />
-            Create new issue
+            Create new task
             <span className="ml-auto text-xs text-muted-foreground">C</span>
           </CommandItem>
           <CommandItem
@@ -163,7 +177,7 @@ export function CommandPalette() {
           </CommandItem>
           <CommandItem onSelect={() => go("/issues")}>
             <CircleDot className="mr-2 h-4 w-4" />
-            Issues
+            Tasks
           </CommandItem>
           <CommandItem onSelect={() => go("/projects")}>
             <Hexagon className="mr-2 h-4 w-4" />
@@ -190,7 +204,7 @@ export function CommandPalette() {
         {visibleIssues.length > 0 && (
           <>
             <CommandSeparator />
-            <CommandGroup heading="Issues">
+            <CommandGroup heading="Tasks">
               {visibleIssues.slice(0, 10).map((issue) => (
                 <CommandItem
                   key={issue.id}
@@ -208,8 +222,9 @@ export function CommandPalette() {
                   <span className="flex-1 truncate">{issue.title}</span>
                   {issue.assigneeAgentId && (() => {
                     const name = agentName(issue.assigneeAgentId);
-                    return name ? <Identity name={name} size="sm" className="ml-2 hidden sm:inline-flex" /> : null;
+                    return name ? <Identity name={name} size="sm" className="ml-2 hidden shrink-0 sm:inline-flex" /> : null;
                   })()}
+                  <ScopeLabel label="Task" />
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -223,8 +238,9 @@ export function CommandPalette() {
               {agents.slice(0, 10).map((agent) => (
                 <CommandItem key={agent.id} onSelect={() => go(agentUrl(agent))}>
                   <Bot className="mr-2 h-4 w-4" />
-                  {agent.name}
-                  <span className="text-xs text-muted-foreground ml-2">{agent.role}</span>
+                  <span className="truncate">{agent.name}</span>
+                  <span className="text-xs text-muted-foreground ml-2 truncate">{agent.role}</span>
+                  <ScopeLabel label="Agent" />
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -238,7 +254,8 @@ export function CommandPalette() {
               {projects.slice(0, 10).map((project) => (
                 <CommandItem key={project.id} onSelect={() => go(projectUrl(project))}>
                   <Hexagon className="mr-2 h-4 w-4" />
-                  {project.name}
+                  <span className="truncate">{project.name}</span>
+                  <ScopeLabel label="Project" />
                 </CommandItem>
               ))}
             </CommandGroup>

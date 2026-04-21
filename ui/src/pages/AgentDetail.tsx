@@ -227,7 +227,13 @@ function scrollToContainerBottom(container: ScrollContainer, behavior: ScrollBeh
   container.scrollTo({ top: container.scrollHeight, behavior });
 }
 
-type AgentDetailView = "dashboard" | "instructions" | "configuration" | "skills" | "runs" | "io" | "budget" | "performance" | "guardrails" | "security" | "memory";
+// The Agent Detail page used to have 11 tabs which felt cluttered. We now
+// render 9: Performance is merged into the Runs tab, Guardrails is merged
+// into the Security tab. The legacy "performance" and "guardrails" URL paths
+// still resolve — parseAgentDetailView remaps them to their new home so old
+// bookmarks keep working, and the canonical-URL redirect below rewrites the
+// address bar once the agent loads.
+type AgentDetailView = "dashboard" | "instructions" | "configuration" | "skills" | "runs" | "io" | "budget" | "security" | "memory";
 
 function parseAgentDetailView(value: string | null): AgentDetailView {
   if (value === "instructions" || value === "prompts") return "instructions";
@@ -236,8 +242,10 @@ function parseAgentDetailView(value: string | null): AgentDetailView {
   if (value === "budget") return "budget";
   if (value === "runs") return value;
   if (value === "io" || value === "outputs") return "io";
-  if (value === "performance") return value;
-  if (value === "guardrails") return value;
+  // Legacy path — Performance now lives inside the Runs tab.
+  if (value === "performance") return "runs";
+  // Legacy path — Guardrails now live inside the Security tab.
+  if (value === "guardrails") return "security";
   if (value === "security") return value;
   if (value === "memory") return value;
   return "dashboard";
@@ -765,7 +773,7 @@ export function AgentDetail() {
         crumbs.push({ label: "Runs", href: `/agents/${canonicalAgentRef}/runs` });
         crumbs.push({ label: `Run ${urlRunId.slice(0, 8)}` });
       } else if (activeView === "instructions") {
-        crumbs.push({ label: "Instructions" });
+        crumbs.push({ label: "Brief" });
       } else if (activeView === "configuration") {
         crumbs.push({ label: "Configuration" });
       // } else if (activeView === "skills") { // TODO: bring back later
@@ -774,18 +782,14 @@ export function AgentDetail() {
         crumbs.push({ label: "Runs" });
       } else if (activeView === "io") {
         crumbs.push({ label: "I/O" });
-      } else if (activeView === "performance") {
-        crumbs.push({ label: "Performance" });
       } else if (activeView === "security") {
         crumbs.push({ label: "Security" });
       } else if (activeView === "memory") {
         crumbs.push({ label: "Memory" });
-      } else if (activeView === "guardrails") {
-        crumbs.push({ label: "Guardrails" });
       } else if (activeView === "budget") {
         crumbs.push({ label: "Budget" });
       } else {
-        crumbs.push({ label: "Dashboard" });
+        crumbs.push({ label: "Overview" });
       }
     }
     setBreadcrumbs(crumbs);
@@ -918,17 +922,18 @@ export function AgentDetail() {
         >
           <PageTabBar
             items={[
-              { value: "dashboard", label: "Dashboard" },
-              { value: "instructions", label: "Instructions" },
+              // Identity / at-a-glance
+              { value: "dashboard", label: "Overview" },
+              // How the agent is set up
+              { value: "instructions", label: "Brief" },
               { value: "skills", label: "Skills" },
               { value: "configuration", label: "Configuration" },
+              { value: "memory", label: "Memory" },
+              { value: "budget", label: "Budget" },
+              { value: "security", label: "Security" },
+              // What the agent is doing
               { value: "runs", label: "Runs" },
               { value: "io", label: "I/O" },
-              { value: "performance", label: "Performance" },
-              { value: "security", label: "Security" },
-              { value: "memory", label: "Memory" },
-              { value: "guardrails", label: "Guardrails" },
-              { value: "budget", label: "Budget" },
             ]}
             value={activeView}
             onValueChange={(value) => navigate(`/agents/${canonicalAgentRef}/${value}`)}
@@ -1043,34 +1048,34 @@ export function AgentDetail() {
       )}
 
       {activeView === "runs" && (
-        <RunsTab
-          runs={heartbeats ?? []}
-          companyId={resolvedCompanyId!}
-          agentId={agent.id}
-          agentRouteId={canonicalAgentRef}
-          selectedRunId={urlRunId ?? null}
-          adapterType={agent.adapterType}
-        />
+        <div className="space-y-8">
+          <RunsTab
+            runs={heartbeats ?? []}
+            companyId={resolvedCompanyId!}
+            agentId={agent.id}
+            agentRouteId={canonicalAgentRef}
+            selectedRunId={urlRunId ?? null}
+            adapterType={agent.adapterType}
+          />
+          {resolvedCompanyId && (
+            <AgentPerformance agentId={agent.id} companyId={resolvedCompanyId} />
+          )}
+        </div>
       )}
 
       {activeView === "io" && resolvedCompanyId && (
         <AgentIOPanel agentId={agent.id} companyId={resolvedCompanyId} />
       )}
 
-      {activeView === "performance" && resolvedCompanyId && (
-        <AgentPerformance agentId={agent.id} companyId={resolvedCompanyId} />
-      )}
-
       {activeView === "security" && resolvedCompanyId && (
-        <AgentSecurityPanel agentId={agent.id} companyId={resolvedCompanyId} />
+        <div className="space-y-8">
+          <AgentSecurityPanel agentId={agent.id} companyId={resolvedCompanyId} />
+          <AgentGuardrails agentId={agent.id} companyId={resolvedCompanyId} />
+        </div>
       )}
 
       {activeView === "memory" && resolvedCompanyId && (
         <AgentMemoryPanel agentId={agent.id} companyId={resolvedCompanyId} />
-      )}
-
-      {activeView === "guardrails" && resolvedCompanyId && (
-        <AgentGuardrails agentId={agent.id} companyId={resolvedCompanyId} />
       )}
 
       {activeView === "budget" && resolvedCompanyId ? (

@@ -81,6 +81,41 @@ function AgentChip({
   );
 }
 
+/* ── First-run explainer ───────────────────────────────────────── */
+
+const EXPLAINER_STORAGE_KEY = "paperclip:quickbar-explainer-dismissed";
+
+function useExplainerDismissed() {
+  const [dismissed, setDismissed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      return window.localStorage.getItem(EXPLAINER_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  const dismiss = useCallback(() => {
+    try {
+      window.localStorage.setItem(EXPLAINER_STORAGE_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+    setDismissed(true);
+  }, []);
+
+  const reopen = useCallback(() => {
+    try {
+      window.localStorage.removeItem(EXPLAINER_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    setDismissed(false);
+  }, []);
+
+  return { dismissed, dismiss, reopen };
+}
+
 /* ── Main QuickInputBar ────────────────────────────────────────── */
 
 export function QuickInputBar() {
@@ -89,6 +124,8 @@ export function QuickInputBar() {
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { dismissed: explainerDismissed, dismiss: dismissExplainer, reopen: reopenExplainer } =
+    useExplainerDismissed();
 
   const [mode, setMode] = useState<QuickMode>("task");
   // Track whether the user has manually overridden the mode in this draft.
@@ -295,6 +332,32 @@ export function QuickInputBar() {
   const isExpanded = focused || input.length > 0;
 
   return (
+    <div className="space-y-2">
+      {!explainerDismissed && (
+        <div className="relative rounded-2xl border border-[#8FA781]/25 bg-[#8FA781]/[0.06] px-4 py-3 pr-9 dark:border-[#8FA781]/30 dark:bg-[#8FA781]/[0.08]">
+          <div className="flex items-start gap-3">
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#7C9470] dark:text-[#A4BD95]" />
+            <div className="text-xs leading-relaxed text-[#3D4A37] dark:text-[#D7E4CB]">
+              <p className="font-medium">This is your agent composer.</p>
+              <p className="mt-0.5 text-[#3D4A37]/75 dark:text-[#D7E4CB]/75">
+                Type what you want an agent to do, ask, or decide. Pick an agent with a chip or
+                just say <span className="font-medium">"tell Eleanor …"</span> and one of your
+                agents will pick it up. <kbd className="rounded border border-border bg-background/60 px-1 py-0.5 font-mono text-[10px]">/</kbd> focuses the bar, <kbd className="rounded border border-border bg-background/60 px-1 py-0.5 font-mono text-[10px]">Tab</kbd> switches mode.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={dismissExplainer}
+            className="absolute right-2 top-2 rounded-md p-1 text-[#3D4A37]/50 transition-colors hover:bg-[#8FA781]/10 hover:text-[#3D4A37] dark:text-[#D7E4CB]/50 dark:hover:text-[#D7E4CB]"
+            aria-label="Dismiss explainer"
+            title="Hide this tip"
+          >
+            <span className="block text-base leading-none">×</span>
+          </button>
+        </div>
+      )}
+
     <div
       className={cn(
         "rounded-2xl border transition-all duration-200",
@@ -476,6 +539,21 @@ export function QuickInputBar() {
           </div>
         </div>
       )}
+    </div>
+
+    {explainerDismissed && (
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={reopenExplainer}
+          className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/60 transition-colors hover:text-foreground"
+          title="Show composer tip"
+        >
+          <HelpCircle className="h-3 w-3" />
+          What is this?
+        </button>
+      </div>
+    )}
     </div>
   );
 }

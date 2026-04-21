@@ -1,4 +1,5 @@
-import { Navigate, Outlet, Route, Routes, useLocation, useParams } from "@/lib/router";
+import { useEffect, useRef } from "react";
+import { Link, Navigate, Outlet, Route, Routes, useLocation, useParams } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Layout } from "./components/Layout";
@@ -199,39 +200,86 @@ function LegacySettingsRedirect() {
 
 function OnboardingRoutePage() {
   const { companies } = useCompany();
-  const { openOnboarding } = useDialog();
+  const { openOnboarding, onboardingOpen } = useDialog();
   const { companyPrefix } = useParams<{ companyPrefix?: string }>();
   const matchedCompany = companyPrefix
     ? companies.find((company) => company.issuePrefix.toUpperCase() === companyPrefix.toUpperCase()) ?? null
     : null;
 
+  const isFirstTime = companies.length === 0 && !matchedCompany;
+  const hasExistingCompany = companies.length > 0;
+
+  // Auto-launch the onboarding wizard on mount for first-time users so they
+  // land inside onboarding immediately rather than on a card with a button.
+  // The ref guard ensures we only trigger once — dismissing the wizard won't
+  // immediately re-open it.
+  const autoOpenedRef = useRef(false);
+  useEffect(() => {
+    if (!autoOpenedRef.current && isFirstTime && !onboardingOpen) {
+      autoOpenedRef.current = true;
+      openOnboarding();
+    }
+  }, [isFirstTime, onboardingOpen, openOnboarding]);
+
+  const eyebrow = isFirstTime
+    ? "Welcome to Paperclip"
+    : matchedCompany
+      ? `Add to ${matchedCompany.name}`
+      : "Onboarding";
   const title = matchedCompany
     ? `Add another agent to ${matchedCompany.name}`
-    : companies.length > 0
+    : hasExistingCompany
       ? "Create another company"
-      : "Create your first company";
+      : "Let's get your agents set up.";
   const description = matchedCompany
     ? "Run onboarding again to add an agent and a starter task for this company."
-    : companies.length > 0
+    : hasExistingCompany
       ? "Run onboarding again to create another company and seed its first agent."
-      : "Get started by creating a company and your first agent.";
+      : "Paperclip runs a fleet of AI agents that work on your behalf — planning, researching, writing, coding, and reporting back. A few quick steps and you'll have an agent running its first task.";
+  const ctaLabel = matchedCompany
+    ? "Add agent"
+    : hasExistingCompany
+      ? "Start new onboarding"
+      : "Get started";
+
+  const handleStart = () =>
+    matchedCompany
+      ? openOnboarding({ initialStep: 2, companyId: matchedCompany.id })
+      : openOnboarding();
 
   return (
-    <div className="mx-auto max-w-xl py-10">
-      <div className="rounded-lg border border-border bg-card p-6">
-        <h1 className="text-xl font-semibold">{title}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-        <div className="mt-4">
-          <Button
-            onClick={() =>
-              matchedCompany
-                ? openOnboarding({ initialStep: 2, companyId: matchedCompany.id })
-                : openOnboarding()
-            }
-          >
-            {matchedCompany ? "Add Agent" : "Start Onboarding"}
-          </Button>
+    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-[#FAF7F2] via-[#F6F0E7] to-[#EFE6D9] px-6 py-10 sm:px-10 sm:py-12 dark:from-[#22251F] dark:via-[#2A2D26] dark:to-[#32352E]">
+        <div className="relative z-10 max-w-2xl">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#8FA781]">
+            {eyebrow}
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            {title}
+          </h1>
+          <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={handleStart}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#8FA781] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#7C9470] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#A4BD95] dark:hover:bg-[#B5C4B1] dark:text-[#22251F]"
+            >
+              {ctaLabel}
+            </button>
+            {hasExistingCompany && (
+              <Link
+                to="/"
+                className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Skip to Dashboard
+              </Link>
+            )}
+          </div>
         </div>
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#A4BD95]/20 blur-3xl dark:bg-[#8FA781]/15" />
+        <div className="pointer-events-none absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-[#D9A5A5]/15 blur-3xl dark:bg-[#D9A5A5]/10" />
       </div>
     </div>
   );

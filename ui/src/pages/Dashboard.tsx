@@ -12,7 +12,7 @@
  *   2. Quick input + live progress + urgent alerts
  *   3. Run Results feed (hero promotion — this is what users open the app for)
  *   4. KPI row: Hero (Agents) + 3 Outlined (Tasks, Spend, Approvals)
- *   5. Pill-bar Run activity (wide) + Up-next card (narrow)
+ *   5. Pill-bar Run activity (wide) + Up-next + Active Goals (right column)
  *   6. Team activity + Success gauge + Spend hero
  *   7. Priority / status charts + Fleet health + Budget forecast
  *   8. Leaderboard, plugin slots, recent activity, recent tasks
@@ -26,6 +26,7 @@ import { issuesApi } from "../api/issues";
 import { agentsApi } from "../api/agents";
 import { projectsApi } from "../api/projects";
 import { heartbeatsApi } from "../api/heartbeats";
+import { goalsApi } from "../api/goals";
 import { useCompany } from "../context/CompanyContext";
 import { useDialog } from "../context/DialogContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
@@ -64,6 +65,9 @@ import { UpNextCard } from "../components/dashboard/UpNextCard";
 import { ProgressGauge } from "../components/dashboard/ProgressGauge";
 import { SpendHeroCard } from "../components/dashboard/SpendHeroCard";
 import { TeamActivityCard } from "../components/dashboard/TeamActivityCard";
+import { KillSwitch } from "../components/dashboard/KillSwitch";
+import { WelcomeZeroState } from "../components/dashboard/WelcomeZeroState";
+import { ActiveGoalsCard } from "../components/dashboard/ActiveGoalsCard";
 import type { Agent, HeartbeatRun, Issue } from "@mattparrytfc/shared";
 import { PluginSlotOutlet } from "@/plugins/slots";
 
@@ -91,7 +95,7 @@ function recentSuccessStats(runs: HeartbeatRun[], days = 14) {
 
 export function Dashboard() {
   const { selectedCompanyId, companies } = useCompany();
-  const { openOnboarding, openNewIssue } = useDialog();
+  const { openOnboarding, openNewIssue, openNewGoal } = useDialog();
   const { setBreadcrumbs } = useBreadcrumbs();
   const [animatedActivityIds, setAnimatedActivityIds] = useState<Set<string>>(
     new Set(),
@@ -137,6 +141,12 @@ export function Dashboard() {
   const { data: runs } = useQuery({
     queryKey: queryKeys.heartbeats(selectedCompanyId!),
     queryFn: () => heartbeatsApi.list(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+  });
+
+  const { data: goals } = useQuery({
+    queryKey: queryKeys.goals.list(selectedCompanyId!),
+    queryFn: () => goalsApi.list(selectedCompanyId!),
     enabled: !!selectedCompanyId,
   });
 
@@ -257,6 +267,10 @@ export function Dashboard() {
   }
 
   const hasNoAgents = agents !== undefined && agents.length === 0;
+  const hasNoIssues = issues !== undefined && issues.length === 0;
+  // Brand-new account inside this company: no agents AND no tasks yet.
+  // Fall back to the welcome zero-state instead of an 8-section Dashboard full of zeros.
+  const isBrandNew = hasNoAgents && hasNoIssues;
 
   const agentsTotal = data
     ? data.agents.active + data.agents.running + data.agents.paused + data.agents.error
@@ -268,6 +282,23 @@ export function Dashboard() {
   // Pick a tone for the gauge based on success rate
   const gaugeTone: "green" | "amber" | "red" =
     successStats.rate >= 80 ? "green" : successStats.rate >= 50 ? "amber" : "red";
+
+  if (isBrandNew) {
+    return (
+      <WelcomeZeroState
+        hasCompany={true}
+        hasAgent={false}
+        hasTask={false}
+        onStartCompany={() =>
+          openOnboarding({ initialStep: 1, companyId: selectedCompanyId! })
+        }
+        onHireAgent={() =>
+          openOnboarding({ initialStep: 2, companyId: selectedCompanyId! })
+        }
+        onNewTask={() => openNewIssue()}
+      />
+    );
+  }
 
   return (
     <div className="space-y-10 pb-6">
@@ -282,6 +313,7 @@ export function Dashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          {selectedCompanyId && <KillSwitch companyId={selectedCompanyId} />}
           <button
             onClick={() => openNewIssue()}
             className="inline-flex items-center gap-1.5 rounded-2xl bg-[#8FA781] px-5 py-3 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all duration-200 hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-[#A4BD95] dark:hover:bg-[#B5C4B1] dark:text-[#22251F]"
@@ -415,17 +447,22 @@ export function Dashboard() {
             />
           </div>
 
-          {/* ── ANALYTICS + UP NEXT ─────────────────────────────────── */}
+          {/* ── ANALYTICS + UP NEXT + GOALS ─────────────────────────── */}
 
           <div className="grid gap-5 lg:grid-cols-3">
             <div className="lg:col-span-2 rounded-[32px] bg-white dark:bg-card border border-border/40 dark:border-border/40 shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-12px_rgba(0,0,0,0.06)] p-8">
               <PillRunChart runs={runs ?? []} />
             </div>
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 flex flex-col gap-5">
               <UpNextCard
                 companyId={selectedCompanyId!}
                 pendingApprovals={data.pendingApprovals}
                 budgetApprovals={data.budgets.pendingApprovals}
+              />
+              <ActiveGoalsCard
+                goals={goals}
+                agents={agents}
+                onNewGoal={() => openNewGoal()}
               />
             </div>
           </div>
