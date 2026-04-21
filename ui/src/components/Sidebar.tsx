@@ -20,6 +20,7 @@ import {
   FileStack,
   Sparkles,
   HelpCircle,
+  Megaphone,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarNavItem } from "./SidebarNavItem";
@@ -99,6 +100,7 @@ export function Sidebar() {
             badgeTone={inboxBadge.failedRuns > 0 ? "danger" : "default"}
             alert={inboxBadge.failedRuns > 0}
           />
+          <SidebarNavItem to="/standup" label="Standup" icon={Megaphone} />
           <SidebarNavItem to="/outputs" label="Outputs" icon={Sparkles} />
           <SidebarNavItem to="/issues" label="Tasks" icon={CircleDot} />
           <SidebarNavItem to="/approvals" label="Approvals" icon={CheckCircle2} />

@@ -25,6 +25,7 @@ import { ApprovalDetail } from "./pages/ApprovalDetail";
 import { Costs } from "./pages/Costs";
 import { Activity } from "./pages/Activity";
 import { Inbox } from "./pages/Inbox";
+import { Standup } from "./pages/Standup";
 import { CompanySettings } from "./pages/CompanySettings";
 import { Secrets } from "./pages/Secrets";
 import { CompanySkills } from "./pages/CompanySkills";
@@ -182,6 +183,7 @@ function boardRoutes() {
       <Route path="inbox/unread" element={<Inbox />} />
       <Route path="inbox/all" element={<Inbox />} />
       <Route path="inbox/new" element={<Navigate to="/inbox/recent" replace />} />
+      <Route path="standup" element={<Standup />} />
       <Route path="design-guide" element={<DesignGuide />} />
       <Route path="help" element={<Help />} />
       <Route path="tests/ux/runs" element={<RunTranscriptUxLab />} />
@@ -406,6 +408,7 @@ export function App() {
           <Route path="fleet" element={<UnprefixedBoardRedirect />} />
           <Route path="help" element={<UnprefixedBoardRedirect />} />
           <Route path="outputs" element={<UnprefixedBoardRedirect />} />
+          <Route path="standup" element={<UnprefixedBoardRedirect />} />
           <Route path="tests/ux/runs" element={<UnprefixedBoardRedirect />} />
           <Route path=":companyPrefix" element={<Layout />}>
             {boardRoutes()}
