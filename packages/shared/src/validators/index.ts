@@ -140,6 +140,11 @@ export {
 } from "./issue.js";
 
 export {
+  addAgentPeerNoteSchema,
+  type AddAgentPeerNote,
+} from "./agent-peer-note.js";
+
+export {
   createIssueWorkProductSchema,
   updateIssueWorkProductSchema,
   issueWorkProductTypeSchema,

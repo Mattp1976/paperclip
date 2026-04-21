@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import multer from "multer";
 import type { Db } from "@mattparrytfc/db";
 import {
+  addAgentPeerNoteSchema,
   addIssueCommentSchema,
   createIssueAttachmentMetadataSchema,
   createIssueWorkProductSchema,
@@ -19,6 +20,7 @@ import { validate } from "../middleware/validate.js";
 import {
   accessService,
   agentService,
+  agentPeerNoteService,
   executionWorkspaceService,
   goalService,
   heartbeatService,
@@ -53,6 +55,7 @@ export function issueRoutes(db: Db, storage: StorageService) {
   const workProductsSvc = workProductService(db);
   const documentsSvc = documentService(db);
   const routinesSvc = routineService(db);
+  const peerNotesSvc = agentPeerNoteService(db);
   const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: MAX_ATTACHMENT_BYTES, files: 1 },
@@ -1503,6 +1506,95 @@ export function issueRoutes(db: Db, storage: StorageService) {
     })();
 
     res.status(201).json(comment);
+  });
+
+  // --- Agent peer notes ------------------------------------------------
+  // Lightweight agent-to-agent messaging scoped to a task. Separate from
+  // /comments because peer notes have an addressing model (toAgentId)
+  // and ack/resolve lifecycle rather than the flat authorship model of
+  // human comments. Only agents may author peer notes — the UI surfaces
+  // them in a distinct lane ("agent whisper") and the server is
+  // intentionally thin (no wake-ups, no activity log, for now).
+
+  router.get("/issues/:id/peer-notes", async (req, res) => {
+    const id = req.params.id as string;
+    const issue = await svc.getById(id);
+    if (!issue) {
+      res.status(404).json({ error: "Issue not found" });
+      return;
+    }
+    assertCompanyAccess(req, issue.companyId);
+    const notes = await peerNotesSvc.listForIssue(id);
+    res.json(notes);
+  });
+
+  router.post(
+    "/issues/:id/peer-notes",
+    validate(addAgentPeerNoteSchema),
+    async (req, res) => {
+      const id = req.params.id as string;
+      const issue = await svc.getById(id);
+      if (!issue) {
+        res.status(404).json({ error: "Issue not found" });
+        return;
+      }
+      assertCompanyAccess(req, issue.companyId);
+
+      const actor = getActorInfo(req);
+      if (actor.actorType !== "agent" || !actor.agentId) {
+        res.status(403).json({
+          error: "Only agents may leave peer notes",
+        });
+        return;
+      }
+
+      const note = await peerNotesSvc.add(id, {
+        kind: req.body.kind,
+        body: req.body.body,
+        fromAgentId: actor.agentId,
+        toAgentId: req.body.toAgentId ?? null,
+        runId: req.body.runId ?? actor.runId ?? null,
+      });
+      res.status(201).json(note);
+    },
+  );
+
+  router.post("/issues/:id/peer-notes/:noteId/ack", async (req, res) => {
+    const id = req.params.id as string;
+    const noteId = req.params.noteId as string;
+    const issue = await svc.getById(id);
+    if (!issue) {
+      res.status(404).json({ error: "Issue not found" });
+      return;
+    }
+    assertCompanyAccess(req, issue.companyId);
+
+    const existing = await peerNotesSvc.getById(noteId);
+    if (!existing || existing.issueId !== id) {
+      res.status(404).json({ error: "Peer note not found" });
+      return;
+    }
+    const updated = await peerNotesSvc.acknowledge(noteId);
+    res.json(updated);
+  });
+
+  router.post("/issues/:id/peer-notes/:noteId/resolve", async (req, res) => {
+    const id = req.params.id as string;
+    const noteId = req.params.noteId as string;
+    const issue = await svc.getById(id);
+    if (!issue) {
+      res.status(404).json({ error: "Issue not found" });
+      return;
+    }
+    assertCompanyAccess(req, issue.companyId);
+
+    const existing = await peerNotesSvc.getById(noteId);
+    if (!existing || existing.issueId !== id) {
+      res.status(404).json({ error: "Peer note not found" });
+      return;
+    }
+    const updated = await peerNotesSvc.resolve(noteId);
+    res.json(updated);
   });
 
   router.get("/issues/:id/attachments", async (req, res) => {
