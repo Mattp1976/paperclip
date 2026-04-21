@@ -357,17 +357,17 @@ export function Dashboard() {
           {/* ── BUDGET ALERT (urgent, stays near top) ─────────────── */}
 
           {data.budgets.activeIncidents > 0 && (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50/80 px-5 py-4 dark:border-red-500/20 dark:bg-red-950/40">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-destructive/30 bg-destructive/10 px-5 py-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-red-100 p-2.5 dark:bg-red-900/40">
-                  <PauseCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
+                <div className="rounded-xl bg-destructive/15 p-2.5">
+                  <PauseCircle className="h-5 w-5 text-destructive shrink-0" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-red-900 dark:text-red-100">
+                  <p className="text-sm font-medium text-destructive">
                     {data.budgets.activeIncidents} budget incident
                     {data.budgets.activeIncidents === 1 ? "" : "s"}
                   </p>
-                  <p className="text-xs text-red-700/70 dark:text-red-200/70 mt-0.5">
+                  <p className="text-xs text-destructive/80 mt-0.5">
                     {data.budgets.pausedAgents} paused agents ·{" "}
                     {data.budgets.pausedProjects} paused projects
                   </p>
@@ -375,7 +375,7 @@ export function Dashboard() {
               </div>
               <Link
                 to="/costs"
-                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400 dark:text-red-950 shrink-0 no-underline"
+                className="rounded-xl bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90 shrink-0 no-underline"
               >
                 View budgets
               </Link>

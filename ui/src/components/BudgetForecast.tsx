@@ -174,9 +174,9 @@ export function BudgetForecast({ companyId }: { companyId: string }) {
 
       {/* Alert banner if over budget projected */}
       {forecast.overBudgetProjected && (
-        <div className="px-4 py-2.5 bg-red-500/10 border-b border-red-500/20 flex items-center gap-2">
-          <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0" />
-          <span className="text-xs text-red-600 dark:text-red-400">
+        <div className="px-4 py-2.5 bg-destructive/10 border-b border-destructive/20 flex items-center gap-2">
+          <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />
+          <span className="text-xs text-destructive">
             Projected to exceed budget by{" "}
             <span className="font-semibold">
               {formatCents(forecast.projectedOverageCents)}
@@ -275,7 +275,7 @@ export function BudgetForecast({ companyId }: { companyId: string }) {
               className={cn(
                 "text-xs font-medium tabular-nums",
                 forecast.overBudgetProjected
-                  ? "text-red-600 dark:text-red-400"
+                  ? "text-destructive"
                   : "text-[#5E7259] dark:text-[#C5D4BC]",
               )}
             >
@@ -353,9 +353,9 @@ function ForecastKpi({
       <p
         className={cn(
           "text-sm font-semibold tabular-nums",
-          alert && "text-red-600 dark:text-red-400",
+          alert && "text-destructive",
           positive === true && "text-[#5E7259] dark:text-[#C5D4BC]",
-          positive === false && "text-red-600 dark:text-red-400",
+          positive === false && "text-destructive",
         )}
       >
         {value}

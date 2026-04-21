@@ -176,8 +176,8 @@ export function AgentLeaderboard({ companyId }: { companyId: string }) {
       {/* Bottom Performers */}
       {bottomPerformers.length > 0 && (
         <div>
-          <div className="px-4 py-2 bg-red-500/5 border-b border-border/30">
-            <span className="text-[11px] font-medium text-red-600 dark:text-red-400 flex items-center gap-1">
+          <div className="px-4 py-2 bg-destructive/5 border-b border-border/30">
+            <span className="text-[11px] font-medium text-destructive flex items-center gap-1">
               <TrendingDown className="h-3 w-3" />
               Needs Attention
             </span>

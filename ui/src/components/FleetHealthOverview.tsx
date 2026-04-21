@@ -242,7 +242,7 @@ export function FleetHealthOverview({ companyId }: { companyId: string }) {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {row.recentFailures > 0 && (
-                  <span className="text-[11px] text-red-500 tabular-nums flex items-center gap-0.5">
+                  <span className="text-[11px] text-destructive tabular-nums flex items-center gap-0.5">
                     <XCircle className="h-3 w-3" />
                     {row.recentFailures}
                   </span>

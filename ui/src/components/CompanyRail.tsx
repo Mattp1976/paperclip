@@ -140,7 +140,7 @@ function SortableCompanyItem({
                 </span>
               )}
               {hasUnreadInbox && (
-                <span className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-10 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-background" />
+                <span className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-10 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-background" />
               )}
             </div>
           </a>
