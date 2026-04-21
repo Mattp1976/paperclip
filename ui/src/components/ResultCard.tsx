@@ -540,11 +540,12 @@ export function ResultCard({
             <a
               href={issuesApi.exportPdfUrl(task.id)}
               download
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border/50 px-2.5 py-1 text-xs font-medium text-foreground hover:border-sage-ink/40 hover:bg-sage-surface/60 hover:text-sage-ink dark:hover:bg-sage-surface/20 transition-colors"
               title="Download a PDF report of this task — summary, outputs, and documents"
             >
-              <Download className="h-3 w-3" />
+              <Download className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Download PDF</span>
+              <span className="sm:hidden">PDF</span>
             </a>
           ) : (
             <button

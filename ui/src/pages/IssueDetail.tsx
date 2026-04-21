@@ -45,6 +45,7 @@ import {
   ChevronDown,
   ChevronRight,
   Copy,
+  Download,
   EyeOff,
   Hexagon,
   ListTree,
@@ -787,6 +788,16 @@ export function IssueDetail() {
             <Button
               variant="ghost"
               size="icon-xs"
+              asChild
+              title="Download a PDF report of this task"
+            >
+              <a href={issuesApi.exportPdfUrl(issue.id)} download>
+                <Download className="h-4 w-4" />
+              </a>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-xs"
               onClick={copyIssueToClipboard}
               title="Copy issue as markdown"
             >
@@ -802,7 +813,19 @@ export function IssueDetail() {
             </Button>
           </div>
 
-          <div className="hidden md:flex items-center md:ml-auto shrink-0">
+          <div className="hidden md:flex items-center md:ml-auto shrink-0 gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="h-7 gap-1.5 text-xs"
+              title="Download a branded PDF of this task, its outputs and documents"
+            >
+              <a href={issuesApi.exportPdfUrl(issue.id)} download>
+                <Download className="h-3.5 w-3.5" />
+                Download PDF
+              </a>
+            </Button>
             <Button
               variant="ghost"
               size="icon-xs"
