@@ -308,7 +308,7 @@ export function RunSummaryCard({
           )}
 
           {stats.failed > 0 && (
-            <div className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
+            <div className="flex items-center gap-1 text-xs text-destructive">
               <XCircle className="h-3 w-3" />
               <span>{stats.failed} failed</span>
             </div>

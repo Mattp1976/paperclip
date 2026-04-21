@@ -592,16 +592,16 @@ function TranscriptToolCard({
     block.status === "running"
       ? "text-cyan-700 dark:text-cyan-300"
       : block.status === "error"
-        ? "text-red-700 dark:text-red-300"
+        ? "text-destructive"
         : "text-[#5E7259] dark:text-[#D7E4CB]";
   const detailsClass = cn(
     "space-y-3",
-    block.status === "error" && "rounded-xl border border-red-500/20 bg-red-500/[0.06] p-3",
+    block.status === "error" && "rounded-xl border border-destructive/20 bg-destructive/[0.06] p-3",
   );
   const iconClass = cn(
     "mt-0.5 h-3.5 w-3.5 shrink-0",
     block.status === "error"
-      ? "text-red-600 dark:text-red-300"
+      ? "text-destructive"
       : block.status === "completed"
         ? "text-[#5E7259] dark:text-[#D7E4CB]"
         : "text-cyan-600 dark:text-cyan-300",
@@ -613,7 +613,7 @@ function TranscriptToolCard({
       : summarizeToolResult(block.result, block.isError, density);
 
   return (
-    <div className={cn(block.status === "error" && "rounded-xl border border-red-500/20 bg-red-500/[0.04] p-3")}>
+    <div className={cn(block.status === "error" && "rounded-xl border border-destructive/20 bg-destructive/[0.04] p-3")}>
       <div className="flex items-start gap-2">
         {block.status === "error" ? (
           <CircleAlert className={iconClass} />
@@ -662,7 +662,7 @@ function TranscriptToolCard({
                 </div>
                 <pre className={cn(
                   "overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px]",
-                  block.status === "error" ? "text-red-700 dark:text-red-300" : "text-foreground/80",
+                  block.status === "error" ? "text-destructive" : "text-foreground/80",
                 )}>
                   {block.result ? formatToolPayload(block.result) : "Waiting for result..."}
                 </pre>
@@ -707,7 +707,7 @@ function TranscriptCommandGroup({
       : "text-foreground/70";
 
   return (
-    <div className={cn(showExpandedErrorState && "rounded-xl border border-red-500/20 bg-red-500/[0.04] p-3")}>
+    <div className={cn(showExpandedErrorState && "rounded-xl border border-destructive/20 bg-destructive/[0.04] p-3")}>
       <div
         role="button"
         tabIndex={0}
@@ -771,14 +771,14 @@ function TranscriptCommandGroup({
         </button>
       </div>
       {open && (
-        <div className={cn("mt-3 space-y-3", hasError && "rounded-xl border border-red-500/20 bg-red-500/[0.06] p-3")}>
+        <div className={cn("mt-3 space-y-3", hasError && "rounded-xl border border-destructive/20 bg-destructive/[0.06] p-3")}>
           {block.items.map((item, index) => (
             <div key={`${item.ts}-${index}`} className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className={cn(
                   "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                   item.status === "error"
-                    ? "border-red-500/25 bg-red-500/[0.08] text-red-600 dark:text-red-300"
+                    ? "border-destructive/25 bg-destructive/[0.08] text-destructive"
                     : item.status === "running"
                       ? "border-cyan-500/25 bg-cyan-500/[0.08] text-cyan-600 dark:text-cyan-300"
                       : "border-border/70 bg-background text-foreground/55",
@@ -792,7 +792,7 @@ function TranscriptCommandGroup({
               {item.result && (
                 <pre className={cn(
                   "overflow-x-auto whitespace-pre-wrap break-words font-mono text-[11px]",
-                  item.status === "error" ? "text-red-700 dark:text-red-300" : "text-foreground/80",
+                  item.status === "error" ? "text-destructive" : "text-foreground/80",
                 )}>
                   {formatToolPayload(item.result)}
                 </pre>
@@ -842,7 +842,7 @@ function TranscriptEventRow({
   const compact = density === "compact";
   const toneClasses =
     block.tone === "error"
-      ? "rounded-xl border border-red-500/20 bg-red-500/[0.06] p-3 text-red-700 dark:text-red-300"
+      ? "rounded-xl border border-destructive/20 bg-destructive/[0.06] p-3 text-destructive"
       : block.tone === "warn"
         ? "text-amber-700 dark:text-amber-300"
         : block.tone === "info"

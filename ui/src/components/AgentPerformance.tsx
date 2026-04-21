@@ -23,7 +23,7 @@ import type { HeartbeatRun } from "@mattparrytfc/shared";
 
 function statusIcon(s: string) {
   if (s === "succeeded") return <CheckCircle2 className="h-4 w-4 text-[#5E7259]" />;
-  if (s === "failed") return <XCircle className="h-4 w-4 text-red-500" />;
+  if (s === "failed") return <XCircle className="h-4 w-4 text-destructive" />;
   if (s === "cancelled") return <Minus className="h-4 w-4 text-zinc-400" />;
   if (s === "timed_out") return <Clock className="h-4 w-4 text-amber-500" />;
   return <Activity className="h-4 w-4 text-zinc-400" />;
@@ -242,7 +242,7 @@ function StatCard({
         {icon}
         {label}
         {trend === "up" && <TrendingUp className="h-3 w-3 text-[#5E7259] ml-auto" />}
-        {trend === "down" && <TrendingDown className="h-3 w-3 text-red-500 ml-auto" />}
+        {trend === "down" && <TrendingDown className="h-3 w-3 text-destructive ml-auto" />}
         {trend === "flat" && <Minus className="h-3 w-3 text-zinc-400 ml-auto" />}
       </div>
       <div className="text-2xl font-semibold">{value}</div>
@@ -297,7 +297,7 @@ function RecentFailures({ runs }: { runs: HeartbeatRun[] }) {
           <div className="min-w-0 flex-1">
             <div className="font-mono text-xs truncate text-muted-foreground">{r.id.slice(0, 8)}</div>
             {r.error && (
-              <div className="text-xs text-red-400 mt-0.5 line-clamp-2">{r.error}</div>
+              <div className="text-xs text-destructive mt-0.5 line-clamp-2">{r.error}</div>
             )}
           </div>
           <div className="text-xs text-muted-foreground shrink-0">
@@ -427,7 +427,7 @@ export function AgentPerformance({ agentId, companyId }: AgentPerformanceProps) 
           </h3>
           <span className="text-xs text-muted-foreground">
             <span className="inline-block w-2 h-2 rounded-sm bg-[#8FA781] mr-1" /> success
-            <span className="inline-block w-2 h-2 rounded-sm bg-red-500 ml-2 mr-1" /> failure
+            <span className="inline-block w-2 h-2 rounded-sm bg-destructive ml-2 mr-1" /> failure
           </span>
         </div>
         <MiniDayChart buckets={buckets} />
