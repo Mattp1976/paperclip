@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";
 import { executionWorkspacesApi } from "../api/execution-workspaces";
 import { queryKeys } from "../lib/queryKeys";
+import { PageHeader } from "../components/PageHeader";
+import { SoftCard } from "../components/SoftCard";
 
 function isSafeExternalUrl(value: string | null | undefined) {
   if (!value) return false;
@@ -37,16 +39,14 @@ export function ExecutionWorkspaceDetail() {
   if (!workspace) return null;
 
   return (
-    <div className="max-w-2xl space-y-4">
-      <div className="space-y-1">
-        <div className="text-xs text-muted-foreground">Execution workspace</div>
-        <h1 className="text-2xl font-semibold">{workspace.name}</h1>
-        <div className="text-sm text-muted-foreground">
-          {workspace.status} · {workspace.mode} · {workspace.providerType}
-        </div>
-      </div>
+    <div className="max-w-2xl space-y-6">
+      <PageHeader
+        eyebrow="Execution workspace"
+        title={workspace.name}
+        subtitle={`${workspace.status} · ${workspace.mode} · ${workspace.providerType}`}
+      />
 
-      <div className="rounded-lg border border-border p-4">
+      <SoftCard padding="tight">
         <DetailRow label="Project">
           {workspace.projectId ? <Link to={`/projects/${workspace.projectId}`} className="hover:underline">{workspace.projectId}</Link> : "None"}
         </DetailRow>
@@ -76,7 +76,7 @@ export function ExecutionWorkspaceDetail() {
         <DetailRow label="Cleanup">
           {workspace.cleanupEligibleAt ? `${new Date(workspace.cleanupEligibleAt).toLocaleString()}${workspace.cleanupReason ? ` · ${workspace.cleanupReason}` : ""}` : "Not scheduled"}
         </DetailRow>
-      </div>
+      </SoftCard>
     </div>
   );
 }
