@@ -19,6 +19,7 @@ import {
   Ship,
   FileStack,
   Sparkles,
+  HelpCircle,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarNavItem } from "./SidebarNavItem";
@@ -134,6 +135,7 @@ export function Sidebar() {
           <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />
           <SidebarNavItem to="/activity" label="Activity" icon={History} />
           <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />
+          <SidebarNavItem to="/help" label="Help" icon={HelpCircle} />
         </div>
 
         <PluginSlotOutlet

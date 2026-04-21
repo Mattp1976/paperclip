@@ -41,6 +41,7 @@ import { RunTranscriptUxLab } from "./pages/RunTranscriptUxLab";
 import { OrgChart } from "./pages/OrgChart";
 import { Swarm } from "./pages/Swarm";
 import { Fleet } from "./pages/Fleet";
+import { Help } from "./pages/Help";
 import { Outputs } from "./pages/Outputs";
 import { Templates } from "./pages/Templates";
 import { NewAgent } from "./pages/NewAgent";
@@ -182,6 +183,7 @@ function boardRoutes() {
       <Route path="inbox/all" element={<Inbox />} />
       <Route path="inbox/new" element={<Navigate to="/inbox/recent" replace />} />
       <Route path="design-guide" element={<DesignGuide />} />
+      <Route path="help" element={<Help />} />
       <Route path="tests/ux/runs" element={<RunTranscriptUxLab />} />
       <Route path=":pluginRoutePath" element={<PluginPage />} />
       <Route path="*" element={<NotFoundPage scope="board" />} />
@@ -402,6 +404,7 @@ export function App() {
           <Route path="swarm" element={<UnprefixedBoardRedirect />} />
           <Route path="templates" element={<UnprefixedBoardRedirect />} />
           <Route path="fleet" element={<UnprefixedBoardRedirect />} />
+          <Route path="help" element={<UnprefixedBoardRedirect />} />
           <Route path="outputs" element={<UnprefixedBoardRedirect />} />
           <Route path="tests/ux/runs" element={<UnprefixedBoardRedirect />} />
           <Route path=":companyPrefix" element={<Layout />}>
