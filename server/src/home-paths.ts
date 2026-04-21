@@ -71,23 +71,114 @@ function sanitizeFriendlyPathSegment(value: string | null | undefined, fallback 
   return sanitized || fallback;
 }
 
-export function resolveManagedProjectWorkspaceDir(input: {
+/**
+ * Canonical on-disk layout for everything owned by a single project:
+ *
+ *   <instance>/projects/<company>/<project>/
+ *     workspace/<repo>/     git checkout + agent scratch for the codebase
+ *     runs/<runId>/         per-run logs, artifacts, exports (see below)
+ *     exports/              project-level exports not tied to a single run
+ *
+ *   <instance>/projects/<company>/<project>/runs/<runId>/
+ *     logs.ndjson           appended agent stream log
+ *     artifacts/            files the agent wrote during the run
+ *     exports/              rendered deliverables (pdf, docx, ...)
+ *
+ * All helpers below derive from a single root so callers never need to
+ * know the instance-level path shape.
+ */
+export function resolveProjectRootDir(input: {
   companyId: string;
   projectId: string;
-  repoName?: string | null;
 }): string {
   const companyId = input.companyId.trim();
   const projectId = input.projectId.trim();
   if (!companyId || !projectId) {
-    throw new Error("Managed project workspace path requires companyId and projectId.");
+    throw new Error("Project root path requires companyId and projectId.");
   }
   return path.resolve(
     resolvePaperclipInstanceRoot(),
     "projects",
     sanitizeFriendlyPathSegment(companyId, "company"),
     sanitizeFriendlyPathSegment(projectId, "project"),
+  );
+}
+
+export function resolveProjectWorkspaceDir(input: {
+  companyId: string;
+  projectId: string;
+  repoName?: string | null;
+}): string {
+  return path.resolve(
+    resolveProjectRootDir(input),
+    "workspace",
     sanitizeFriendlyPathSegment(input.repoName, "_default"),
   );
+}
+
+export function resolveProjectRunDir(input: {
+  companyId: string;
+  projectId: string;
+  runId: string;
+}): string {
+  const runId = input.runId.trim();
+  if (!runId) {
+    throw new Error("Project run path requires runId.");
+  }
+  return path.resolve(
+    resolveProjectRootDir(input),
+    "runs",
+    sanitizeFriendlyPathSegment(runId, "run"),
+  );
+}
+
+export function resolveProjectRunArtifactsDir(input: {
+  companyId: string;
+  projectId: string;
+  runId: string;
+}): string {
+  return path.resolve(resolveProjectRunDir(input), "artifacts");
+}
+
+export function resolveProjectRunExportsDir(input: {
+  companyId: string;
+  projectId: string;
+  runId: string;
+}): string {
+  return path.resolve(resolveProjectRunDir(input), "exports");
+}
+
+export function resolveProjectRunLogPath(input: {
+  companyId: string;
+  projectId: string;
+  runId: string;
+}): string {
+  return path.resolve(resolveProjectRunDir(input), "logs.ndjson");
+}
+
+/**
+ * Legacy layout used before the per-project consolidation:
+ *   <instance>/projects/<company>/<project>/<repo>
+ * Kept as a fallback so existing checkouts still resolve without a
+ * data migration. New clones land at resolveProjectWorkspaceDir().
+ */
+export function resolveLegacyManagedProjectWorkspaceDir(input: {
+  companyId: string;
+  projectId: string;
+  repoName?: string | null;
+}): string {
+  return path.resolve(
+    resolveProjectRootDir(input),
+    sanitizeFriendlyPathSegment(input.repoName, "_default"),
+  );
+}
+
+export function resolveManagedProjectWorkspaceDir(input: {
+  companyId: string;
+  projectId: string;
+  repoName?: string | null;
+}): string {
+  return resolveProjectWorkspaceDir(input);
 }
 
 export function resolveHomeAwarePath(value: string): string {

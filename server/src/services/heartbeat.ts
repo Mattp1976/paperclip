@@ -28,7 +28,11 @@ import { costService } from "./costs.js";
 import { companySkillService } from "./company-skills.js";
 import { budgetService, type BudgetEnforcementScope } from "./budgets.js";
 import { secretService } from "./secrets.js";
-import { resolveDefaultAgentWorkspaceDir, resolveManagedProjectWorkspaceDir } from "../home-paths.js";
+import {
+  resolveDefaultAgentWorkspaceDir,
+  resolveLegacyManagedProjectWorkspaceDir,
+  resolveManagedProjectWorkspaceDir,
+} from "../home-paths.js";
 import { summarizeHeartbeatRunResultJson } from "./heartbeat-run-summary.js";
 import {
   buildWorkspaceReadyComment,
@@ -93,11 +97,26 @@ async function ensureManagedProjectWorkspace(input: {
   projectId: string;
   repoUrl: string | null;
 }): Promise<{ cwd: string; warning: string | null }> {
-  const cwd = resolveManagedProjectWorkspaceDir({
+  const repoName = deriveRepoNameFromRepoUrl(input.repoUrl);
+  const legacyCwd = resolveLegacyManagedProjectWorkspaceDir({
     companyId: input.companyId,
     projectId: input.projectId,
-    repoName: deriveRepoNameFromRepoUrl(input.repoUrl),
+    repoName,
   });
+  // Prefer the legacy location if a git checkout already lives there so we
+  // don't force a re-clone just because the canonical layout moved. New
+  // projects land at the canonical `<projectRoot>/workspace/<repo>` path.
+  const legacyGitDirExists = await fs
+    .stat(path.resolve(legacyCwd, ".git"))
+    .then((entry) => entry.isDirectory())
+    .catch(() => false);
+  const cwd = legacyGitDirExists
+    ? legacyCwd
+    : resolveManagedProjectWorkspaceDir({
+        companyId: input.companyId,
+        projectId: input.projectId,
+        repoName,
+      });
   await fs.mkdir(path.dirname(cwd), { recursive: true });
   const stats = await fs.stat(cwd).catch(() => null);
 
