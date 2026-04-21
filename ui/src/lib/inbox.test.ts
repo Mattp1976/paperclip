@@ -185,8 +185,12 @@ const dashboard: DashboardSummary = {
     monthSpendCents: 900,
     monthBudgetCents: 1000,
     monthUtilizationPercent: 90,
+    todaySpendCents: 60,
     trailing7dSpendCents: 300,
     projectedMonthlyCents: 1286,
+    monthRunCount: 4,
+    monthSubscriptionRunCount: 0,
+    monthTokensTotal: 12_500,
   },
   pendingApprovals: 1,
   budgets: {

@@ -510,6 +510,10 @@ export function Dashboard() {
               monthBudgetCents={data.costs.monthBudgetCents}
               utilizationPercent={data.costs.monthUtilizationPercent}
               projectedMonthlyCents={data.costs.projectedMonthlyCents}
+              todaySpendCents={data.costs.todaySpendCents}
+              monthRunCount={data.costs.monthRunCount}
+              monthSubscriptionRunCount={data.costs.monthSubscriptionRunCount}
+              monthTokensTotal={data.costs.monthTokensTotal}
             />
           </div>
 

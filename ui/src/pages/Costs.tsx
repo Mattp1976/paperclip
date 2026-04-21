@@ -147,6 +147,65 @@ function FinanceSummaryCard({
   );
 }
 
+function CompanyCapSetupCard({
+  onSave,
+  isSaving,
+}: {
+  onSave: (amountCents: number) => void;
+  isSaving: boolean;
+}) {
+  const [draft, setDraft] = useState("");
+  const parsed = (() => {
+    const normalized = draft.trim();
+    if (normalized.length === 0) return null;
+    const value = Number(normalized);
+    if (!Number.isFinite(value) || value < 0) return null;
+    return Math.round(value * 100);
+  })();
+  const canSave = typeof parsed === "number" && parsed > 0 && !isSaving;
+  return (
+    <Card>
+      <CardHeader className="px-5 pt-5 pb-2">
+        <CardTitle className="text-base">Set a company monthly cap</CardTitle>
+        <CardDescription>
+          Creates a company-scoped monthly budget policy. Agents pause automatically
+          once spend hits the cap, and the Dashboard utilization bar starts tracking.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="px-5 pb-5 pt-2">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="min-w-0 flex-1">
+            <label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              Monthly cap (USD)
+            </label>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">$</span>
+              <input
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                inputMode="decimal"
+                placeholder="100.00"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+              />
+            </div>
+          </div>
+          <Button
+            onClick={() => {
+              if (typeof parsed === "number" && parsed > 0) onSave(parsed);
+            }}
+            disabled={!canSave}
+          >
+            {isSaving ? "Saving..." : "Set cap"}
+          </Button>
+        </div>
+        {draft.trim().length > 0 && parsed === null ? (
+          <p className="mt-2 text-xs text-destructive">Enter a positive dollar amount.</p>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function Costs() {
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -934,12 +993,31 @@ export function Costs() {
                   );
                 })}
 
+                {budgetPoliciesByScope.company.length === 0 && selectedCompanyId ? (
+                  <section className="space-y-3">
+                    <div>
+                      <h2 className="text-lg font-semibold">Company budget</h2>
+                      <p className="text-sm text-muted-foreground">
+                        Start here — a company monthly cap is what powers the Dashboard utilization bar and the auto-pause safety net.
+                      </p>
+                    </div>
+                    <CompanyCapSetupCard
+                      isSaving={policyMutation.isPending}
+                      onSave={(amount) =>
+                        policyMutation.mutate({
+                          scopeType: "company",
+                          scopeId: selectedCompanyId,
+                          amount,
+                          windowKind: "calendar_month_utc",
+                        })}
+                    />
+                  </section>
+                ) : null}
+
                 {budgetPolicies.length === 0 ? (
-                  <Card>
-                    <CardContent className="px-5 py-8 text-sm text-muted-foreground">
-                      No budget policies yet. Set agent and project budgets from their detail pages, or use the existing company monthly budget control.
-                    </CardContent>
-                  </Card>
+                  <p className="text-xs text-muted-foreground">
+                    Agent and project budgets can be set from their respective detail pages.
+                  </p>
                 ) : null}
               </div>
             </>

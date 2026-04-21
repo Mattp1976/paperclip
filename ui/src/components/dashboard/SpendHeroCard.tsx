@@ -7,13 +7,17 @@
  */
 import { Link } from "@/lib/router";
 import { ArrowUpRight, TrendingUp } from "lucide-react";
-import { friendlyCost, formatCents } from "@/lib/utils";
+import { friendlyCost, formatCents, formatTokens } from "@/lib/utils";
 
 interface SpendHeroCardProps {
   monthSpendCents: number;
   monthBudgetCents: number;
   utilizationPercent: number;
   projectedMonthlyCents: number;
+  todaySpendCents?: number;
+  monthRunCount?: number;
+  monthSubscriptionRunCount?: number;
+  monthTokensTotal?: number;
 }
 
 export function SpendHeroCard({
@@ -21,6 +25,10 @@ export function SpendHeroCard({
   monthBudgetCents,
   utilizationPercent,
   projectedMonthlyCents,
+  todaySpendCents = 0,
+  monthRunCount = 0,
+  monthSubscriptionRunCount = 0,
+  monthTokensTotal = 0,
 }: SpendHeroCardProps) {
   const hasBudget = monthBudgetCents > 0;
   const barPct = hasBudget
@@ -30,6 +38,19 @@ export function SpendHeroCard({
     projectedMonthlyCents > 0
       ? friendlyCost(projectedMonthlyCents / 100)
       : null;
+  // When monthly $ spend is zero but runs ran, everything billed via
+  // subscription — show runs + tokens so the user sees tracking is working.
+  const subscriptionOnly = monthSpendCents === 0 && monthRunCount > 0;
+  const runsLabel = monthRunCount === 1 ? "run" : "runs";
+  const activitySummary = monthRunCount > 0
+    ? `${monthRunCount} ${runsLabel} · ${formatTokens(monthTokensTotal)} tokens`
+    : null;
+  const subscriptionNote =
+    monthSubscriptionRunCount > 0 && subscriptionOnly
+      ? "Included in your subscription"
+      : monthSubscriptionRunCount > 0
+        ? `${monthSubscriptionRunCount} via subscription`
+        : null;
 
   return (
     <Link
@@ -129,9 +150,9 @@ export function SpendHeroCard({
 
       <div className="relative mt-8 flex items-baseline gap-2">
         <p className="text-5xl sm:text-6xl font-semibold tabular-nums tracking-tight leading-none">
-          {friendlyCost(monthSpendCents / 100)}
+          {subscriptionOnly ? "Included" : friendlyCost(monthSpendCents / 100)}
         </p>
-        {projected && (
+        {projected && !subscriptionOnly && (
           <span className="inline-flex items-center gap-1 rounded-full bg-white/60 dark:bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-sage-body dark:text-sage-surface backdrop-blur-sm">
             <TrendingUp className="h-3 w-3" />
             proj. {projected}
@@ -142,8 +163,21 @@ export function SpendHeroCard({
       <p className="relative mt-3 text-[13px] leading-relaxed text-sage-ink/80">
         {hasBudget
           ? `${Math.round(utilizationPercent)}% of ${formatCents(monthBudgetCents)} budget`
-          : "No monthly budget set"}
+          : subscriptionOnly
+            ? (subscriptionNote ?? "Included in your subscription")
+            : "Set a monthly cap →"}
       </p>
+
+      {activitySummary ? (
+        <p className="relative mt-1 text-[11px] leading-relaxed text-sage-ink/70 tabular-nums">
+          {activitySummary}
+          {todaySpendCents > 0 ? ` · ${friendlyCost(todaySpendCents / 100)} today` : null}
+        </p>
+      ) : todaySpendCents > 0 ? (
+        <p className="relative mt-1 text-[11px] leading-relaxed text-sage-ink/70 tabular-nums">
+          {friendlyCost(todaySpendCents / 100)} today
+        </p>
+      ) : null}
 
       <div className="relative mt-auto pt-8">
         <div className="h-2 w-full overflow-hidden rounded-full bg-white/50 dark:bg-white/10">
@@ -154,7 +188,7 @@ export function SpendHeroCard({
         </div>
         <div className="mt-2.5 flex items-center justify-between text-[10px] text-sage-ink/70">
           <span>Start of month</span>
-          <span>{hasBudget ? formatCents(monthBudgetCents) : "Unlimited"}</span>
+          <span>{hasBudget ? formatCents(monthBudgetCents) : "No cap"}</span>
         </div>
       </div>
     </Link>

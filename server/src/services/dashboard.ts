@@ -63,16 +63,31 @@ export function dashboardService(db: Db) {
 
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const trailing7Start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const [{ monthSpend }] = await db
+      const [monthRollup] = await db
         .select({
           monthSpend: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+          monthTokensTotal: sql<number>`coalesce(sum(${costEvents.inputTokens} + ${costEvents.cachedInputTokens} + ${costEvents.outputTokens}), 0)::int`,
+          monthRunCount: sql<number>`count(distinct ${costEvents.heartbeatRunId})::int`,
+          monthSubscriptionRunCount: sql<number>`count(distinct case when ${costEvents.billingType} in ('subscription_included', 'subscription_overage') then ${costEvents.heartbeatRunId} end)::int`,
         })
         .from(costEvents)
         .where(
           and(
             eq(costEvents.companyId, companyId),
             gte(costEvents.occurredAt, monthStart),
+          ),
+        );
+      const [{ todaySpend }] = await db
+        .select({
+          todaySpend: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+        })
+        .from(costEvents)
+        .where(
+          and(
+            eq(costEvents.companyId, companyId),
+            gte(costEvents.occurredAt, todayStart),
           ),
         );
       const [{ trailing7dSpend }] = await db
@@ -87,7 +102,11 @@ export function dashboardService(db: Db) {
           ),
         );
 
-      const monthSpendCents = Number(monthSpend);
+      const monthSpendCents = Number(monthRollup?.monthSpend ?? 0);
+      const monthTokensTotal = Number(monthRollup?.monthTokensTotal ?? 0);
+      const monthRunCount = Number(monthRollup?.monthRunCount ?? 0);
+      const monthSubscriptionRunCount = Number(monthRollup?.monthSubscriptionRunCount ?? 0);
+      const todaySpendCents = Number(todaySpend);
       const trailing7dSpendCents = Number(trailing7dSpend);
       // Project monthly spend from trailing-7d daily average × 30. If we have
       // no recent spend, fall back to month-to-date extrapolation so early in
@@ -120,8 +139,12 @@ export function dashboardService(db: Db) {
           monthSpendCents,
           monthBudgetCents: company.budgetMonthlyCents,
           monthUtilizationPercent: Number(utilization.toFixed(2)),
+          todaySpendCents,
           trailing7dSpendCents,
           projectedMonthlyCents,
+          monthRunCount,
+          monthSubscriptionRunCount,
+          monthTokensTotal,
         },
         pendingApprovals,
         budgets: {
