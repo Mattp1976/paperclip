@@ -67,7 +67,7 @@ function statusBadge(status: "enforced" | "relaxed" | "not_configured") {
   switch (status) {
     case "enforced":
       return (
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-green-400 bg-[#B5C4B1]/10 rounded-full px-2 py-0.5">
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-green-400 bg-sage-mist/10 rounded-full px-2 py-0.5">
           <ShieldCheck className="h-3 w-3" /> Enforced
         </span>
       );

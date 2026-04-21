@@ -336,7 +336,7 @@ export function QuickInputBar() {
       {!explainerDismissed && (
         <div className="relative rounded-2xl border border-primary/25 bg-primary/[0.06] px-4 py-3 pr-9 dark:border-primary/30 dark:bg-primary/[0.08]">
           <div className="flex items-start gap-3">
-            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#7C9470] dark:text-[#A4BD95]" />
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#7C9470] dark:text-sage-soft" />
             <div className="text-xs leading-relaxed text-[#3D4A37] dark:text-[#D7E4CB]">
               <p className="font-medium">This is your agent composer.</p>
               <p className="mt-0.5 text-[#3D4A37]/75 dark:text-[#D7E4CB]/75">

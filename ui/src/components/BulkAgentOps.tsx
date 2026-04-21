@@ -325,7 +325,7 @@ export function BulkAgentOps({ companyId }: BulkAgentOpsProps) {
                   <div
                     className={cn(
                       "h-full transition-all duration-300",
-                      failCount > 0 ? "bg-amber-500" : "bg-[#A4BD95]",
+                      failCount > 0 ? "bg-amber-500" : "bg-sage-soft",
                     )}
                     style={{ width: `${(progress.done / progress.total) * 100}%` }}
                   />

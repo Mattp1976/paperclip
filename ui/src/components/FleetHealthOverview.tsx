@@ -215,7 +215,7 @@ export function FleetHealthOverview({ companyId }: { companyId: string }) {
           )}
           {healthyCount > 0 && (
             <div
-              className="bg-[#A4BD95] h-full"
+              className="bg-sage-soft h-full"
               style={{ width: `${(healthyCount / total) * 100}%` }}
             />
           )}
@@ -289,7 +289,7 @@ function HealthPill({ severity, count }: { severity: Severity; count: number }) 
   const colors = {
     critical: "bg-red-500/10 text-red-600 dark:text-red-400",
     warning: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    healthy: "bg-[#A4BD95]/10 text-sage-ink",
+    healthy: "bg-sage-soft/10 text-sage-ink",
   };
 
   return (

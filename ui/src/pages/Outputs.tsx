@@ -307,7 +307,7 @@ export function Outputs() {
                 <span className={cn(
                   "rounded-full px-1.5 py-0.5 text-[10px] font-medium",
                   isActive
-                    ? "bg-primary/10 text-sage-ink dark:bg-[#A4BD95]/20"
+                    ? "bg-primary/10 text-sage-ink dark:bg-sage-soft/20"
                     : "bg-muted/50 text-muted-foreground/50",
                 )}>
                   {tab.count}

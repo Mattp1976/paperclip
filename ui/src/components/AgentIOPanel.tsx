@@ -141,7 +141,7 @@ function InputCard({
   }[channel.status];
 
   const statusDot = {
-    configured: "bg-[#B5C4B1]",
+    configured: "bg-sage-mist",
     empty: "bg-muted-foreground/30",
     required: "bg-amber-400",
   }[channel.status];

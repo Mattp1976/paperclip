@@ -84,7 +84,7 @@ export const statusBadgeDefault = "bg-muted text-muted-foreground";
 
 export const agentStatusDot: Record<string, string> = {
   running: "bg-cyan-400 animate-pulse",
-  active: "bg-[#B5C4B1]",
+  active: "bg-sage-mist",
   paused: "bg-yellow-400",
   idle: "bg-yellow-400",
   pending_approval: "bg-amber-400",

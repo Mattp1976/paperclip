@@ -228,7 +228,7 @@ export function LiveProgressStrip({ companyId }: LiveProgressStripProps) {
             {/* Header row */}
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 dark:bg-[#A4BD95]/20">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 dark:bg-sage-soft/20">
                   <Zap className="h-4 w-4 text-sage-ink animate-pulse" />
                 </div>
                 <div className="min-w-0">

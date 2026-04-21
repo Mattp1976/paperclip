@@ -802,7 +802,7 @@ function formatTimestamp(epochMs: number): string {
 function JobStatusDot({ status }: { status: string }) {
   const colorClass =
     status === "success" || status === "succeeded"
-      ? "bg-[#A4BD95]"
+      ? "bg-sage-soft"
       : status === "failed"
         ? "bg-red-500"
         : status === "running"
@@ -824,7 +824,7 @@ function JobStatusDot({ status }: { status: string }) {
 function DeliveryStatusDot({ status }: { status: string }) {
   const colorClass =
     status === "processed" || status === "success"
-      ? "bg-[#A4BD95]"
+      ? "bg-sage-soft"
       : status === "failed"
         ? "bg-red-500"
         : status === "received"

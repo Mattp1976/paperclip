@@ -159,7 +159,7 @@ export function AgentLeaderboard({ companyId }: { companyId: string }) {
       {/* Top Performers */}
       {topPerformers.length > 0 && (
         <div>
-          <div className="px-4 py-2 bg-[#A4BD95]/5 border-b border-border/30">
+          <div className="px-4 py-2 bg-sage-soft/5 border-b border-border/30">
             <span className="text-[11px] font-medium text-sage-ink flex items-center gap-1">
               <TrendingUp className="h-3 w-3" />
               Top Performers
@@ -269,7 +269,7 @@ function LeaderboardRow({ entry, rank }: { entry: LeaderboardEntry; rank: number
           className={cn(
             "w-8 text-center text-[11px] font-bold tabular-nums rounded px-1 py-0.5",
             entry.score >= 80
-              ? "bg-[#A4BD95]/10 text-sage-ink"
+              ? "bg-sage-soft/10 text-sage-ink"
               : entry.score >= 50
                 ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
                 : "bg-red-500/10 text-red-600 dark:text-red-400",

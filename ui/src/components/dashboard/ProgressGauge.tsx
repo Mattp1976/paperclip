@@ -20,7 +20,7 @@ interface ProgressGaugeProps {
 }
 
 const toneStyles: Record<NonNullable<ProgressGaugeProps["tone"]>, { stroke: string; text: string }> = {
-  green: { stroke: "stroke-primary dark:stroke-[#A4BD95]", text: "text-sage-ink" },
+  green: { stroke: "stroke-primary dark:stroke-sage-soft", text: "text-sage-ink" },
   amber: { stroke: "stroke-[#D4A860] dark:stroke-[#E6C07F]", text: "text-[#8A6A2E] dark:text-amber-300" },
   red: { stroke: "stroke-[#C47878] dark:stroke-[#D9A5A5]", text: "text-[#8A4A4A] dark:text-[#F0C7C7]" },
   violet: { stroke: "stroke-[#9684B3] dark:stroke-[#B5A5D1]", text: "text-[#6A5A8A] dark:text-violet-300" },

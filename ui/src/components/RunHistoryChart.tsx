@@ -193,7 +193,7 @@ export function RunHistoryChart({ companyId }: RunHistoryChartProps) {
                   {bucket.total > 0 && (
                     <>
                       <div
-                        className="bg-[#A4BD95]/80"
+                        className="bg-sage-soft/80"
                         style={{ height: `${successPct}%`, minHeight: bucket.succeeded > 0 ? 2 : 0 }}
                       />
                       <div
@@ -226,7 +226,7 @@ export function RunHistoryChart({ companyId }: RunHistoryChartProps) {
         {/* Legend */}
         <div className="flex items-center gap-4 mt-3 justify-center">
           <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <span className="w-2.5 h-2.5 rounded-sm bg-[#A4BD95]/80" />
+            <span className="w-2.5 h-2.5 rounded-sm bg-sage-soft/80" />
             Succeeded
           </span>
           <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">

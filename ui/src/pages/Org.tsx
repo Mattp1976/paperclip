@@ -68,7 +68,7 @@ function OrgTreeNode({
           className={cn(
             "h-2 w-2 rounded-full shrink-0",
             node.status === "active"
-              ? "bg-[#B5C4B1]"
+              ? "bg-sage-mist"
               : node.status === "paused"
                 ? "bg-yellow-400"
                 : node.status === "pending_approval"

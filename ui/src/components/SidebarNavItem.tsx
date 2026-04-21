@@ -41,7 +41,7 @@ export function SidebarNavItem({
         cn(
           "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150",
           isActive
-            ? "bg-gradient-to-br from-[#8FA781] to-[#7C9470] text-white shadow-[0_1px_2px_rgba(94,114,89,0.15),0_8px_16px_-8px_rgba(94,114,89,0.40)] dark:from-[#A4BD95] dark:to-[#8FA781] dark:text-[#22251F]"
+            ? "bg-gradient-to-br from-[#8FA781] to-[#7C9470] text-white shadow-[0_1px_2px_rgba(94,114,89,0.15),0_8px_16px_-8px_rgba(94,114,89,0.40)] dark:from-sage-soft dark:to-[#8FA781] dark:text-[#22251F]"
             : "text-muted-foreground/80 hover:bg-white/70 dark:hover:bg-white/5 hover:text-foreground",
           className,
         )
@@ -82,7 +82,7 @@ export function SidebarNavItem({
                 <span
                   className={cn(
                     "animate-pulse absolute inline-flex h-full w-full rounded-full opacity-75",
-                    isActive ? "bg-white" : "bg-[#B5C4B1]",
+                    isActive ? "bg-white" : "bg-sage-mist",
                   )}
                 />
                 <span

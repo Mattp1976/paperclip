@@ -737,7 +737,7 @@ export function ProjectProperties({ project, onUpdate, onFieldUpdate, getFieldSa
                           className={cn(
                             "rounded-full px-1.5 py-0.5 text-[10px] uppercase tracking-wide",
                             service.status === "running"
-                              ? "bg-[#A4BD95]/15 text-sage-ink"
+                              ? "bg-sage-soft/15 text-sage-ink"
                               : service.status === "failed"
                                 ? "bg-red-500/15 text-red-700 dark:text-red-300"
                                 : "bg-muted text-muted-foreground",

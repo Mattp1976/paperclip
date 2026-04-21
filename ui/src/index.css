@@ -21,6 +21,8 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-sage-ink: var(--sage-ink);
+  --color-sage-soft: var(--sage-soft);
+  --color-sage-mist: var(--sage-mist);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -68,6 +70,8 @@
   --destructive: oklch(0.66 0.12 20);             /* dusty rose (was red) */
   --destructive-foreground: oklch(0.99 0.005 75);
   --sage-ink: oklch(0.45 0.032 140);              /* deep sage for icons/labels; matches #5E7259 */
+  --sage-soft: oklch(0.76 0.06 140);               /* success pastel / dark-mode primary lift; matches #A4BD95 */
+  --sage-mist: oklch(0.81 0.045 140);              /* paler sage for healthy/active pills; matches #B5C4B1 */
   --border: oklch(0.905 0.008 75);                /* warm taupe border */
   --input: oklch(0.905 0.008 75);
   --ring: oklch(0.68 0.055 140);
@@ -104,6 +108,8 @@
   --destructive: oklch(0.70 0.12 20);
   --destructive-foreground: oklch(0.95 0.008 75);
   --sage-ink: oklch(0.83 0.028 140);              /* pale sage for icons/labels on dark; matches #C5D4BC */
+  --sage-soft: oklch(0.76 0.06 140);               /* fixed #A4BD95 across modes — success pastel + primary lift */
+  --sage-mist: oklch(0.81 0.045 140);              /* fixed #B5C4B1 across modes — even paler success/active pill */
   --border: oklch(0.31 0.012 60);
   --input: oklch(0.31 0.012 60);
   --ring: oklch(0.72 0.07 140);

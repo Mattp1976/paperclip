@@ -20,7 +20,7 @@ const buttonVariants = cva(
          * the lighter sage `#A4BD95` for readability on the darker surface.
          */
         sage:
-          "bg-[#8FA781] text-white shadow-sm hover:bg-[#7C9470] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#A4BD95] dark:text-[#22251F] dark:hover:bg-[#B5C4B1]",
+          "bg-[#8FA781] text-white shadow-sm hover:bg-[#7C9470] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-sage-soft dark:text-[#22251F] dark:hover:bg-sage-mist",
         /**
          * sage-elevated — the "hero CTA" tier. Uses the same sage palette as
          * `sage`, but with a beefier dual-stop rgba(94,114,89) shadow and a
@@ -30,7 +30,7 @@ const buttonVariants = cva(
          * to set padding/rounded/text.
          */
         "sage-elevated":
-          "bg-[#8FA781] text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all duration-200 hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-[#A4BD95] dark:text-[#22251F] dark:hover:bg-[#B5C4B1]",
+          "bg-[#8FA781] text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all duration-200 hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-sage-soft dark:text-[#22251F] dark:hover:bg-sage-mist",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
