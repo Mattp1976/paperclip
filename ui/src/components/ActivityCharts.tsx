@@ -1,4 +1,5 @@
 import type { HeartbeatRun } from "@mattparrytfc/shared";
+import { SoftCard } from "./SoftCard";
 
 /* ---- Utilities ---- */
 
@@ -46,13 +47,13 @@ function ChartLegend({ items }: { items: { color: string; label: string }[] }) {
 
 export function ChartCard({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03] p-5 space-y-3 transition-shadow duration-200 hover:shadow-md hover:shadow-black/[0.05] dark:hover:shadow-black/20">
+    <SoftCard padding="tight" className="space-y-3">
       <div>
         <h3 className="text-xs font-medium text-foreground/70">{title}</h3>
         {subtitle && <span className="text-[10px] text-muted-foreground/60">{subtitle}</span>}
       </div>
       {children}
-    </div>
+    </SoftCard>
   );
 }
 
