@@ -61,25 +61,25 @@ export function PillRunChart({ runs }: PillRunChartProps) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-start justify-between gap-4 pb-4">
-        <div>
+      <div className="flex items-center justify-between gap-4 pb-2">
+        <div className="flex items-baseline gap-2">
           <h3 className="text-sm font-semibold text-foreground">Run activity</h3>
-          <p className="mt-0.5 text-xs text-muted-foreground/70">
-            Last {DAYS_WINDOW} days across all agents
-          </p>
+          <span className="text-[11px] text-muted-foreground/70">
+            Last {DAYS_WINDOW} days
+          </span>
         </div>
-        <div className="text-right">
-          <p className="text-2xl font-bold tabular-nums tracking-tight text-foreground">
+        <div className="flex items-baseline gap-2 text-right">
+          <p className="text-lg font-semibold tabular-nums tracking-tight text-foreground leading-none">
             {weekTotal}
           </p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground/70">
+          <p className="text-[11px] text-muted-foreground/70">
             {successPct !== null ? `${successPct}% success` : "No runs yet"}
             {weekFailed > 0 && ` · ${weekFailed} failed`}
           </p>
         </div>
       </div>
 
-      <div className="relative flex flex-1 items-end gap-1.5 pt-2 min-h-[140px]">
+      <div className="relative flex flex-1 items-end gap-1.5 pt-1 min-h-[72px]">
         {days.map((d, i) => {
           const e = totals[i];
           const heightPct = e.total > 0 ? Math.max((e.total / maxValue) * 100, 12) : 0;
@@ -130,7 +130,7 @@ export function PillRunChart({ runs }: PillRunChartProps) {
         })}
       </div>
 
-      <div className="mt-2 flex gap-1.5">
+      <div className="mt-1.5 flex items-center gap-1.5">
         {days.map((d, i) => (
           <div
             key={d.date}
@@ -150,7 +150,7 @@ export function PillRunChart({ runs }: PillRunChartProps) {
         ))}
       </div>
 
-      <div className="mt-3 flex items-center gap-3 border-t border-border/30 pt-3 text-[10px] text-muted-foreground/70">
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground/70">
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-primary" />
           Succeeded
@@ -163,7 +163,7 @@ export function PillRunChart({ runs }: PillRunChartProps) {
           <span className="h-2 w-2 rounded-full bg-[#C8C0B4]" />
           Other
         </span>
-        <span className="ml-auto flex items-center gap-1.5">
+        <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full border border-dashed border-border" />
           No runs
         </span>
