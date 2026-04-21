@@ -177,7 +177,7 @@ export function GoalDetail() {
           {linkedProjects.length === 0 ? (
             <p className="text-sm text-muted-foreground">No linked projects.</p>
           ) : (
-            <div className="border border-border">
+            <div className="border border-border/40 dark:border-border rounded-xl overflow-hidden">
               {linkedProjects.map((project) => (
                 <EntityRow
                   key={project.id}

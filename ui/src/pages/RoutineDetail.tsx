@@ -963,7 +963,7 @@ export function RoutineDetail() {
           {(routineRuns ?? []).length === 0 ? (
             <p className="text-xs text-muted-foreground">No runs yet.</p>
           ) : (
-            <div className="border border-border rounded-lg divide-y divide-border">
+            <div className="border border-border/40 dark:border-border rounded-xl overflow-hidden divide-y divide-border/40 dark:divide-border">
               {(routineRuns ?? []).map((run) => (
                 <div key={run.id} className="flex items-center justify-between px-3 py-2 text-sm">
                   <div className="flex items-center gap-2 min-w-0">
@@ -991,7 +991,7 @@ export function RoutineDetail() {
           {(activity ?? []).length === 0 ? (
             <p className="text-xs text-muted-foreground">No activity yet.</p>
           ) : (
-            <div className="border border-border rounded-lg divide-y divide-border">
+            <div className="border border-border/40 dark:border-border rounded-xl overflow-hidden divide-y divide-border/40 dark:divide-border">
               {(activity ?? []).map((event) => (
                 <div key={event.id} className="flex items-center justify-between px-3 py-2 text-xs gap-4">
                   <div className="flex items-center gap-2 min-w-0">
