@@ -1,4 +1,6 @@
 import type {
+  AgentPeerNote,
+  AgentPeerNoteKind,
   Approval,
   DocumentRevision,
   Issue,
@@ -71,6 +73,20 @@ export const issuesApi = {
         ...(interrupt === undefined ? {} : { interrupt }),
       },
     ),
+  listPeerNotes: (id: string) => api.get<AgentPeerNote[]>(`/issues/${id}/peer-notes`),
+  addPeerNote: (
+    id: string,
+    body: {
+      kind: AgentPeerNoteKind;
+      body: string;
+      toAgentId?: string | null;
+      runId?: string | null;
+    },
+  ) => api.post<AgentPeerNote>(`/issues/${id}/peer-notes`, body),
+  ackPeerNote: (id: string, noteId: string) =>
+    api.post<AgentPeerNote>(`/issues/${id}/peer-notes/${noteId}/ack`, {}),
+  resolvePeerNote: (id: string, noteId: string) =>
+    api.post<AgentPeerNote>(`/issues/${id}/peer-notes/${noteId}/resolve`, {}),
   listDocuments: (id: string) => api.get<IssueDocument[]>(`/issues/${id}/documents`),
   getDocument: (id: string, key: string) => api.get<IssueDocument>(`/issues/${id}/documents/${encodeURIComponent(key)}`),
   upsertDocument: (id: string, key: string, data: UpsertIssueDocument) =>

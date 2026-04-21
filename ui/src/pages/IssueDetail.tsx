@@ -17,6 +17,7 @@ import { readIssueDetailBreadcrumb } from "../lib/issueDetailBreadcrumb";
 import { useProjectOrder } from "../hooks/useProjectOrder";
 import { relativeTime, cn, formatTokens, visibleRunCostUsd, issueUrl } from "../lib/utils";
 import { InlineEditor } from "../components/InlineEditor";
+import { AgentPeerNotes } from "../components/AgentPeerNotes";
 import { CommentThread } from "../components/CommentThread";
 import { IssueDocumentsSection } from "../components/IssueDocumentsSection";
 import { IssueProperties } from "../components/IssueProperties";
@@ -48,6 +49,7 @@ import {
   Hexagon,
   ListTree,
   MessageSquare,
+  MessagesSquare,
   MoreHorizontal,
   Paperclip,
   Repeat,
@@ -1006,6 +1008,10 @@ export function IssueDetail() {
             <ListTree className="h-3.5 w-3.5" />
             Sub-issues
           </TabsTrigger>
+          <TabsTrigger value="agent-notes" className="gap-1.5">
+            <MessagesSquare className="h-3.5 w-3.5" />
+            Agent notes
+          </TabsTrigger>
           <TabsTrigger value="activity" className="gap-1.5">
             <ActivityIcon className="h-3.5 w-3.5" />
             Activity
@@ -1079,6 +1085,10 @@ export function IssueDetail() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="agent-notes">
+          <AgentPeerNotes issueId={issueId!} agentMap={agentMap} />
         </TabsContent>
 
         <TabsContent value="activity">
