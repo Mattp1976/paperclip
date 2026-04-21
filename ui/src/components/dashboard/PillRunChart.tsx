@@ -60,8 +60,8 @@ export function PillRunChart({ runs }: PillRunChartProps) {
     weekTotal > 0 ? Math.round((weekSucceeded / weekTotal) * 100) : null;
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-4 pb-2">
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between gap-4 pb-1.5">
         <div className="flex items-baseline gap-2">
           <h3 className="text-sm font-semibold text-foreground">Run activity</h3>
           <span className="text-[11px] text-muted-foreground/70">
@@ -69,7 +69,7 @@ export function PillRunChart({ runs }: PillRunChartProps) {
           </span>
         </div>
         <div className="flex items-baseline gap-2 text-right">
-          <p className="text-lg font-semibold tabular-nums tracking-tight text-foreground leading-none">
+          <p className="text-base font-semibold tabular-nums tracking-tight text-foreground leading-none">
             {weekTotal}
           </p>
           <p className="text-[11px] text-muted-foreground/70">
@@ -79,7 +79,7 @@ export function PillRunChart({ runs }: PillRunChartProps) {
         </div>
       </div>
 
-      <div className="relative flex flex-1 items-end gap-1.5 pt-1 min-h-[72px]">
+      <div className="relative flex items-end gap-1.5 pt-1 h-[56px]">
         {days.map((d, i) => {
           const e = totals[i];
           const heightPct = e.total > 0 ? Math.max((e.total / maxValue) * 100, 12) : 0;
@@ -130,43 +130,37 @@ export function PillRunChart({ runs }: PillRunChartProps) {
         })}
       </div>
 
-      <div className="mt-1.5 flex items-center gap-1.5">
+      <div className="mt-1 flex items-center gap-1.5">
         {days.map((d, i) => (
           <div
             key={d.date}
             className="flex flex-1 justify-center"
             aria-hidden
           >
-            <span
-              className={
-                i === 0 || i === days.length - 1 || i === 7
-                  ? "text-[9px] text-muted-foreground/70 tabular-nums"
-                  : "text-[9px] text-muted-foreground/40"
-              }
-            >
-              {i === 0 || i === days.length - 1 || i === 7 ? d.label : d.weekday}
-            </span>
+            {i === 0 || i === days.length - 1 || i === 7 ? (
+              <span className="text-[9px] text-muted-foreground/70 tabular-nums">
+                {d.label}
+              </span>
+            ) : null}
           </div>
         ))}
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground/70">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 text-[10px] text-muted-foreground/70">
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-primary" />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
           Succeeded
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-rose-deep" />
+          <span className="h-1.5 w-1.5 rounded-full bg-rose-deep" />
           Failed
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[#C8C0B4]" />
-          Other
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full border border-dashed border-border" />
-          No runs
-        </span>
+        {weekTotal > 0 ? null : (
+          <span className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full border border-dashed border-border" />
+            No runs
+          </span>
+        )}
       </div>
     </div>
   );

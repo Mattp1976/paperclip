@@ -453,8 +453,8 @@ export function Dashboard() {
 
           {/* ── ANALYTICS + UP NEXT + GOALS ─────────────────────────── */}
 
-          <div className="grid gap-5 lg:grid-cols-3">
-            <div className="lg:col-span-2 rounded-[32px] bg-white dark:bg-card border border-border/40 dark:border-border/40 shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-12px_rgba(0,0,0,0.06)] p-5">
+          <div className="grid gap-5 lg:grid-cols-3 items-start">
+            <div className="lg:col-span-2 rounded-[32px] bg-white dark:bg-card border border-border/40 dark:border-border/40 shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-12px_rgba(0,0,0,0.06)] px-5 py-4">
               <PillRunChart runs={runs ?? []} />
             </div>
             <div className="lg:col-span-1 flex flex-col gap-5">
