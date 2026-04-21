@@ -8,6 +8,7 @@ import { companiesApi } from "../api/companies";
 import { goalsApi } from "../api/goals";
 import { agentsApi } from "../api/agents";
 import { issuesApi } from "../api/issues";
+import { secretsApi } from "../api/secrets";
 import { queryKeys } from "../lib/queryKeys";
 import { Dialog, DialogPortal } from "@/components/ui/dialog";
 import {
@@ -48,7 +49,10 @@ import {
   Check,
   Loader2,
   ChevronDown,
-  X
+  X,
+  KeyRound,
+  Eye,
+  EyeOff
 } from "lucide-react";
 
 type Step = 1 | 2 | 3 | 4;
@@ -119,6 +123,15 @@ export function OnboardingWizard() {
     useState(false);
   const [unsetAnthropicLoading, setUnsetAnthropicLoading] = useState(false);
   const [showMoreAdapters, setShowMoreAdapters] = useState(false);
+
+  // BYO Anthropic API key — saved as a company secret, injected into the
+  // claude_local adapter config as an ANTHROPIC_API_KEY secret_ref so the
+  // user's own Anthropic quota is used instead of the host's subscription.
+  const [anthropicApiKey, setAnthropicApiKey] = useState("");
+  const [showAnthropicApiKey, setShowAnthropicApiKey] = useState(false);
+  const [anthropicSecretId, setAnthropicSecretId] = useState<string | null>(
+    null
+  );
 
   // Step 3
   const [taskTitle, setTaskTitle] = useState(
@@ -212,7 +225,16 @@ export function OnboardingWizard() {
     if (step !== 2) return;
     setAdapterEnvResult(null);
     setAdapterEnvError(null);
-  }, [step, adapterType, model, command, args, url]);
+  }, [
+    step,
+    adapterType,
+    model,
+    command,
+    args,
+    url,
+    anthropicApiKey,
+    anthropicSecretId
+  ]);
 
   const selectedModel = (adapterModels ?? []).find((m) => m.id === model);
   const hasAnthropicApiKeyOverrideCheck =
@@ -277,6 +299,9 @@ export function OnboardingWizard() {
     setAdapterEnvLoading(false);
     setForceUnsetAnthropicApiKey(false);
     setUnsetAnthropicLoading(false);
+    setAnthropicApiKey("");
+    setShowAnthropicApiKey(false);
+    setAnthropicSecretId(null);
     setTaskTitle("Hire your first engineer and create a hiring plan");
     setTaskDescription(DEFAULT_TASK_DESCRIPTION);
     setCreatedCompanyId(null);
@@ -290,7 +315,9 @@ export function OnboardingWizard() {
     closeOnboarding();
   }
 
-  function buildAdapterConfig(): Record<string, unknown> {
+  function buildAdapterConfig(
+    overrides?: { anthropicSecretId?: string | null }
+  ): Record<string, unknown> {
     const adapter = getUIAdapter(adapterType);
     const config = adapter.buildAdapterConfig({
       ...defaultCreateValues,
@@ -320,6 +347,28 @@ export function OnboardingWizard() {
           ? { ...(config.env as Record<string, unknown>) }
           : {};
       env.ANTHROPIC_API_KEY = { type: "plain", value: "" };
+      config.env = env;
+    }
+    // BYO Anthropic key: bind ANTHROPIC_API_KEY to the company-scoped secret
+    // we created for this user. Overrides any unset-override above because
+    // the whole point is to *use* the user's own key. Accept an explicit
+    // override so we can reference a secret created moments earlier in the
+    // same event handler (before React state has settled).
+    const effectiveAnthropicSecretId =
+      overrides?.anthropicSecretId !== undefined
+        ? overrides.anthropicSecretId
+        : anthropicSecretId;
+    if (adapterType === "claude_local" && effectiveAnthropicSecretId) {
+      const env =
+        typeof config.env === "object" &&
+        config.env !== null &&
+        !Array.isArray(config.env)
+          ? { ...(config.env as Record<string, unknown>) }
+          : {};
+      env.ANTHROPIC_API_KEY = {
+        type: "secret_ref",
+        secretId: effectiveAnthropicSecretId
+      };
       config.env = env;
     }
     return config;
@@ -427,8 +476,39 @@ export function OnboardingWizard() {
         }
       }
 
+      // BYO key: persist the Anthropic key as a company secret BEFORE
+      // running the adapter env probe, so the probe sees the same env
+      // the real agent will run with.
+      let secretIdForConfig: string | null = anthropicSecretId;
+      if (
+        adapterType === "claude_local" &&
+        !secretIdForConfig &&
+        anthropicApiKey.trim().length > 0
+      ) {
+        try {
+          const secret = await secretsApi.create(createdCompanyId, {
+            name: "ANTHROPIC_API_KEY",
+            value: anthropicApiKey.trim(),
+            description: "Anthropic key provided during onboarding"
+          });
+          secretIdForConfig = secret.id;
+          setAnthropicSecretId(secret.id);
+        } catch (err) {
+          const message =
+            err instanceof Error ? err.message : "Failed to save API key";
+          setError(
+            `Could not save your Anthropic API key as a company secret: ${message}`
+          );
+          return;
+        }
+      }
+
       if (isLocalAdapter) {
-        const result = adapterEnvResult ?? (await runAdapterEnvironmentTest());
+        const result =
+          adapterEnvResult ??
+          (await runAdapterEnvironmentTest(
+            buildAdapterConfig({ anthropicSecretId: secretIdForConfig })
+          ));
         if (!result) return;
       }
 
@@ -436,7 +516,9 @@ export function OnboardingWizard() {
         name: agentName.trim(),
         role: "ceo",
         adapterType,
-        adapterConfig: buildAdapterConfig(),
+        adapterConfig: buildAdapterConfig({
+          anthropicSecretId: secretIdForConfig
+        }),
         runtimeConfig: {
           heartbeat: {
             enabled: true,
@@ -958,6 +1040,72 @@ export function OnboardingWizard() {
                           </PopoverContent>
                         </Popover>
                       </div>
+                    </div>
+                  )}
+
+                  {adapterType === "claude_local" && (
+                    <div className="space-y-2 rounded-md border border-border p-3">
+                      <div className="flex items-start gap-2">
+                        <KeyRound className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-xs font-medium">
+                              Anthropic API key
+                            </p>
+                            <span className="bg-sage-soft text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full leading-none">
+                              Recommended
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                            Paste your key from{" "}
+                            <span className="font-mono">
+                              console.anthropic.com
+                            </span>
+                            . Your agent will bill Claude usage to your account.
+                            Stored encrypted as a company secret — manage it
+                            later under Settings → Secrets.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <input
+                          className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 pr-9 text-sm font-mono outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/40"
+                          type={showAnthropicApiKey ? "text" : "password"}
+                          placeholder="sk-ant-..."
+                          value={anthropicApiKey}
+                          onChange={(e) => {
+                            setAnthropicApiKey(e.target.value);
+                            // If user edits after a secret was already
+                            // created, clear the stale binding so we create
+                            // a fresh secret on next Next.
+                            if (anthropicSecretId) setAnthropicSecretId(null);
+                          }}
+                          autoComplete="off"
+                          spellCheck={false}
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          onClick={() =>
+                            setShowAnthropicApiKey(!showAnthropicApiKey)
+                          }
+                          tabIndex={-1}
+                        >
+                          {showAnthropicApiKey ? (
+                            <EyeOff className="h-3.5 w-3.5" />
+                          ) : (
+                            <Eye className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      </div>
+                      {!anthropicApiKey.trim() && (
+                        <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
+                          Leave blank only if this machine has{" "}
+                          <span className="font-mono">claude login</span> set
+                          up — in that case the agent will use the host's
+                          Claude subscription instead.
+                        </p>
+                      )}
                     </div>
                   )}
 
