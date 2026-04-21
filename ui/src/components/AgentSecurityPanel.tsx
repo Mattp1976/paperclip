@@ -97,7 +97,7 @@ function scoreColor(score: number): string {
 }
 
 function scoreBg(score: number): string {
-  if (score >= 85) return "bg-[#8FA781]";
+  if (score >= 85) return "bg-primary";
   if (score >= 65) return "bg-amber-500";
   if (score >= 40) return "bg-orange-500";
   return "bg-red-500";

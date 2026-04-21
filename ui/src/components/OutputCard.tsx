@@ -143,7 +143,7 @@ export function OutputCard({
       {/* Header — agent identity + timestamp */}
       <div className="flex items-center gap-3 px-5 pt-4 pb-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#8FA781]/10 dark:bg-[#8FA781]/20">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20">
             <Sparkles className="h-4 w-4 text-sage-ink" />
           </div>
           {agent && (

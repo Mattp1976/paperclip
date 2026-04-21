@@ -216,7 +216,7 @@ function ModelBadge({ tier }: { tier: "opus" | "sonnet" | "haiku" | "unknown" })
   const styles = {
     opus: "bg-purple-500/15 text-purple-400 border-purple-500/20",
     sonnet: "bg-blue-500/15 text-blue-400 border-blue-500/20",
-    haiku: "bg-[#8FA781]/15 text-green-400 border-[#8FA781]/20",
+    haiku: "bg-primary/15 text-green-400 border-primary/20",
     unknown: "bg-neutral-500/15 text-neutral-400 border-neutral-500/20",
   };
   return (
@@ -357,7 +357,7 @@ function FleetSummary({ rows }: { rows: AgentFleetRow[] }) {
             )}
             {modelCounts.haiku > 0 && (
               <div
-                className="bg-[#8FA781]"
+                className="bg-primary"
                 style={{ flex: modelCounts.haiku }}
                 title={`Haiku: ${modelCounts.haiku}`}
               />
@@ -385,7 +385,7 @@ function FleetSummary({ rows }: { rows: AgentFleetRow[] }) {
             )}
             {modelCounts.haiku > 0 && (
               <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#8FA781]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 Haiku ({modelCounts.haiku})
               </span>
             )}

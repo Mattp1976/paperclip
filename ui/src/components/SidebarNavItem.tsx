@@ -88,7 +88,7 @@ export function SidebarNavItem({
                 <span
                   className={cn(
                     "relative inline-flex rounded-full h-2 w-2",
-                    isActive ? "bg-white" : "bg-[#8FA781]",
+                    isActive ? "bg-white" : "bg-primary",
                   )}
                 />
               </span>
@@ -110,7 +110,7 @@ export function SidebarNavItem({
                   ? "bg-white/25 text-white"
                   : badgeTone === "danger"
                     ? "bg-[#C47878] text-white"
-                    : "bg-[#8FA781] text-white dark:bg-[#A4BD95] dark:text-[#22251F]",
+                    : "bg-primary text-white dark:text-[#22251F]",
               )}
             >
               {badge}

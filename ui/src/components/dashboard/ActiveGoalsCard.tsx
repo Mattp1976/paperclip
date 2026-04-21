@@ -29,7 +29,7 @@ const LEVEL_LABEL: Record<Goal["level"], string> = {
 
 const LEVEL_STYLE: Record<Goal["level"], string> = {
   company:
-    "bg-[#8FA781]/12 text-[#5F7355] border-[#8FA781]/25 dark:bg-[#A4BD95]/15 dark:text-[#D7E4CB] dark:border-[#8FA781]/30",
+    "bg-primary/12 text-[#5F7355] border-primary/25 dark:bg-[#A4BD95]/15 dark:text-[#D7E4CB] dark:border-primary/30",
   team:
     "bg-[#D9A5A5]/18 text-[#8B5555] border-[#D9A5A5]/30 dark:bg-[#D9A5A5]/15 dark:text-[#E8BEBE] dark:border-[#D9A5A5]/30",
   agent:
@@ -56,7 +56,7 @@ export function ActiveGoalsCard({
     <div className="rounded-[32px] bg-white dark:bg-card border border-border/40 dark:border-border/40 shadow-[0_1px_2px_rgba(0,0,0,0.02),0_12px_32px_-12px_rgba(0,0,0,0.06)] p-7">
       <div className="flex items-start justify-between gap-4 mb-5">
         <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-[#8FA781]/10 p-2 dark:bg-[#8FA781]/15">
+          <div className="rounded-xl bg-primary/10 p-2 dark:bg-primary/15">
             <Target className="h-4 w-4 text-[#7C9470] dark:text-[#A4BD95]" />
           </div>
           <div>
@@ -70,7 +70,7 @@ export function ActiveGoalsCard({
         </div>
         <Link
           to="/goals"
-          className="shrink-0 inline-flex items-center gap-1 text-xs font-medium text-[#7C9470] hover:text-[#8FA781] no-underline"
+          className="shrink-0 inline-flex items-center gap-1 text-xs font-medium text-[#7C9470] hover:text-primary no-underline"
         >
           View all
           <ArrowRight className="h-3 w-3" />

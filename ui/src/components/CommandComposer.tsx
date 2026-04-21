@@ -425,14 +425,14 @@ export function CommandComposer() {
         <div className={cn(
           "w-full max-w-2xl rounded-xl border bg-background shadow-2xl overflow-hidden transition-colors duration-200",
           mode === "ask" && "border-blue-500/30",
-          mode === "task" && "border-[#8FA781]/30",
+          mode === "task" && "border-primary/30",
           mode === "decision" && "border-amber-500/30",
         )}>
           {/* Mode accent bar */}
           <div className={cn(
             "h-1 w-full transition-colors duration-200",
             mode === "ask" && "bg-blue-500",
-            mode === "task" && "bg-[#8FA781]",
+            mode === "task" && "bg-primary",
             mode === "decision" && "bg-amber-500",
           )} />
           {/* Header */}

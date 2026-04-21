@@ -28,7 +28,7 @@ function statusChip(status: LiveRunForIssue["status"]) {
         label: "Running",
         className:
           "bg-[#E4EEDC] text-[#3D4A37] border-[#C5D4BC] dark:bg-[#3B4A37]/50 dark:border-[#5E7259]/50",
-        dotClass: "bg-[#8FA781]",
+        dotClass: "bg-primary",
         pulse: true,
       };
     case "queued":
@@ -44,7 +44,7 @@ function statusChip(status: LiveRunForIssue["status"]) {
         label: "Succeeded",
         className:
           "bg-[#EDF2E4] text-sage-ink border-[#D7E4CB] dark:bg-[#3B4A37]/35 dark:border-[#5E7259]/40",
-        dotClass: "bg-[#8FA781]",
+        dotClass: "bg-primary",
         pulse: false,
       };
     case "failed":

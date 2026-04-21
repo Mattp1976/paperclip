@@ -651,7 +651,7 @@ export function RoutineDetail() {
             aria-label={automationEnabled ? "Pause automatic triggers" : "Enable automatic triggers"}
             disabled={automationToggleDisabled}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              automationEnabled ? "bg-[#8FA781]" : "bg-muted"
+              automationEnabled ? "bg-primary" : "bg-muted"
             } ${automationToggleDisabled ? "cursor-not-allowed opacity-50" : ""}`}
             onClick={() => updateRoutineStatus.mutate(automationEnabled ? "paused" : "active")}
           >

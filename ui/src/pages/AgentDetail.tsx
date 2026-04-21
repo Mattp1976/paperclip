@@ -1546,7 +1546,7 @@ function ConfigurationTab({
               aria-checked={canCreateAgents}
               className={cn(
                 "relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 disabled:cursor-not-allowed disabled:opacity-50",
-                canCreateAgents ? "bg-[#8FA781]" : "bg-muted",
+                canCreateAgents ? "bg-primary" : "bg-muted",
               )}
               onClick={() =>
                 updatePermissions.mutate({
@@ -1577,7 +1577,7 @@ function ConfigurationTab({
               aria-checked={canAssignTasks}
               className={cn(
                 "relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 disabled:cursor-not-allowed disabled:opacity-50",
-                canAssignTasks ? "bg-[#8FA781]" : "bg-muted",
+                canAssignTasks ? "bg-primary" : "bg-muted",
               )}
               onClick={() =>
                 updatePermissions.mutate({

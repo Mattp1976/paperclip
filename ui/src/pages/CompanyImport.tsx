@@ -100,7 +100,7 @@ function ensureMarkdownPath(p: string): string {
 }
 
 const ACTION_COLORS: Record<string, string> = {
-  create: "text-sage-ink border-[#8FA781]/30",
+  create: "text-sage-ink border-primary/30",
   update: "text-amber-500 border-amber-500/30",
   overwrite: "text-red-500 border-red-500/30",
   replace: "text-red-500 border-red-500/30",
@@ -385,7 +385,7 @@ function ConflictResolutionList({
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 text-sm",
                   isSkipped && "opacity-40",
-                  isConfirmed && !isSkipped && "bg-[#8FA781]/5",
+                  isConfirmed && !isSkipped && "bg-primary/5",
                 )}
               >
                 {/* Skip button on the left */}
@@ -407,7 +407,7 @@ function ConflictResolutionList({
                   isSkipped
                     ? "text-muted-foreground border-border"
                     : isConfirmed
-                      ? "text-sage-ink border-[#8FA781]/30"
+                      ? "text-sage-ink border-primary/30"
                       : "text-amber-500 border-amber-500/30",
                 )}>
                   {item.kind}
@@ -444,7 +444,7 @@ function ConflictResolutionList({
                     className={cn(
                       "ml-auto shrink-0 rounded-md border px-2.5 py-1 text-xs transition-colors inline-flex items-center gap-1.5",
                       isConfirmed
-                        ? "border-[#8FA781]/30 bg-[#8FA781]/10 text-sage-ink"
+                        ? "border-primary/30 bg-primary/10 text-sage-ink"
                         : "border-border text-muted-foreground hover:bg-accent/50",
                     )}
                     onClick={() => onToggleConfirm(item.slug)}

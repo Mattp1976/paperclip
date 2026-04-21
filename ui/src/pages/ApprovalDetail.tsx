@@ -174,7 +174,7 @@ export function ApprovalDetail() {
   return (
     <div className="space-y-6 max-w-3xl">
       {showApprovedBanner && (
-        <div className="border border-green-300 dark:border-[#8FA781]/40 bg-green-50 dark:bg-green-900/20 rounded-lg px-4 py-3 animate-in fade-in zoom-in-95 duration-300">
+        <div className="border border-green-300 dark:border-primary/40 bg-green-50 dark:bg-green-900/20 rounded-lg px-4 py-3 animate-in fade-in zoom-in-95 duration-300">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-2">
               <div className="relative mt-0.5">
@@ -191,7 +191,7 @@ export function ApprovalDetail() {
             <Button
               size="sm"
               variant="outline"
-              className="border-green-400 dark:border-[#8FA781]/50 text-[#3D4A37] dark:text-green-100 hover:bg-green-100 dark:hover:bg-green-900/30"
+              className="border-green-400 dark:border-primary/50 text-[#3D4A37] dark:text-green-100 hover:bg-green-100 dark:hover:bg-green-900/30"
               onClick={() => navigate(resolvedCta.to)}
             >
               {resolvedCta.label}

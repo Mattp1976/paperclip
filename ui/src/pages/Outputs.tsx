@@ -297,7 +297,7 @@ export function Outputs() {
               className={cn(
                 "flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-all border-b-2 -mb-px",
                 isActive
-                  ? "border-[#8FA781] text-sage-ink dark:border-green-400"
+                  ? "border-primary text-sage-ink dark:border-green-400"
                   : "border-transparent text-muted-foreground/60 hover:text-foreground hover:border-border/40",
               )}
             >
@@ -307,7 +307,7 @@ export function Outputs() {
                 <span className={cn(
                   "rounded-full px-1.5 py-0.5 text-[10px] font-medium",
                   isActive
-                    ? "bg-[#8FA781]/10 text-sage-ink dark:bg-[#A4BD95]/20"
+                    ? "bg-primary/10 text-sage-ink dark:bg-[#A4BD95]/20"
                     : "bg-muted/50 text-muted-foreground/50",
                 )}>
                   {tab.count}
@@ -332,7 +332,7 @@ export function Outputs() {
               "w-full rounded-xl border border-border/20 dark:border-border/40 bg-white dark:bg-card",
               "pl-9 pr-4 py-2.5 text-sm",
               "placeholder:text-muted-foreground/40",
-              "focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-[#8FA781]/30",
+              "focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-primary/30",
               "transition-all",
             )}
           />
@@ -348,7 +348,7 @@ export function Outputs() {
               className={cn(
                 "rounded-xl border border-border/20 dark:border-border/40 bg-white dark:bg-card",
                 "px-3 py-2.5 text-sm text-foreground",
-                "focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-[#8FA781]/30",
+                "focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-primary/30",
                 "transition-all appearance-none pr-8",
               )}
             >

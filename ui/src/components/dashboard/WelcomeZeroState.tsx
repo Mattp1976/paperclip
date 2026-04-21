@@ -89,7 +89,7 @@ export function WelcomeZeroState({
       {/* Welcome hero */}
       <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-[#FAF7F2] via-[#F6F0E7] to-[#EFE6D9] px-8 py-10 dark:from-[#22251F] dark:via-[#2A2D26] dark:to-[#32352E]">
         <div className="relative z-10 max-w-2xl">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#8FA781]">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
             Welcome to Paperclip
           </p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
@@ -102,7 +102,7 @@ export function WelcomeZeroState({
           </p>
         </div>
         {/* Decorative corner blob */}
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#A4BD95]/20 blur-3xl dark:bg-[#8FA781]/15" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#A4BD95]/20 blur-3xl dark:bg-primary/15" />
         <div className="pointer-events-none absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-[#D9A5A5]/15 blur-3xl dark:bg-[#D9A5A5]/10" />
       </div>
 
@@ -130,7 +130,7 @@ export function WelcomeZeroState({
                       state === "done"
                         ? "h-6 w-6 text-[#7C9470]"
                         : state === "active"
-                          ? "h-6 w-6 text-[#8FA781]"
+                          ? "h-6 w-6 text-primary"
                           : "h-6 w-6 text-muted-foreground/40"
                     }
                     strokeWidth={state === "done" ? 2 : 1.5}
@@ -201,13 +201,13 @@ export function WelcomeZeroState({
         <span>Want to explore first?</span>
         <Link
           to="/templates"
-          className="text-[#7C9470] hover:text-[#8FA781] underline-offset-4 hover:underline"
+          className="text-[#7C9470] hover:text-primary underline-offset-4 hover:underline"
         >
           Browse company templates
         </Link>
         <Link
           to="/design-guide"
-          className="text-[#7C9470] hover:text-[#8FA781] underline-offset-4 hover:underline"
+          className="text-[#7C9470] hover:text-primary underline-offset-4 hover:underline"
         >
           Design guide
         </Link>

@@ -260,7 +260,7 @@ function InsightCard({ insight }: { insight: Insight }) {
     suggestion: <Lightbulb className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />,
   };
   const borderMap = {
-    success: "border-[#8FA781]/20",
+    success: "border-primary/20",
     warning: "border-amber-500/20",
     suggestion: "border-blue-500/20",
   };
@@ -426,7 +426,7 @@ export function AgentPerformance({ agentId, companyId }: AgentPerformanceProps) 
             Run Activity (last 14 days)
           </h3>
           <span className="text-xs text-muted-foreground">
-            <span className="inline-block w-2 h-2 rounded-sm bg-[#8FA781] mr-1" /> success
+            <span className="inline-block w-2 h-2 rounded-sm bg-primary mr-1" /> success
             <span className="inline-block w-2 h-2 rounded-sm bg-destructive ml-2 mr-1" /> failure
           </span>
         </div>

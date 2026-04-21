@@ -106,7 +106,7 @@ export function PillRunChart({ runs }: PillRunChartProps) {
                   <div className="flex h-full flex-col-reverse">
                     {e.succeeded > 0 && (
                       <div
-                        className="bg-[#8FA781] dark:bg-[#A4BD95]"
+                        className="bg-primary"
                         style={{ flex: e.succeeded }}
                       />
                     )}
@@ -152,7 +152,7 @@ export function PillRunChart({ runs }: PillRunChartProps) {
 
       <div className="mt-3 flex items-center gap-3 border-t border-border/30 pt-3 text-[10px] text-muted-foreground/70">
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[#8FA781]" />
+          <span className="h-2 w-2 rounded-full bg-primary" />
           Succeeded
         </span>
         <span className="flex items-center gap-1.5">

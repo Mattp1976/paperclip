@@ -250,7 +250,7 @@ export function PluginManager() {
                         {installedPlugin ? (
                           <Badge
                             variant={installedPlugin.status === "ready" ? "default" : "secondary"}
-                            className={installedPlugin.status === "ready" ? "bg-[#8FA781] hover:bg-[#8FA781]" : ""}
+                            className={installedPlugin.status === "ready" ? "bg-primary hover:bg-primary" : ""}
                           >
                             {installedPlugin.status}
                           </Badge>
@@ -385,7 +385,7 @@ export function PluginManager() {
                           }
                           className={cn(
                             "shrink-0",
-                            plugin.status === "ready" ? "bg-[#8FA781] hover:bg-[#8FA781]" : ""
+                            plugin.status === "ready" ? "bg-primary hover:bg-primary" : ""
                           )}
                         >
                           {plugin.status}

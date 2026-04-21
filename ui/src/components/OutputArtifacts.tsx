@@ -75,7 +75,7 @@ const REVIEW_BADGE: Record<
     icon: CheckCircle2,
     label: "Approved",
     className:
-      "text-sage-ink bg-[#8FA781]/10 border-[#8FA781]/20",
+      "text-sage-ink bg-primary/10 border-primary/20",
   },
   changes_requested: {
     icon: AlertCircle,

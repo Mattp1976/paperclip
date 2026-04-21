@@ -148,7 +148,7 @@ export function SpendHeroCard({
       <div className="relative mt-auto pt-8">
         <div className="h-2 w-full overflow-hidden rounded-full bg-white/50 dark:bg-white/10">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#8FA781] to-[#B5C4B1] transition-all duration-500"
+            className="h-full rounded-full bg-gradient-to-r from-primary to-[#B5C4B1] transition-all duration-500"
             style={{ width: `${hasBudget ? barPct : 0}%` }}
           />
         </div>

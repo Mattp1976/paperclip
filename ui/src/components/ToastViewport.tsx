@@ -13,7 +13,7 @@ const toneClasses: Record<ToastTone, string> = {
 
 const toneDotClasses: Record<ToastTone, string> = {
   info: "bg-sky-500 dark:bg-sky-400",
-  success: "bg-[#8FA781] dark:bg-[#B5C4B1]",
+  success: "bg-primary dark:bg-[#B5C4B1]",
   warn: "bg-amber-500 dark:bg-amber-400",
   error: "bg-red-500 dark:bg-red-400",
 };

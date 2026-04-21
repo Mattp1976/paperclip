@@ -21,10 +21,10 @@ export function MetricCard({ icon: Icon, value, label, description, to, onClick,
       className={cn(
         "group relative h-full overflow-hidden rounded-2xl px-6 py-6 transition-all duration-200",
         accent
-          ? "bg-[#8FA781] dark:bg-[#8FA781] shadow-lg shadow-green-700/20 dark:shadow-green-900/40"
+          ? "bg-primary dark:bg-primary shadow-lg shadow-green-700/20 dark:shadow-green-900/40"
           : "bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03]",
         isClickable && !accent && "hover:shadow-md hover:shadow-black/[0.06] dark:hover:shadow-black/25 cursor-pointer hover:-translate-y-0.5",
-        isClickable && accent && "hover:bg-[#8FA781] dark:hover:bg-[#8FA781] cursor-pointer hover:-translate-y-0.5",
+        isClickable && accent && "hover:bg-primary dark:hover:bg-primary cursor-pointer hover:-translate-y-0.5",
       )}
     >
       <div className="flex items-start justify-between gap-3">

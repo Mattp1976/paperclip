@@ -113,7 +113,7 @@ function SectionHeader({
 }) {
   return (
     <div className="flex items-center gap-3 mb-4">
-      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#8FA781]/10 text-green-400">
+      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-green-400">
         {icon}
       </div>
       <div className="flex-1">
@@ -135,7 +135,7 @@ function InputCard({
   channel: InputChannel;
 }) {
   const statusColor = {
-    configured: "border-[#8FA781]/30 bg-[#8FA781]/5",
+    configured: "border-primary/30 bg-primary/5",
     empty: "border-border bg-card",
     required: "border-amber-500/30 bg-amber-500/5",
   }[channel.status];
@@ -200,7 +200,7 @@ function OutputCard({ channel }: { channel: OutputChannel }) {
         </div>
         <span className={cn(
           "text-[10px] font-medium px-1.5 py-0.5 rounded",
-          channel.type === "files" ? "bg-[#8FA781]/10 text-green-400" :
+          channel.type === "files" ? "bg-primary/10 text-green-400" :
           channel.type === "result" ? "bg-blue-500/10 text-blue-400" :
           channel.type === "artifacts" ? "bg-purple-500/10 text-purple-400" :
           "bg-muted text-muted-foreground"
@@ -233,9 +233,9 @@ function DataFlowDiagram({ agent, inputCount, outputCount }: { agent: Agent; inp
 
         {/* Agent */}
         <div className="flex flex-col items-center gap-1.5 min-w-[140px]">
-          <div className="w-16 h-16 rounded-2xl bg-[#8FA781]/10 border-2 border-[#8FA781]/30 flex items-center justify-center relative">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center relative">
             <Sparkles className="h-7 w-7 text-green-400" />
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#8FA781] border-2 border-background flex items-center justify-center">
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-primary border-2 border-background flex items-center justify-center">
               <Play className="h-2 w-2 text-background fill-background" />
             </div>
           </div>

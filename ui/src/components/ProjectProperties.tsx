@@ -889,7 +889,7 @@ export function ProjectProperties({ project, onUpdate, onFieldUpdate, getFieldSa
                     <button
                       className={cn(
                         "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
-                        executionWorkspacesEnabled ? "bg-[#8FA781]" : "bg-muted",
+                        executionWorkspacesEnabled ? "bg-primary" : "bg-muted",
                       )}
                       type="button"
                       onClick={() =>
@@ -927,7 +927,7 @@ export function ProjectProperties({ project, onUpdate, onFieldUpdate, getFieldSa
                       <button
                         className={cn(
                           "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
-                          executionWorkspaceDefaultMode === "isolated_workspace" ? "bg-[#8FA781]" : "bg-muted",
+                          executionWorkspaceDefaultMode === "isolated_workspace" ? "bg-primary" : "bg-muted",
                         )}
                         type="button"
                         onClick={() =>

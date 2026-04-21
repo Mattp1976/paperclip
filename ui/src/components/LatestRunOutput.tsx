@@ -139,7 +139,7 @@ function SingleRunOutput({
       className={cn(
         "rounded-xl border transition-all",
         isLatest && isLive && "border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.08)]",
-        isLatest && isSuccess && "border-[#8FA781]/20 shadow-sm shadow-black/[0.02]",
+        isLatest && isSuccess && "border-primary/20 shadow-sm shadow-black/[0.02]",
         isLatest && isError && "border-red-500/20",
         !isLatest && "border-border/40 dark:border-border",
       )}

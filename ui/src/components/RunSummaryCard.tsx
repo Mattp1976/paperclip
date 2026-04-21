@@ -133,7 +133,7 @@ function RunRow({
     <div
       className={cn(
         "group rounded-lg border transition-colors",
-        isSuccess && "border-[#8FA781]/20 bg-[#8FA781]/5",
+        isSuccess && "border-primary/20 bg-primary/5",
         isError && "border-destructive/20 bg-destructive/5",
         isRunning && "border-cyan-500/20 bg-cyan-500/5",
         !isSuccess && !isError && !isRunning && "border-border bg-card",

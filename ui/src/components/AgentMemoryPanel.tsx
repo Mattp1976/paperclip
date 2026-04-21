@@ -69,7 +69,7 @@ function formatTimestamp(ts: string): string {
 
 function confidenceBar(confidence: number) {
   const pct = Math.round(confidence * 100);
-  const color = pct >= 80 ? "bg-[#8FA781]" : pct >= 50 ? "bg-amber-500" : "bg-red-500";
+  const color = pct >= 80 ? "bg-primary" : pct >= 50 ? "bg-amber-500" : "bg-red-500";
   return (
     <div className="flex items-center gap-1.5">
       <div className="h-1.5 w-12 rounded-full bg-muted/30 overflow-hidden">
@@ -229,7 +229,7 @@ function buildMemoryFromRuns(
 function MemoryCard({ entry }: { entry: MemoryEntry }) {
   const sourceColor = {
     manual: "bg-blue-500/10 text-blue-400",
-    auto_extracted: "bg-[#8FA781]/10 text-green-400",
+    auto_extracted: "bg-primary/10 text-green-400",
     feedback: "bg-purple-500/10 text-purple-400",
     approval: "bg-amber-500/10 text-amber-400",
   }[entry.source];
@@ -237,7 +237,7 @@ function MemoryCard({ entry }: { entry: MemoryEntry }) {
   return (
     <div className="border border-border rounded-lg p-3 bg-card hover:bg-muted/10 transition-colors">
       <div className="flex items-start gap-3">
-        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-[#8FA781]/10 text-green-400 shrink-0 mt-0.5">
+        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary/10 text-green-400 shrink-0 mt-0.5">
           <Brain className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0">
@@ -304,7 +304,7 @@ function TrendRow({ trend }: { trend: PerformanceTrend }) {
           <div
             className={cn(
               "h-full rounded-full transition-all",
-              trend.successRate >= 80 ? "bg-[#8FA781]" : trend.successRate >= 50 ? "bg-amber-500" : "bg-red-500"
+              trend.successRate >= 80 ? "bg-primary" : trend.successRate >= 50 ? "bg-amber-500" : "bg-red-500"
             )}
             style={{ width: `${trend.successRate}%` }}
           />
@@ -354,7 +354,7 @@ export function AgentMemoryPanel({
       {/* Header */}
       <div className="border border-border rounded-xl p-5 bg-gradient-to-br from-card to-[#8FA781]/5">
         <div className="flex items-start gap-4">
-          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-[#8FA781]/10 border border-[#8FA781]/20 text-green-400">
+          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 text-green-400">
             <Brain className="h-6 w-6" />
           </div>
           <div className="flex-1">
@@ -387,7 +387,7 @@ export function AgentMemoryPanel({
         <div className="flex items-center gap-2 mb-4">
           <Sparkles className="h-4 w-4 text-green-400" />
           <h3 className="text-sm font-semibold text-foreground">Knowledge Store</h3>
-          <span className="text-[10px] bg-[#8FA781]/10 text-green-400 px-1.5 py-0.5 rounded font-medium">
+          <span className="text-[10px] bg-primary/10 text-green-400 px-1.5 py-0.5 rounded font-medium">
             {memories.length} entries
           </span>
         </div>

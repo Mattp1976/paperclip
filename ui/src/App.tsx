@@ -251,7 +251,7 @@ function OnboardingRoutePage() {
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-[#FAF7F2] via-[#F6F0E7] to-[#EFE6D9] px-6 py-10 sm:px-10 sm:py-12 dark:from-[#22251F] dark:via-[#2A2D26] dark:to-[#32352E]">
         <div className="relative z-10 max-w-2xl">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#8FA781]">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
             {eyebrow}
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
@@ -278,7 +278,7 @@ function OnboardingRoutePage() {
             )}
           </div>
         </div>
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#A4BD95]/20 blur-3xl dark:bg-[#8FA781]/15" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#A4BD95]/20 blur-3xl dark:bg-primary/15" />
         <div className="pointer-events-none absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-[#D9A5A5]/15 blur-3xl dark:bg-[#D9A5A5]/10" />
       </div>
     </div>

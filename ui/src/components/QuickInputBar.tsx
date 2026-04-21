@@ -35,7 +35,7 @@ const QUICK_MODES: Record<
     label: "Task",
     hint: "Describe what you need done...",
     color: "text-sage-ink",
-    bg: "bg-[#8FA781]/10 border-[#8FA781]/20",
+    bg: "bg-primary/10 border-primary/20",
   },
   ask: {
     icon: HelpCircle,
@@ -334,7 +334,7 @@ export function QuickInputBar() {
   return (
     <div className="space-y-2">
       {!explainerDismissed && (
-        <div className="relative rounded-2xl border border-[#8FA781]/25 bg-[#8FA781]/[0.06] px-4 py-3 pr-9 dark:border-[#8FA781]/30 dark:bg-[#8FA781]/[0.08]">
+        <div className="relative rounded-2xl border border-primary/25 bg-primary/[0.06] px-4 py-3 pr-9 dark:border-primary/30 dark:bg-primary/[0.08]">
           <div className="flex items-start gap-3">
             <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#7C9470] dark:text-[#A4BD95]" />
             <div className="text-xs leading-relaxed text-[#3D4A37] dark:text-[#D7E4CB]">
@@ -349,7 +349,7 @@ export function QuickInputBar() {
           <button
             type="button"
             onClick={dismissExplainer}
-            className="absolute right-2 top-2 rounded-md p-1 text-[#3D4A37]/50 transition-colors hover:bg-[#8FA781]/10 hover:text-[#3D4A37] dark:text-[#D7E4CB]/50 dark:hover:text-[#D7E4CB]"
+            className="absolute right-2 top-2 rounded-md p-1 text-[#3D4A37]/50 transition-colors hover:bg-primary/10 hover:text-[#3D4A37] dark:text-[#D7E4CB]/50 dark:hover:text-[#D7E4CB]"
             aria-label="Dismiss explainer"
             title="Hide this tip"
           >
