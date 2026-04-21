@@ -36,6 +36,7 @@ import { assertCompanyAccess, getActorInfo } from "./authz.js";
 import { shouldWakeAssigneeOnCheckout } from "./issues-checkout-wakeup.js";
 import { isAllowedContentType, MAX_ATTACHMENT_BYTES } from "../attachment-types.js";
 import { queueIssueAssignmentWakeup } from "../services/issue-assignment-wakeup.js";
+import { renderIssuePdf, buildExportFilename } from "../lib/pdfExport.js";
 
 const MAX_ISSUE_COMMENT_LIMIT = 500;
 
@@ -651,6 +652,91 @@ export function issueRoutes(db: Db, storage: StorageService) {
       details: { workProductId: removed.id, type: removed.type },
     });
     res.json(removed);
+  });
+
+  // Branded PDF export of an issue + its outputs + its documents.
+  router.get("/issues/:id/export.pdf", async (req, res) => {
+    const id = req.params.id as string;
+    const issue = await svc.getById(id);
+    if (!issue) {
+      res.status(404).json({ error: "Issue not found" });
+      return;
+    }
+    assertCompanyAccess(req, issue.companyId);
+
+    const [workProducts, documents] = await Promise.all([
+      workProductsSvc.listForIssue(issue.id),
+      documentsSvc.listIssueDocuments(issue.id),
+    ]);
+
+    const filename = buildExportFilename({
+      id: issue.id,
+      title: issue.title,
+      identifier: issue.identifier ?? null,
+      issueNumber: issue.issueNumber ?? null,
+      status: issue.status,
+      companyId: issue.companyId,
+      createdAt: issue.createdAt,
+      updatedAt: issue.updatedAt,
+    });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${filename.replace(/"/g, "")}"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    try {
+      await renderIssuePdf(res, {
+        issue: {
+          id: issue.id,
+          title: issue.title,
+          description: issue.description ?? null,
+          status: issue.status,
+          priority: issue.priority ?? null,
+          identifier: issue.identifier ?? null,
+          issueNumber: issue.issueNumber ?? null,
+          companyId: issue.companyId,
+          projectId: issue.projectId ?? null,
+          createdAt: issue.createdAt,
+          updatedAt: issue.updatedAt,
+          completedAt: issue.completedAt ?? null,
+          startedAt: issue.startedAt ?? null,
+        },
+        workProducts: workProducts.map((wp) => ({
+          id: wp.id,
+          type: wp.type,
+          provider: wp.provider,
+          title: wp.title,
+          url: wp.url ?? null,
+          status: wp.status,
+          summary: wp.summary ?? null,
+          reviewState: wp.reviewState ?? null,
+          isPrimary: wp.isPrimary ?? false,
+          createdAt: wp.createdAt,
+          updatedAt: wp.updatedAt,
+        })),
+        documents: documents.map((doc) => ({
+          id: doc.id,
+          key: doc.key,
+          title: doc.title ?? null,
+          format: doc.format,
+          latestBody: ("body" in doc && typeof doc.body === "string" ? doc.body : null),
+          latestRevisionNumber: doc.latestRevisionNumber ?? null,
+          createdAt: doc.createdAt,
+          updatedAt: doc.updatedAt,
+        })),
+      });
+    } catch (err) {
+      logger.error({ err, issueId: issue.id }, "Failed to render issue export PDF");
+      // If nothing has been streamed yet we can still send a JSON error.
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Failed to render PDF" });
+      } else {
+        try { res.end(); } catch { /* noop */ }
+      }
+    }
   });
 
   router.post("/issues/:id/read", async (req, res) => {

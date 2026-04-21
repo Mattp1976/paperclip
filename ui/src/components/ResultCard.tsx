@@ -30,6 +30,7 @@ import { Identity } from "./Identity";
 import { OutputArtifacts } from "./OutputArtifacts";
 import { extractOutputText } from "./OutputCard";
 import { useToast } from "../context/ToastContext";
+import { issuesApi } from "../api/issues";
 import {
   Clock,
   Zap,
@@ -536,26 +537,34 @@ export function ResultCard({
             <Link2 className="h-3 w-3" />
             <span className="hidden sm:inline">Copy link</span>
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              // TODO(server): POST /api/issues/:id/artifacts.zip to stream a
-              // bundle of every artifact (workspace files, PR diffs, outputs)
-              // from every run contributing to this task. Until that endpoint
-              // exists, acknowledge the request so the user knows it was heard.
-              pushToast({
-                title: "Bundle download coming soon",
-                body: "Artifact packaging is queued for the next release.",
-                tone: "info",
-                dedupeKey: `download:${task?.id ?? primaryRun.id}`,
-              });
-            }}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors"
-            title="Download all artifacts from this run"
-          >
-            <Download className="h-3 w-3" />
-            <span className="hidden sm:inline">Download</span>
-          </button>
+          {task?.id ? (
+            <a
+              href={issuesApi.exportPdfUrl(task.id)}
+              download
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors"
+              title="Download a PDF report of this task — summary, outputs, and documents"
+            >
+              <Download className="h-3 w-3" />
+              <span className="hidden sm:inline">Download PDF</span>
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                pushToast({
+                  title: "PDF export is per-task",
+                  body: "This run isn't linked to a task yet, so there's nothing to bundle up.",
+                  tone: "info",
+                  dedupeKey: `download:${primaryRun.id}`,
+                });
+              }}
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/60 transition-colors"
+              title="Download available once this run is grouped into a task"
+            >
+              <Download className="h-3 w-3" />
+              <span className="hidden sm:inline">Download PDF</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {
