@@ -17,6 +17,7 @@ import { issuesApi } from "../../api/issues";
 import { queryKeys } from "../../lib/queryKeys";
 import { cn } from "../../lib/utils";
 import { useDialog } from "../../context/DialogContext";
+import { Button } from "@/components/ui/button";
 
 interface UpNextCardProps {
   companyId: string;
@@ -186,22 +187,28 @@ export function UpNextCard({ companyId, pendingApprovals, budgetApprovals }: UpN
 
       <div className="mt-auto pt-8">
         {content.ctaHref ? (
-          <Link
-            to={content.ctaHref}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#8FA781] px-4 py-3.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-[#A4BD95] dark:text-[#22251F] dark:hover:bg-[#B5C4B1] no-underline"
+          <Button
+            asChild
+            variant="sage-elevated"
+            size="none"
+            className="w-full gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold no-underline"
           >
-            {content.ctaLabel}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+            <Link to={content.ctaHref}>
+              {content.ctaLabel}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
+            variant="sage-elevated"
+            size="none"
             onClick={content.ctaOnClick}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#8FA781] px-4 py-3.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-[#A4BD95] dark:text-[#22251F] dark:hover:bg-[#B5C4B1]"
+            className="w-full gap-2 rounded-2xl px-4 py-3.5 text-sm font-semibold"
           >
             <Plus className="h-4 w-4" />
             {content.ctaLabel}
-          </button>
+          </Button>
         )}
       </div>
     </div>

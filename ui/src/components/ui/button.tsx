@@ -12,13 +12,25 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         /**
          * sage — the canonical "do the thing" CTA. Encodes the button treatment
-         * used on Dashboard / Goals / ActiveGoalsCard so every primary action
-         * reads as the same button rather than 20 copy-pasted Tailwind blobs.
+         * used on inline actions like ActiveGoalsCard / WelcomeZeroState / hero
+         * CTAs so every primary action reads as the same button rather than 20
+         * copy-pasted Tailwind blobs. Chrome only — pair with a size preset (or
+         * size="none" + className) to set padding/rounded/text.
          * Hover transitions to the deeper sage `#7C9470`; dark mode lifts to
          * the lighter sage `#A4BD95` for readability on the darker surface.
          */
         sage:
           "bg-[#8FA781] text-white shadow-sm hover:bg-[#7C9470] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#A4BD95] dark:text-[#22251F] dark:hover:bg-[#B5C4B1]",
+        /**
+         * sage-elevated — the "hero CTA" tier. Uses the same sage palette as
+         * `sage`, but with a beefier dual-stop rgba(94,114,89) shadow and a
+         * `-translate-y-0.5` hover lift. Used by the Dashboard header "New
+         * Task" button, the Sidebar quick-action, and the UpNext card CTA.
+         * Chrome only — pair with a size preset (or size="none" + className)
+         * to set padding/rounded/text.
+         */
+        "sage-elevated":
+          "bg-[#8FA781] text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all duration-200 hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-[#A4BD95] dark:text-[#22251F] dark:hover:bg-[#B5C4B1]",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
@@ -38,6 +50,12 @@ const buttonVariants = cva(
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
         "icon-sm": "size-9",
         "icon-lg": "size-10",
+        /**
+         * none — zero sizing. Use when the variant or callsite className fully
+         * defines the geometry (e.g. sage-elevated hero CTAs whose padding
+         * varies per surface).
+         */
+        none: "",
       },
     },
     defaultVariants: {

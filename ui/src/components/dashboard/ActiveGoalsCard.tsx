@@ -11,6 +11,7 @@ import { Link } from "@/lib/router";
 import { Target, ArrowRight, Plus } from "lucide-react";
 import type { Agent, Goal } from "@mattparrytfc/shared";
 import { Identity } from "../Identity";
+import { Button } from "@/components/ui/button";
 
 interface ActiveGoalsCardProps {
   goals: Goal[] | undefined;
@@ -82,14 +83,16 @@ export function ActiveGoalsCard({
           <p className="text-sm text-muted-foreground">
             No active goals yet. Goals help align your agents around outcomes.
           </p>
-          <button
+          <Button
             type="button"
+            variant="sage"
+            size="none"
             onClick={onNewGoal}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#8FA781] px-3.5 py-2 text-xs font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#7C9470] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#A4BD95] dark:hover:bg-[#B5C4B1] dark:text-[#22251F]"
+            className="gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium"
           >
             <Plus className="h-3.5 w-3.5" />
             New goal
-          </button>
+          </Button>
         </div>
       ) : (
         <>

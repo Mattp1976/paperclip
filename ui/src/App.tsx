@@ -261,13 +261,15 @@ function OnboardingRoutePage() {
             {description}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-4">
-            <button
+            <Button
               type="button"
+              variant="sage"
+              size="none"
               onClick={handleStart}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-[#8FA781] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#7C9470] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#A4BD95] dark:hover:bg-[#B5C4B1] dark:text-[#22251F]"
+              className="gap-1.5 rounded-xl px-5 py-2.5 text-sm font-medium"
             >
               {ctaLabel}
-            </button>
+            </Button>
             {hasExistingCompany && (
               <Link
                 to="/"

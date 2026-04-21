@@ -74,13 +74,15 @@ export function Sidebar() {
 
       {/* Quick actions */}
       <div className="px-3 pt-4 pb-2">
-        <button
+        <Button
+          variant="sage-elevated"
+          size="none"
           onClick={() => openNewIssue()}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#8FA781] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_2px_4px_rgba(94,114,89,0.12),0_12px_24px_-8px_rgba(94,114,89,0.30)] transition-all duration-200 hover:bg-[#7C9470] hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(94,114,89,0.18),0_16px_32px_-8px_rgba(94,114,89,0.40)] active:translate-y-0 dark:bg-[#A4BD95] dark:hover:bg-[#B5C4B1] dark:text-[#22251F]"
+          className="w-full gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold"
         >
           <Plus className="h-4 w-4" />
           New Task
-        </button>
+        </Button>
       </div>
 
       {/* Navigation */}

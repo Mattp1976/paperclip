@@ -7,6 +7,7 @@
  */
 import { Bot, CheckCircle2, Circle, Building2, ListChecks } from "lucide-react";
 import { Link } from "@/lib/router";
+import { Button } from "@/components/ui/button";
 
 type StepKey = "company" | "agent" | "task";
 
@@ -173,12 +174,14 @@ export function WelcomeZeroState({
                       Done
                     </span>
                   ) : state === "active" ? (
-                    <button
+                    <Button
+                      variant="sage"
+                      size="none"
                       onClick={step.onClick}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-[#8FA781] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#7C9470] hover:shadow-md hover:shadow-green-700/20 active:scale-[0.98] dark:bg-[#A4BD95] dark:hover:bg-[#B5C4B1] dark:text-[#22251F]"
+                      className="gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium"
                     >
                       {step.cta}
-                    </button>
+                    </Button>
                   ) : (
                     <button
                       onClick={step.onClick}
