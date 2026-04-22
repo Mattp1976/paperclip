@@ -166,7 +166,10 @@ export function issueRoutes(db: Db, storage: StorageService) {
   }
 
   async function normalizeIssueIdentifier(rawId: string): Promise<string> {
-    if (/^[A-Z]+-\d+$/i.test(rawId)) {
+    // Accept both bare identifiers (e.g. "PAP-39") and slug-extended form
+    // produced by the UI (e.g. "PAP-39-hire-first-engineer"). The service's
+    // getByIdentifier already strips the slug tail internally.
+    if (/^[A-Z]+-\d+(?:-.*)?$/i.test(rawId)) {
       const issue = await svc.getByIdentifier(rawId);
       if (issue) {
         return issue.id;
