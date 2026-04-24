@@ -76,3 +76,19 @@ export type StandupBlocker =
       toAgentId: string | null;
       createdAt: Date;
     };
+
+/**
+ * Daily digest payload — the `StandupSnapshot` plus the bits the email
+ * body needs that aren't already in the snapshot (pending approvals,
+ * yesterday's spend). Same shape powers the in-app "preview" card and
+ * the outgoing email body, so the two can't drift.
+ */
+export interface StandupDigest {
+  snapshot: StandupSnapshot;
+  /** Number of approvals awaiting a human decision right now. */
+  pendingApprovalsCount: number;
+  /** Total spend over the window the snapshot covers, in cents. */
+  windowSpendCents: number;
+  /** When the digest was assembled (usually `new Date()` on the server). */
+  generatedAt: Date;
+}

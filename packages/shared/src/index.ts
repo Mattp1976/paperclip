@@ -251,6 +251,7 @@ export type {
   AgentStandupEntry,
   StandupIssueRef,
   StandupBlocker,
+  StandupDigest,
   ActivityEvent,
   SidebarBadges,
   CompanyMembership,
@@ -568,6 +569,7 @@ export {
 } from "./validators/index.js";
 
 export { API_PREFIX, API } from "./api.js";
+export { renderStandupDigestMarkdown, type RenderStandupDigestOptions } from "./standup-digest.js";
 export { normalizeAgentUrlKey, deriveAgentUrlKey, isUuidLike } from "./agent-url-key.js";
 export { deriveProjectUrlKey, normalizeProjectUrlKey } from "./project-url-key.js";
 export {

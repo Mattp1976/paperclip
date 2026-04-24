@@ -18,17 +18,20 @@
  *   we attach it to the issue's current assignee so it still surfaces
  *   to someone.
  */
-import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import type { Db } from "@mattparrytfc/db";
 import {
   agentPeerNotes,
   agents,
+  approvals,
+  costEvents,
   heartbeatRuns,
   issues,
 } from "@mattparrytfc/db";
 import type {
   AgentStandupEntry,
   StandupBlocker,
+  StandupDigest,
   StandupIssueRef,
   StandupSnapshot,
 } from "@mattparrytfc/shared";
@@ -285,6 +288,49 @@ export function standupService(db: Db) {
         windowEnd,
         agents: reporting,
         totals,
+      };
+    },
+
+    /**
+     * Assemble the payload behind the daily-digest email (and in-app
+     * preview). Bundles the snapshot with the two bits the email body
+     * needs that the snapshot doesn't already carry: number of approvals
+     * awaiting a human, and total spend over the same window.
+     */
+    dailyDigest: async (
+      companyId: string,
+      opts: DailyStandupOptions = {},
+    ): Promise<StandupDigest> => {
+      const service = standupService(db);
+      const snapshot = await service.dailyForCompany(companyId, opts);
+
+      const [pendingRow] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(approvals)
+        .where(
+          and(eq(approvals.companyId, companyId), eq(approvals.status, "pending")),
+        );
+      const pendingApprovalsCount = Number(pendingRow?.count ?? 0);
+
+      const [spendRow] = await db
+        .select({
+          costCents: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+        })
+        .from(costEvents)
+        .where(
+          and(
+            eq(costEvents.companyId, companyId),
+            gte(costEvents.occurredAt, snapshot.windowStart),
+            lte(costEvents.occurredAt, snapshot.windowEnd),
+          ),
+        );
+      const windowSpendCents = Number(spendRow?.costCents ?? 0);
+
+      return {
+        snapshot,
+        pendingApprovalsCount,
+        windowSpendCents,
+        generatedAt: snapshot.windowEnd,
       };
     },
   };

@@ -19,9 +19,12 @@ import {
   CheckCircle2,
   CircleDot,
   Clock,
+  Copy,
+  Check,
   MessageSquare,
   Users,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type {
   AgentStandupEntry,
   StandupBlocker,
@@ -58,6 +61,7 @@ export function Standup() {
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const [windowHours, setWindowHours] = useState<WindowOption>("24");
+  const [copyState, setCopyState] = useState<"idle" | "copying" | "copied" | "error">("idle");
 
   useEffect(() => {
     setBreadcrumbs([]);
@@ -70,6 +74,20 @@ export function Standup() {
     queryFn: () => standupApi.daily(selectedCompanyId!, windowHoursNum),
     enabled: !!selectedCompanyId,
   });
+
+  async function copyDigest() {
+    if (!selectedCompanyId) return;
+    setCopyState("copying");
+    try {
+      const { markdown } = await standupApi.digest(selectedCompanyId, windowHoursNum);
+      await navigator.clipboard.writeText(markdown);
+      setCopyState("copied");
+      setTimeout(() => setCopyState("idle"), 2_000);
+    } catch {
+      setCopyState("error");
+      setTimeout(() => setCopyState("idle"), 2_000);
+    }
+  }
 
   const totals = data?.totals;
 
@@ -84,7 +102,7 @@ export function Standup() {
   }, [totals]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Users} message="Select a company to view the standup." />;
+    return <EmptyState icon={Users} message="Select a company to view the standup" />;
   }
 
   if (isLoading) {
@@ -97,18 +115,44 @@ export function Standup() {
         title="Standup"
         subtitle="What each agent closed, what they're working on, and what's getting in the way."
         actions={
-          <Select value={windowHours} onValueChange={(v) => setWindowHours(v as WindowOption)}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {(Object.keys(WINDOW_LABELS) as WindowOption[]).map((key) => (
-                <SelectItem key={key} value={key}>
-                  {WINDOW_LABELS[key]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select value={windowHours} onValueChange={(v) => setWindowHours(v as WindowOption)}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(WINDOW_LABELS) as WindowOption[]).map((key) => (
+                  <SelectItem key={key} value={key}>
+                    {WINDOW_LABELS[key]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={copyDigest}
+              disabled={copyState === "copying" || !data}
+              className="gap-1.5"
+            >
+              {copyState === "copied" ? (
+                <>
+                  <Check className="h-3.5 w-3.5" />
+                  Copied
+                </>
+              ) : copyState === "error" ? (
+                <>
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Failed
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3.5 w-3.5" />
+                  Copy email
+                </>
+              )}
+            </Button>
+          </div>
         }
       />
 
@@ -138,7 +182,7 @@ export function Standup() {
       {data && data.agents.length === 0 ? (
         <EmptyState
           icon={Users}
-          message="Quiet period."
+          message="Quiet period"
           description="No agent closed, started, or blocked work in this window. Try widening the window with the filter above."
         />
       ) : null}
