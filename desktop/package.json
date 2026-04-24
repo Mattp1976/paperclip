@@ -1,0 +1,127 @@
+{
+  "name": "@mattparrytfc/desktop",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Paperclip desktop shell — Electron wrapper around the existing server + UI",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "clean": "rm -rf dist release",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev:shell": "tsc && cross-env PAPERCLIP_URL=http://localhost:3100 electron dist/main.js",
+    "dev:shell:watch": "tsc --watch",
+    "start": "electron dist/main.js",
+    "prepackage": "pnpm --filter @mattparrytfc/shared build && pnpm --filter @mattparrytfc/db build && pnpm --filter @mattparrytfc/server build && pnpm --filter @mattparrytfc/ui build && pnpm --filter @mattparrytfc/server run prepare:ui-dist && pnpm run build",
+    "package": "pnpm run prepackage && electron-builder",
+    "package:dir": "pnpm run prepackage && electron-builder --dir",
+    "publish": "pnpm run prepackage && electron-builder --publish always"
+  },
+  "dependencies": {
+    "@mattparrytfc/server": "workspace:*",
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "@electron/notarize": "^2.5.0",
+    "@types/node": "^24.6.0",
+    "cross-env": "^10.1.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "typescript": "^5.7.3"
+  },
+  "build": {
+    "appId": "co.future-collective.paperclip",
+    "productName": "Paperclip",
+    "copyright": "Copyright © 2026 Future Collective",
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/sharp/**",
+      "**/node_modules/@img/**",
+      "**/node_modules/embedded-postgres/**",
+      "**/node_modules/@embedded-postgres/**",
+      "**/node_modules/**/*.node"
+    ],
+    "buildDependenciesFromSource": false,
+    "nodeGypRebuild": false,
+    "npmRebuild": false,
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "!**/*.map",
+      "!**/node_modules/*/{README.md,CHANGELOG.md,LICENSE,LICENCE,license,*.markdown}",
+      "!**/node_modules/**/{test,tests,__tests__,example,examples,docs,doc,.github,.vscode}/**",
+      "!**/node_modules/**/*.{ts,tsx,d.ts.map}",
+      "!**/*.{cpp,h,hpp,o,obj}"
+    ],
+    "extraResources": [
+      {
+        "from": "../server/dist",
+        "to": "server/dist",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../server/ui-dist",
+        "to": "server/ui-dist",
+        "filter": ["**/*"]
+      }
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "paperclipai",
+        "repo": "paperclip",
+        "releaseType": "release"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": false,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["arm64", "x64"]
+        }
+      ]
+    },
+    "dmg": {
+      "sign": false
+    },
+    "win": {
+      "signingHashAlgorithms": ["sha256"],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "linux": {
+      "category": "Development",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "afterSign": "build/notarize.cjs"
+  }
+}

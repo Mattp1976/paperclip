@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+        Hardened runtime entitlements for the notarized Paperclip .app.
+
+        JIT + unsigned executable memory: Electron's V8 + native modules
+        (embedded-postgres PG binary, sharp) require these to run under the
+        hardened runtime.
+
+        dyld-environment-variables: embedded-postgres sets DYLD_* env vars when
+        launching its bundled PG binary on macOS.
+
+        disable-library-validation: ships unsigned .node native modules
+        (sharp/@img/sharp-*, better-sqlite3 style addons) which would otherwise
+        be rejected under hardened runtime.
+
+        network.client + network.server: the app fetches from external APIs
+        (LLM providers, MCPs) AND runs embedded-postgres on localhost.
+
+        files.user-selected.read-write: lets the user grant file access via the
+        native picker — used by output routers for Drive/filesystem targets.
+    -->
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+    <true/>
+    <key>com.apple.security.cs.disable-library-validation</key>
+    <true/>
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.network.server</key>
+    <true/>
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+</dict>
+</plist>
