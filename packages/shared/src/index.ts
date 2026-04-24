@@ -317,7 +317,28 @@ export type {
   PluginWebhookDeliveryRecord,
   QuotaWindow,
   ProviderQuotaResult,
+  OutputRouter,
+  OutputRouterProvider,
+  OutputRouterConfig,
+  OutputRouterFilter,
+  OutputRouterCreateRequest,
+  OutputRouterUpdateRequest,
+  OutputRouterDeliveryResult,
+  SlackWebhookRouterConfig,
+  GoogleDriveRouterConfig,
+  GmailRouterConfig,
 } from "./types/index.js";
+
+export { OUTPUT_ROUTER_PROVIDERS } from "./types/index.js";
+
+export {
+  outputRouterProviderSchema,
+  outputRouterFilterSchema,
+  createOutputRouterSchema,
+  updateOutputRouterSchema,
+  type CreateOutputRouter,
+  type UpdateOutputRouter,
+} from "./validators/index.js";
 
 export {
   instanceGeneralSettingsSchema,

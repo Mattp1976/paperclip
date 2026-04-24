@@ -73,6 +73,19 @@ export type {
   IssueWorkProductReviewState,
 } from "./work-product.js";
 export type {
+  OutputRouter,
+  OutputRouterProvider,
+  OutputRouterConfig,
+  OutputRouterFilter,
+  OutputRouterCreateRequest,
+  OutputRouterUpdateRequest,
+  OutputRouterDeliveryResult,
+  SlackWebhookRouterConfig,
+  GoogleDriveRouterConfig,
+  GmailRouterConfig,
+} from "./output-router.js";
+export { OUTPUT_ROUTER_PROVIDERS } from "./output-router.js";
+export type {
   Issue,
   IssueAssigneeAdapterOverrides,
   IssueComment,
@@ -125,7 +138,7 @@ export type {
   RoutineExecutionIssueOrigin,
   RoutineListItem,
 } from "./routine.js";
-export type { CostEvent, CostSummary, CostByAgent, CostByProviderModel, CostByBiller, CostByAgentModel, CostWindowSpendRow, CostByProject } from "./cost.js";
+export type { CostEvent, CostSummary, CostByAgent, CostByProviderModel, CostByBiller, CostByAgentModel, CostWindowSpendRow, CostByProject, CostByIssue, AgentOutcome } from "./cost.js";
 export type { FinanceEvent, FinanceSummary, FinanceByBiller, FinanceByKind } from "./finance.js";
 export type {
   HeartbeatRun,
@@ -140,6 +153,7 @@ export type { DashboardSummary } from "./dashboard.js";
 export type {
   AgentStandupEntry,
   StandupBlocker,
+  StandupDigest,
   StandupIssueRef,
   StandupSnapshot,
 } from "./standup.js";

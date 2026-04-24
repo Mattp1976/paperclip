@@ -162,6 +162,15 @@ export {
 } from "./work-product.js";
 
 export {
+  outputRouterProviderSchema,
+  outputRouterFilterSchema,
+  createOutputRouterSchema,
+  updateOutputRouterSchema,
+  type CreateOutputRouter,
+  type UpdateOutputRouter,
+} from "./output-router.js";
+
+export {
   updateExecutionWorkspaceSchema,
   executionWorkspaceStatusSchema,
   type UpdateExecutionWorkspace,

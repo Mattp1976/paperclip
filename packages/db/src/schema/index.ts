@@ -69,3 +69,10 @@ export { pluginEntities } from "./plugin_entities.js";
 export { pluginJobs, pluginJobRuns } from "./plugin_jobs.js";
 export { pluginWebhookDeliveries } from "./plugin_webhooks.js";
 export { pluginLogs } from "./plugin_logs.js";
+export {
+  outputRouters,
+  OUTPUT_ROUTER_PROVIDERS,
+  type OutputRouterProvider,
+  type OutputRouterRow,
+  type OutputRouterInsert,
+} from "./output_routers.js";
