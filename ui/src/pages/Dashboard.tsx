@@ -65,6 +65,8 @@ import { PillRunChart } from "../components/dashboard/PillRunChart";
 import { UpNextCard } from "../components/dashboard/UpNextCard";
 import { ProgressGauge } from "../components/dashboard/ProgressGauge";
 import { SpendHeroCard } from "../components/dashboard/SpendHeroCard";
+import { SpendTrendStrip } from "../components/dashboard/SpendTrendStrip";
+import { AgentOutcomesTable } from "../components/dashboard/AgentOutcomesTable";
 import { TeamActivityCard } from "../components/dashboard/TeamActivityCard";
 import { KillSwitch } from "../components/dashboard/KillSwitch";
 import { WelcomeZeroState } from "../components/dashboard/WelcomeZeroState";
@@ -250,8 +252,9 @@ export function Dashboard() {
       return (
         <EmptyState
           icon={LayoutDashboard}
-          message="Welcome to Paperclip. Set up your first company and agent to get started."
-          action="Get Started"
+          message="Welcome to Paperclip"
+          description="Set up your first company and agent to begin."
+          action="Get started"
           onAction={openOnboarding}
         />
       );
@@ -259,7 +262,7 @@ export function Dashboard() {
     return (
       <EmptyState
         icon={LayoutDashboard}
-        message="Create or select a company to view the dashboard."
+        message="Select a company to continue"
       />
     );
   }
@@ -311,7 +314,7 @@ export function Dashboard() {
             Dashboard
           </h1>
           <p className="mt-2 text-[15px] text-muted-foreground/75 leading-relaxed">
-            Ask your agents anything, track progress, and see results.
+            Where your agents report in.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -323,7 +326,7 @@ export function Dashboard() {
             className="gap-1.5 rounded-2xl px-5 py-3 text-sm font-semibold"
           >
             <Plus className="h-4 w-4" />
-            New Task
+            New task
           </Button>
         </div>
       </div>
@@ -341,7 +344,7 @@ export function Dashboard() {
                 No agents yet
               </p>
               <p className="text-xs text-amber-700/70 dark:text-amber-300/60 mt-0.5">
-                Create your first agent to get started.
+                Create one to start running work.
               </p>
             </div>
           </div>
@@ -444,12 +447,19 @@ export function Dashboard() {
                   {data.budgets.pendingApprovals > 0
                     ? `${data.budgets.pendingApprovals} budget override${data.budgets.pendingApprovals === 1 ? "" : "s"}`
                     : approvalsTotal > 0
-                      ? "Awaiting board review"
-                      : "Nothing waiting"}
+                      ? "Awaiting review"
+                      : "All clear"}
                 </span>
               }
             />
           </div>
+
+          {/* Spend trend — this week · last week · month */}
+          <SpendTrendStrip
+            trailing7dSpendCents={data.costs.trailing7dSpendCents}
+            prevWeek7dSpendCents={data.costs.prevWeek7dSpendCents}
+            monthSpendCents={data.costs.monthSpendCents}
+          />
 
           {/* ── ANALYTICS + UP NEXT + GOALS ─────────────────────────── */}
 
@@ -520,10 +530,10 @@ export function Dashboard() {
           {/* ── DEEPER ANALYTICS + FORECASTS ────────────────────────── */}
 
           <div className="grid gap-5 md:grid-cols-2">
-            <ChartCard title="Issues by Priority" subtitle="Last 14 days">
+            <ChartCard title="Tasks by priority" subtitle="Last 14 days">
               <PriorityChart issues={issues ?? []} />
             </ChartCard>
-            <ChartCard title="Issues by Status" subtitle="Last 14 days">
+            <ChartCard title="Tasks by status" subtitle="Last 14 days">
               <IssueStatusChart issues={issues ?? []} />
             </ChartCard>
           </div>
@@ -532,6 +542,8 @@ export function Dashboard() {
             <FleetHealthOverview companyId={selectedCompanyId!} />
             <BudgetForecast companyId={selectedCompanyId!} />
           </div>
+
+          <AgentOutcomesTable companyId={selectedCompanyId!} />
 
           <AgentLeaderboard companyId={selectedCompanyId!} />
 
@@ -573,7 +585,7 @@ export function Dashboard() {
               </h3>
               {recentIssues.length === 0 ? (
                 <div className="rounded-2xl bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03] p-4">
-                  <p className="text-sm text-muted-foreground">No tasks yet.</p>
+                  <p className="text-sm text-muted-foreground">No tasks yet</p>
                 </div>
               ) : (
                 <div className="rounded-2xl bg-white dark:bg-card border border-border/10 dark:border-border/40 shadow-sm shadow-black/[0.03] divide-y divide-border/30 overflow-hidden">

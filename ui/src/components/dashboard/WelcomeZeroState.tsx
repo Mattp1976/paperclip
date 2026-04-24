@@ -59,7 +59,7 @@ export function WelcomeZeroState({
     {
       key: "company",
       title: "Create your company",
-      blurb: "Companies are the container for your agents, tasks, budgets, and policies.",
+      blurb: "A company holds your agents, tasks, budgets, and policies.",
       cta: "Set up company",
       icon: Building2,
       onClick: onStartCompany,
@@ -77,7 +77,7 @@ export function WelcomeZeroState({
     {
       key: "task",
       title: "Give them a task",
-      blurb: "Tasks are the unit of work. Your agent will start immediately.",
+      blurb: "Tasks are the unit of work. The agent will pick it up immediately.",
       cta: "New task",
       icon: ListChecks,
       onClick: onNewTask,
@@ -94,12 +94,11 @@ export function WelcomeZeroState({
             Welcome to Paperclip
           </p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
-            Let's get your agents set up.
+            Let's get your agents set up
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            Paperclip runs a fleet of AI agents that work on your behalf — planning,
-            researching, writing, coding, and reporting back. Three quick steps and
-            you'll have an agent running its first task.
+            Paperclip runs a fleet of AI agents — planning, researching, writing,
+            coding, reporting back. Three steps until one's running.
           </p>
         </div>
         {/* Decorative corner blob */}

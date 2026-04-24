@@ -20,6 +20,8 @@ export interface DashboardSummary {
     todaySpendCents: number;
     /** Total spend over the trailing 7 days (rolling window). */
     trailing7dSpendCents: number;
+    /** Total spend over the 7-day window that ended 7 days ago (i.e. "last week"). */
+    prevWeek7dSpendCents: number;
     /** Projected monthly spend based on trailing 7-day daily average × 30. */
     projectedMonthlyCents: number;
     /** Distinct runs that logged a cost event this month (api + subscription). */

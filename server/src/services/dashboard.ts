@@ -1,4 +1,4 @@
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, lt, sql } from "drizzle-orm";
 import type { Db } from "@mattparrytfc/db";
 import { agents, approvals, companies, costEvents, issues } from "@mattparrytfc/db";
 import { notFound } from "../errors.js";
@@ -65,6 +65,7 @@ export function dashboardService(db: Db) {
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const trailing7Start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const prevWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
       const [monthRollup] = await db
         .select({
           monthSpend: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
@@ -101,6 +102,18 @@ export function dashboardService(db: Db) {
             gte(costEvents.occurredAt, trailing7Start),
           ),
         );
+      const [{ prevWeek7dSpend }] = await db
+        .select({
+          prevWeek7dSpend: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+        })
+        .from(costEvents)
+        .where(
+          and(
+            eq(costEvents.companyId, companyId),
+            gte(costEvents.occurredAt, prevWeekStart),
+            lt(costEvents.occurredAt, trailing7Start),
+          ),
+        );
 
       const monthSpendCents = Number(monthRollup?.monthSpend ?? 0);
       const monthTokensTotal = Number(monthRollup?.monthTokensTotal ?? 0);
@@ -108,6 +121,7 @@ export function dashboardService(db: Db) {
       const monthSubscriptionRunCount = Number(monthRollup?.monthSubscriptionRunCount ?? 0);
       const todaySpendCents = Number(todaySpend);
       const trailing7dSpendCents = Number(trailing7dSpend);
+      const prevWeek7dSpendCents = Number(prevWeek7dSpend);
       // Project monthly spend from trailing-7d daily average × 30. If we have
       // no recent spend, fall back to month-to-date extrapolation so early in
       // the month we still surface *something* useful.
@@ -141,6 +155,7 @@ export function dashboardService(db: Db) {
           monthUtilizationPercent: Number(utilization.toFixed(2)),
           todaySpendCents,
           trailing7dSpendCents,
+          prevWeek7dSpendCents,
           projectedMonthlyCents,
           monthRunCount,
           monthSubscriptionRunCount,
