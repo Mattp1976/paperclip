@@ -20,6 +20,11 @@ export type InboxWorkItem =
       issue: Issue;
     }
   | {
+      kind: "review";
+      timestamp: number;
+      issue: Issue;
+    }
+  | {
       kind: "approval";
       timestamp: number;
       approval: Approval;
@@ -29,6 +34,14 @@ export type InboxWorkItem =
       timestamp: number;
       run: HeartbeatRun;
     };
+
+/**
+ * A delegated task the parent (user / parent agent) should review:
+ * status is in_review AND an agent actually did the work.
+ */
+export function isReviewIssue(issue: Issue): boolean {
+  return issue.status === "in_review" && !!issue.assigneeAgentId;
+}
 
 export interface InboxBadgeData {
   inbox: number;
@@ -158,11 +171,19 @@ export function getInboxWorkItems({
   failedRuns?: HeartbeatRun[];
 }): InboxWorkItem[] {
   return [
-    ...issues.map((issue) => ({
-      kind: "issue" as const,
-      timestamp: issueLastActivityTimestamp(issue),
-      issue,
-    })),
+    ...issues.map((issue) =>
+      isReviewIssue(issue)
+        ? ({
+            kind: "review" as const,
+            timestamp: issueLastActivityTimestamp(issue),
+            issue,
+          })
+        : ({
+            kind: "issue" as const,
+            timestamp: issueLastActivityTimestamp(issue),
+            issue,
+          }),
+    ),
     ...approvals.map((approval) => ({
       kind: "approval" as const,
       timestamp: approvalActivityTimestamp(approval),
@@ -177,7 +198,7 @@ export function getInboxWorkItems({
     const timestampDiff = b.timestamp - a.timestamp;
     if (timestampDiff !== 0) return timestampDiff;
 
-    if (a.kind === "issue" && b.kind === "issue") {
+    if ((a.kind === "issue" || a.kind === "review") && (b.kind === "issue" || b.kind === "review")) {
       return sortIssuesByMostRecentActivity(a.issue, b.issue);
     }
     if (a.kind === "approval" && b.kind === "approval") {

@@ -12,10 +12,12 @@ import { useCompany } from "../context/CompanyContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
 import { createIssueDetailLocationState } from "../lib/issueDetailBreadcrumb";
+import { issueUrl } from "../lib/utils";
 import { EmptyState } from "../components/EmptyState";
 import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { IssueRow } from "../components/IssueRow";
+import { RouteToAction } from "../components/RouteToAction";
 import { PriorityIcon } from "../components/PriorityIcon";
 import { StatusIcon } from "../components/StatusIcon";
 import { StatusBadge } from "../components/StatusBadge";
@@ -37,9 +39,12 @@ import {
   XCircle,
   X,
   RotateCcw,
+  ClipboardCheck,
+  MessageSquare,
 } from "lucide-react";
+import { AgentIcon } from "../components/AgentIconPicker";
 import { PageTabBar } from "../components/PageTabBar";
-import type { Approval, HeartbeatRun, Issue, JoinRequest } from "@mattparrytfc/shared";
+import type { Agent, Approval, HeartbeatRun, Issue, JoinRequest } from "@mattparrytfc/shared";
 import {
   ACTIONABLE_APPROVAL_STATUSES,
   getApprovalsForTab,
@@ -284,6 +289,119 @@ function ApprovalInboxRow({
   );
 }
 
+function ReviewInboxRow({
+  issue,
+  issueLinkState,
+  assignee,
+  onAccept,
+  onReject,
+  onComment,
+  isPending,
+}: {
+  issue: Issue;
+  issueLinkState: unknown;
+  assignee: Agent | null;
+  onAccept: () => void;
+  onReject: () => void;
+  onComment: () => void;
+  isPending: boolean;
+}) {
+  const workProductCount = issue.workProducts?.length ?? 0;
+  const identifier = issue.identifier ?? issue.id.slice(0, 8);
+  return (
+    <div className="border-b border-border px-2 py-2.5 last:border-b-0 sm:px-1 sm:pr-3 sm:py-2">
+      <div className="flex items-start gap-2 sm:items-center">
+        <Link
+          to={issueUrl(issue)}
+          state={issueLinkState}
+          className="flex min-w-0 flex-1 items-start gap-2 no-underline text-inherit transition-colors hover:bg-accent/50"
+        >
+          <span className="mt-0.5 shrink-0 rounded-md bg-primary/10 p-1.5 sm:mt-0">
+            <ClipboardCheck className="h-4 w-4 text-primary" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="line-clamp-2 text-sm font-medium sm:truncate sm:line-clamp-none">
+              {issue.title}
+            </span>
+            <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+              <span className="font-mono">{identifier}</span>
+              {assignee ? (
+                <span className="inline-flex items-center gap-1">
+                  <AgentIcon icon={assignee.icon} className="h-3 w-3 text-muted-foreground" />
+                  {assignee.name}
+                </span>
+              ) : null}
+              <span>
+                {workProductCount > 0
+                  ? `${workProductCount} output${workProductCount === 1 ? "" : "s"}`
+                  : "no output yet"}
+              </span>
+              <span>updated {timeAgo(issue.updatedAt)}</span>
+            </span>
+          </span>
+        </Link>
+        <div className="hidden shrink-0 items-center gap-2 sm:flex">
+          <Button
+            variant="sage"
+            size="sm"
+            className="h-8 px-3"
+            onClick={onAccept}
+            disabled={isPending}
+          >
+            Accept
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            className="h-8 px-3"
+            onClick={onReject}
+            disabled={isPending}
+          >
+            Reject
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 text-muted-foreground"
+            onClick={onComment}
+          >
+            <MessageSquare className="mr-1 h-3.5 w-3.5" />
+            Comment
+          </Button>
+        </div>
+      </div>
+      <div className="mt-3 flex gap-2 sm:hidden">
+        <Button
+          variant="sage"
+          size="sm"
+          className="h-8 px-3"
+          onClick={onAccept}
+          disabled={isPending}
+        >
+          Accept
+        </Button>
+        <Button
+          variant="destructive"
+          size="sm"
+          className="h-8 px-3"
+          onClick={onReject}
+          disabled={isPending}
+        >
+          Reject
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 px-3 text-muted-foreground"
+          onClick={onComment}
+        >
+          Comment
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function Inbox() {
   const { selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -393,6 +511,12 @@ export function Inbox() {
   const agentById = useMemo(() => {
     const map = new Map<string, string>();
     for (const agent of agents ?? []) map.set(agent.id, agent.name);
+    return map;
+  }, [agents]);
+
+  const agentFullById = useMemo(() => {
+    const map = new Map<string, Agent>();
+    for (const agent of agents ?? []) map.set(agent.id, agent);
     return map;
   }, [agents]);
 
@@ -593,8 +717,21 @@ export function Inbox() {
     },
   });
 
+  // Review mutation — parent Accept/Reject on a delegated task (VOICE.md rule 9).
+  const reviewMutation = useMutation({
+    mutationFn: async (input: { id: string; status: "done" | "in_progress" }) =>
+      issuesApi.update(input.id, { status: input.status }),
+    onSuccess: () => {
+      invalidateInboxIssueQueries();
+      if (selectedCompanyId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.issues.list(selectedCompanyId) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.dashboard(selectedCompanyId) });
+      }
+    },
+  });
+
   if (!selectedCompanyId) {
-    return <EmptyState icon={InboxIcon} message="Select a company to view inbox." />;
+    return <EmptyState icon={InboxIcon} message="Select a company to view the inbox" />;
   }
 
   const hasRunFailures = failedRuns.length > 0;
@@ -684,7 +821,7 @@ export function Inbox() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="everything">All categories</SelectItem>
-                <SelectItem value="issues_i_touched">My recent issues</SelectItem>
+                <SelectItem value="issues_i_touched">My recent tasks</SelectItem>
                 <SelectItem value="join_requests">Join requests</SelectItem>
                 <SelectItem value="approvals">Approvals</SelectItem>
                 <SelectItem value="failed_runs">Failed runs</SelectItem>
@@ -723,10 +860,10 @@ export function Inbox() {
           icon={InboxIcon}
           message={
             tab === "unread"
-              ? "No new inbox items."
+              ? "Nothing new"
               : tab === "recent"
-                ? "No recent inbox items."
-                : "No inbox items match these filters."
+                ? "Nothing recent"
+                : "Nothing matches these filters"
           }
         />
       )}
@@ -761,6 +898,31 @@ export function Inbox() {
                       onDismiss={() => dismiss(`run:${item.run.id}`)}
                       onRetry={() => retryRunMutation.mutate(item.run)}
                       isRetrying={retryingRunIds.has(item.run.id)}
+                    />
+                  );
+                }
+
+                if (item.kind === "review") {
+                  const reviewIssue = item.issue;
+                  const assignee = reviewIssue.assigneeAgentId
+                    ? agentFullById.get(reviewIssue.assigneeAgentId) ?? null
+                    : null;
+                  return (
+                    <ReviewInboxRow
+                      key={`review:${reviewIssue.id}`}
+                      issue={reviewIssue}
+                      issueLinkState={issueLinkState}
+                      assignee={assignee}
+                      isPending={reviewMutation.isPending}
+                      onAccept={() =>
+                        reviewMutation.mutate({ id: reviewIssue.id, status: "done" })
+                      }
+                      onReject={() =>
+                        reviewMutation.mutate({ id: reviewIssue.id, status: "in_progress" })
+                      }
+                      onComment={() =>
+                        navigate(issueUrl(reviewIssue), { state: issueLinkState })
+                      }
                     />
                   );
                 }
@@ -808,6 +970,15 @@ export function Inbox() {
                       issue.lastExternalCommentAt
                         ? `commented ${timeAgo(issue.lastExternalCommentAt)}`
                         : `updated ${timeAgo(issue.updatedAt)}`
+                    }
+                    desktopTrailing={
+                      selectedCompanyId ? (
+                        <RouteToAction
+                          issue={issue}
+                          agents={agents ?? []}
+                          companyId={selectedCompanyId}
+                        />
+                      ) : null
                     }
                   />
                 );

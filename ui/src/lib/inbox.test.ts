@@ -187,6 +187,7 @@ const dashboard: DashboardSummary = {
     monthUtilizationPercent: 90,
     todaySpendCents: 60,
     trailing7dSpendCents: 300,
+    prevWeek7dSpendCents: 240,
     projectedMonthlyCents: 1286,
     monthRunCount: 4,
     monthSubscriptionRunCount: 0,
@@ -301,6 +302,7 @@ describe("inbox helpers", () => {
         approvals: [approval],
       }).map((item) => {
         if (item.kind === "issue") return `issue:${item.issue.id}`;
+        if (item.kind === "review") return `review:${item.issue.id}`;
         if (item.kind === "approval") return `approval:${item.approval.id}`;
         return `run:${item.run.id}`;
       }),
