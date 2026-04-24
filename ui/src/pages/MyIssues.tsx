@@ -28,7 +28,7 @@ export function MyIssues() {
   });
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={ListTodo} message="Select a company to view your issues." />;
+    return <EmptyState icon={ListTodo} message="Select a company to view your tasks" />;
   }
 
   if (isLoading) {
@@ -43,14 +43,14 @@ export function MyIssues() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="My Issues"
-        subtitle="Open, unassigned tasks that need a home — claim one or route it to an agent."
+        title="My tasks"
+        subtitle="Open, unassigned tasks — claim one or route it to an agent."
       />
 
       {error && <p className="text-sm text-destructive">{error.message}</p>}
 
       {myIssues.length === 0 && (
-        <EmptyState icon={ListTodo} message="No issues assigned to you." />
+        <EmptyState icon={ListTodo} message="No tasks assigned to you" />
       )}
 
       {myIssues.length > 0 && (

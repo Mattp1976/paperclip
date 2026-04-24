@@ -28,7 +28,7 @@ export function Goals() {
   });
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Target} message="Select a company to view goals." />;
+    return <EmptyState icon={Target} message="Select a company to view goals" />;
   }
 
   if (isLoading) {
@@ -53,9 +53,9 @@ export function Goals() {
       {goals && goals.length === 0 && (
         <EmptyState
           icon={Target}
-          message="No goals yet."
-          description="Define objectives and key results to track progress across your organisation."
-          action="Add Goal"
+          message="No goals yet"
+          description="Set an objective and let agents work toward it."
+          action="New goal"
           onAction={() => openNewGoal()}
         />
       )}

@@ -248,7 +248,7 @@ export function Outputs() {
   }, [runs]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Sparkles} message="Select a company to view results." />;
+    return <EmptyState icon={Sparkles} message="Select a company to view results" />;
   }
 
   const STATUS_TABS: { key: StatusTab; label: string; count: number; icon: typeof CheckCircle2 }[] = [
@@ -377,8 +377,8 @@ export function Outputs() {
         activeTab !== "all" || searchQuery || agentFilter !== "all" ? (
           <EmptyState
             icon={Sparkles}
-            message="No results match your filters."
-            description="Try adjusting your search, clearing the agent filter, or switching tabs."
+            message="No results match these filters"
+            description="Try a different search, clear the agent filter, or switch tabs."
           />
         ) : (
           /* First-time user empty state */

@@ -141,7 +141,7 @@ const CONCEPTS: ConceptCardProps[] = [
     icon: CircleDot,
     title: "Tasks",
     blurb:
-      "Anything you want the team to do, written the way you'd write it for a human. Assign a task to an agent (or let the team pick) and it kicks off a run.",
+      "Anything you want the team to do, written the way you'd write it for a human. Route a task to an agent (or let the team pick) and it kicks off a run.",
     to: "/issues",
     cta: "Open your tasks",
   },
@@ -192,26 +192,26 @@ const GETTING_STARTED: ChecklistItemProps[] = [
     title: "Hire your first agents",
     description:
       "Start with a CEO and a few direct reports. Each agent picks a model tier (Haiku, Sonnet, or Opus) — pick Haiku for routine work, Sonnet for most day-to-day, Opus for the heaviest thinking.",
-    action: { label: "Add an agent", to: "/agents/new" },
+    action: { label: "New agent", to: "/agents/new" },
   },
   {
     number: 3,
     title: "Write your first task",
     description: (
       <>
-        Use the <span className="font-medium text-foreground">New Task</span> button in the
-        sidebar. Write it like a Slack message to a colleague — outcomes over step-by-step
-        instructions.
+        Use the <span className="font-medium text-foreground">New…</span> button in the sidebar
+        (or hit <span className="font-medium text-foreground">⇧Space</span>). Write it like a
+        Slack message to a colleague — outcomes over step-by-step instructions.
       </>
     ),
-    action: { label: "Open Tasks", to: "/issues" },
+    action: { label: "Open tasks", to: "/issues" },
   },
   {
     number: 4,
     title: "Watch it run",
     description:
       "The Swarm page shows live activity. The agent streams its work as it goes — you can approve, ask for changes, or kill the run from there.",
-    action: { label: "Open the Swarm", to: "/swarm" },
+    action: { label: "Open Swarm", to: "/swarm" },
   },
   {
     number: 5,

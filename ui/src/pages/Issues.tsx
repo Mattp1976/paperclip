@@ -104,14 +104,14 @@ export function Issues() {
   });
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={CircleDot} message="Select a company to view tasks." />;
+    return <EmptyState icon={CircleDot} message="Select a company to view tasks" />;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Tasks"
-        subtitle="Everything your agents are working on — assign, track, and review."
+        subtitle="Everything your agents are working on."
         actions={
           <Button variant="sage" onClick={() => openNewIssue()}>
             <Plus className="mr-1.5 h-4 w-4" />

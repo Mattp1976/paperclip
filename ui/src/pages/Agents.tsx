@@ -119,7 +119,7 @@ export function Agents() {
   }, [setBreadcrumbs]);
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Bot} message="Select a company to view agents." />;
+    return <EmptyState icon={Bot} message="Select a company to view agents" />;
   }
 
   if (isLoading) {
@@ -221,9 +221,9 @@ export function Agents() {
       {agents && agents.length === 0 && (
         <EmptyState
           icon={Bot}
-          message="No agents yet."
-          description="Agents run autonomously on schedules or tasks. Create your first one to get started."
-          action="New Agent"
+          message="No agents yet"
+          description="Agents run work on schedules or on tasks you give them."
+          action="New agent"
           onAction={openNewAgent}
         />
       )}

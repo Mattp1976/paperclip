@@ -34,7 +34,7 @@ export function Projects() {
   );
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Hexagon} message="Select a company to view projects." />;
+    return <EmptyState icon={Hexagon} message="Select a company to view projects" />;
   }
 
   if (isLoading) {
@@ -59,9 +59,9 @@ export function Projects() {
       {!isLoading && projects.length === 0 && (
         <EmptyState
           icon={Hexagon}
-          message="No projects yet."
-          description="Organise related tasks and agents into projects to track larger initiatives."
-          action="Add Project"
+          message="No projects yet"
+          description="Group related tasks and agents under a single initiative."
+          action="New project"
           onAction={openNewProject}
         />
       )}

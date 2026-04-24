@@ -219,7 +219,7 @@ export function Routines() {
   const currentProject = draft.projectId ? projectById.get(draft.projectId) ?? null : null;
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Repeat} message="Select a company to view routines." />;
+    return <EmptyState icon={Repeat} message="Select a company to view routines" />;
   }
 
   if (isLoading) {
@@ -235,7 +235,7 @@ export function Routines() {
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Beta</span>
           </span>
         }
-        subtitle="Recurring work definitions that materialize into auditable execution issues."
+        subtitle="Recurring work definitions that materialise into auditable tasks."
         actions={
           <Button variant="sage" onClick={() => setComposerOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
@@ -503,7 +503,8 @@ export function Routines() {
           <div className="py-12">
             <EmptyState
               icon={Repeat}
-              message="No routines yet. Use Create routine to define the first recurring workflow."
+              message="No routines yet"
+              description="Use Create routine to define the first recurring workflow."
             />
           </div>
         ) : (

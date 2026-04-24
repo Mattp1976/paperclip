@@ -144,7 +144,7 @@ export function ApprovalDetail() {
   });
 
   if (isLoading) return <PageSkeleton variant="detail" />;
-  if (!approval) return <p className="text-sm text-muted-foreground">Approval not found.</p>;
+  if (!approval) return <p className="text-sm text-muted-foreground">Approval not found</p>;
 
   const payload = approval.payload as Record<string, unknown>;
   const linkedAgentId = typeof payload.agentId === "string" ? payload.agentId : null;
@@ -158,8 +158,8 @@ export function ApprovalDetail() {
       ? {
           label:
             (linkedIssues?.length ?? 0) > 1
-              ? "Review linked issues"
-              : "Review linked issue",
+              ? "Review linked tasks"
+              : "Review linked task",
           to: issueUrl(primaryLinkedIssue),
         }
       : linkedAgentId
@@ -185,7 +185,7 @@ export function ApprovalDetail() {
               <div>
                 <p className="text-sm text-sage-body dark:text-green-100 font-medium">Approval confirmed</p>
                 <p className="text-xs text-sage-ink dark:text-sage-surface/90">
-                  Requesting agent was notified to review this approval and linked issues.
+                  Requesting agent was notified to review this approval and linked tasks.
                 </p>
               </div>
             </div>
@@ -242,7 +242,7 @@ export function ApprovalDetail() {
         {error && <p className="text-sm text-destructive">{error}</p>}
         {linkedIssues && linkedIssues.length > 0 && (
           <div className="pt-2 border-t border-border/60">
-            <p className="text-xs text-muted-foreground mb-1.5">Linked Issues</p>
+            <p className="text-xs text-muted-foreground mb-1.5">Linked tasks</p>
             <div className="space-y-1.5">
               {linkedIssues.map((issue) => (
                 <Link
@@ -258,7 +258,7 @@ export function ApprovalDetail() {
               ))}
             </div>
             <p className="text-[11px] text-muted-foreground mt-2">
-              Linked issues remain open until the requesting agent follows up and closes them.
+              Linked tasks remain open until the requesting agent follows up and closes them.
             </p>
           </div>
         )}

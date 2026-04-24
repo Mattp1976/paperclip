@@ -83,7 +83,7 @@ export function Sidebar() {
           className="w-full gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold"
         >
           <Plus className="h-4 w-4" />
-          New Task
+          New task
         </Button>
       </div>
 
@@ -156,7 +156,7 @@ export function Sidebar() {
           className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-muted-foreground/70 hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground transition-colors"
         >
           <SquarePen className="h-4 w-4 shrink-0" />
-          <span>Composer</span>
+          <span>New…</span>
           <span className="ml-auto text-[10px] text-muted-foreground/30 font-mono">⇧Space</span>
         </button>
       </div>

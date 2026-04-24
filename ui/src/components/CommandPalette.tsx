@@ -136,7 +136,7 @@ export function CommandPalette() {
             }}
           >
             <MessageSquarePlus className="mr-2 h-4 w-4" />
-            Open Composer
+            New task, ask, or decision
             <span className="ml-auto text-xs text-muted-foreground">⇧Space</span>
           </CommandItem>
           <CommandItem

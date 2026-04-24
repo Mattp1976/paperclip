@@ -23,7 +23,9 @@ export function activityRoutes(db: Db) {
   const issueSvc = issueService(db);
 
   async function resolveIssueByRef(rawId: string) {
-    if (/^[A-Z]+-\d+$/i.test(rawId)) {
+    // Accept bare (`PAP-39`) and slug-extended (`PAP-39-hire-first-engineer`)
+    // identifiers. `getByIdentifier` strips the slug tail internally.
+    if (/^[A-Z]+-\d+(?:-.*)?$/i.test(rawId)) {
       return issueSvc.getByIdentifier(rawId);
     }
     return issueSvc.getById(rawId);

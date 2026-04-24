@@ -46,6 +46,11 @@ import {
 import { issueService } from "./issues.js";
 import { executionWorkspaceService } from "./execution-workspaces.js";
 import { workspaceOperationService } from "./workspace-operations.js";
+import { workProductService } from "./work-products.js";
+import {
+  outputRouterService,
+  type RunDispatchContext,
+} from "./output-routers.js";
 import {
   buildExecutionWorkspaceAdapterConfig,
   gateProjectExecutionWorkspacePolicy,
@@ -750,6 +755,12 @@ export function heartbeatService(db: Db) {
   const issuesSvc = issueService(db);
   const executionWorkspacesSvc = executionWorkspaceService(db);
   const workspaceOperationsSvc = workspaceOperationService(db);
+  const workProductsSvc = workProductService(db);
+  const outputRoutersSvc = outputRouterService(db, {
+    resolveSecret: (companyId, secretId) =>
+      secretsSvc.resolveSecretValue(companyId, secretId, "latest"),
+    workProducts: workProductsSvc,
+  });
   const activeRunExecutions = new Set<string>();
   const budgetHooks = {
     cancelWorkForScope: cancelBudgetScopeWork,
@@ -2599,6 +2610,77 @@ export function heartbeatService(db: Db) {
           },
         });
         await releaseIssueExecutionAndPromote(finalizedRun);
+
+        // Post-run delivery via output routers (Slack / future Drive /
+        // future Gmail). The service is non-throwing: any provider-level
+        // error becomes a "failed" work-product row rather than bubbling
+        // up and killing the heartbeat pipeline. We still wrap the call
+        // itself in try/catch so a DB outage during dispatch can't
+        // unseat the rest of the terminal-state handling below.
+        try {
+          const ctxSnap = (finalizedRun.contextSnapshot ?? {}) as Record<string, unknown>;
+          const issueIdFromCtx =
+            typeof ctxSnap.issueId === "string"
+              ? ctxSnap.issueId
+              : typeof ctxSnap.taskId === "string"
+                ? (ctxSnap.taskId as string)
+                : null;
+          const projectIdFromCtx =
+            typeof ctxSnap.projectId === "string" ? (ctxSnap.projectId as string) : null;
+          const summaryFromResult = summarizeHeartbeatRunResultJson(
+            finalizedRun.resultJson ?? null,
+          );
+          const summaryText =
+            typeof summaryFromResult?.summary === "string"
+              ? (summaryFromResult.summary as string)
+              : typeof summaryFromResult?.result === "string"
+                ? (summaryFromResult.result as string)
+                : typeof summaryFromResult?.message === "string"
+                  ? (summaryFromResult.message as string)
+                  : null;
+          const costFromResult =
+            typeof summaryFromResult?.total_cost_usd === "number"
+              ? (summaryFromResult.total_cost_usd as number)
+              : typeof summaryFromResult?.cost_usd === "number"
+                ? (summaryFromResult.cost_usd as number)
+                : typeof summaryFromResult?.costUsd === "number"
+                  ? (summaryFromResult.costUsd as number)
+                  : (adapterResult.costUsd ?? null);
+
+          const dispatchCtx: RunDispatchContext = {
+            companyId: agent.companyId,
+            projectId: projectIdFromCtx,
+            issueId: issueIdFromCtx,
+            runId: finalizedRun.id,
+            agentId: agent.id,
+            agentName: agent.name,
+            status: outcome,
+            startedAt: finalizedRun.startedAt ?? null,
+            finishedAt: finalizedRun.finishedAt ?? null,
+            costUsd: costFromResult,
+            summary: summaryText,
+            resultJson: finalizedRun.resultJson ?? null,
+          };
+          const entries = await outputRoutersSvc.dispatchForRun(dispatchCtx);
+          for (const entry of entries) {
+            if (entry.error) {
+              logger.warn(
+                {
+                  runId: finalizedRun.id,
+                  routerId: entry.routerId,
+                  provider: entry.provider,
+                  error: entry.error,
+                },
+                "output router delivery failed",
+              );
+            }
+          }
+        } catch (dispatchErr) {
+          logger.warn(
+            { err: dispatchErr, runId: finalizedRun.id },
+            "output router dispatch threw",
+          );
+        }
       }
 
       if (finalizedRun) {

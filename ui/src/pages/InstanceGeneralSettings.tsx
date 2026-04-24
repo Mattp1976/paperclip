@@ -54,9 +54,9 @@ export function InstanceGeneralSettings() {
   return (
     <div className="max-w-4xl space-y-6">
       <PageHeader
-        eyebrow="Instance Settings"
+        eyebrow="Instance settings"
         title="General"
-        subtitle="Configure instance-wide defaults that affect how operator-visible logs are displayed."
+        subtitle="Instance-wide defaults for operator-visible logs."
       />
 
       {actionError && (

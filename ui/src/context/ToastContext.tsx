@@ -13,7 +13,9 @@ export type ToastTone = "info" | "success" | "warn" | "error";
 
 export interface ToastAction {
   label: string;
-  href: string;
+  /** Either navigate to `href` or invoke `onClick`. Exactly one must be set. */
+  href?: string;
+  onClick?: () => void;
 }
 
 export interface ToastInput {
@@ -102,7 +104,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       const tone = input.tone ?? "info";
       const ttlMs = normalizeTtl(input.ttlMs, tone);
       const dedupeKey =
-        input.dedupeKey ?? input.id ?? `${tone}|${input.title}|${input.body ?? ""}|${input.action?.href ?? ""}`;
+        input.dedupeKey ?? input.id ?? `${tone}|${input.title}|${input.body ?? ""}|${input.action?.href ?? input.action?.label ?? ""}`;
 
       for (const [key, ts] of dedupeRef.current.entries()) {
         if (now - ts > DEDUPE_MAX_AGE_MS) {

@@ -120,7 +120,7 @@ function CreateSecretDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Secret</DialogTitle>
+          <DialogTitle>Add secret</DialogTitle>
           <DialogDescription>
             Store an API key or secret value. The value is encrypted at rest.
           </DialogDescription>
@@ -246,7 +246,7 @@ function RotateSecretDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Rotate Secret</DialogTitle>
+          <DialogTitle>Rotate secret</DialogTitle>
           <DialogDescription>
             Enter a new value for <span className="font-mono font-semibold">{secret.name}</span>.
             This creates version {secret.latestVersion + 1}.
@@ -340,7 +340,7 @@ function EditSecretDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Secret</DialogTitle>
+          <DialogTitle>Edit secret</DialogTitle>
           <DialogDescription>Update the name or description. To change the value, use Rotate.</DialogDescription>
         </DialogHeader>
         <div className="space-y-3 py-2">
@@ -529,7 +529,7 @@ export function Secrets() {
   return (
     <div className="max-w-3xl space-y-6">
       <PageHeader
-        title="Secrets & API Keys"
+        title="Secrets & API keys"
         subtitle="Encrypted at rest and injected into agent environments at runtime. Agents reference secrets by name — the actual values are never exposed in configuration."
         actions={
           <>
@@ -615,7 +615,7 @@ export function Secrets() {
       <Dialog open={!!deleteSecret} onOpenChange={(open) => { if (!open) setDeleteSecret(null); }}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Secret</DialogTitle>
+            <DialogTitle>Delete secret</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete{" "}
               <span className="font-mono font-semibold">{deleteSecret?.name}</span>?
