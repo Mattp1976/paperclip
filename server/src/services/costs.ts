@@ -162,6 +162,102 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
         .orderBy(desc(sql`coalesce(sum(${costEvents.costCents}), 0)::int`));
     },
 
+    agentOutcomes: async (companyId: string, range?: CostDateRange) => {
+      // Resolved-issue counts per assignee in the window.
+      const resolvedConditions: ReturnType<typeof eq>[] = [
+        eq(issues.companyId, companyId),
+        eq(issues.status, "done"),
+        isNotNull(issues.assigneeAgentId),
+        isNotNull(issues.completedAt),
+      ];
+      if (range?.from) resolvedConditions.push(gte(issues.completedAt, range.from));
+      if (range?.to) resolvedConditions.push(lte(issues.completedAt, range.to));
+
+      const resolvedRows = await db
+        .select({
+          agentId: issues.assigneeAgentId,
+          resolvedCount: sql<number>`count(*)::int`,
+        })
+        .from(issues)
+        .where(and(...resolvedConditions))
+        .groupBy(issues.assigneeAgentId);
+
+      // Cost + run aggregates per agent in the same window.
+      const costConditions: ReturnType<typeof eq>[] = [
+        eq(costEvents.companyId, companyId),
+        isNotNull(costEvents.agentId),
+      ];
+      if (range?.from) costConditions.push(gte(costEvents.occurredAt, range.from));
+      if (range?.to) costConditions.push(lte(costEvents.occurredAt, range.to));
+
+      const costRows = await db
+        .select({
+          agentId: costEvents.agentId,
+          agentName: agents.name,
+          agentStatus: agents.status,
+          costCents: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+          runCount: sql<number>`count(distinct ${costEvents.heartbeatRunId})::int`,
+        })
+        .from(costEvents)
+        .leftJoin(agents, eq(costEvents.agentId, agents.id))
+        .where(and(...costConditions))
+        .groupBy(costEvents.agentId, agents.name, agents.status);
+
+      // Any agent who resolved something but had no cost needs a name lookup.
+      const resolvedOnlyIds = resolvedRows
+        .map((r) => r.agentId)
+        .filter((id): id is string => !!id && !costRows.some((c) => c.agentId === id));
+      const extraAgentRows = resolvedOnlyIds.length
+        ? await db
+            .select({ id: agents.id, name: agents.name, status: agents.status })
+            .from(agents)
+            .where(and(eq(agents.companyId, companyId)))
+        : [];
+      const extraAgentById = new Map(extraAgentRows.map((a) => [a.id, a]));
+
+      const resolvedByAgent = new Map(
+        resolvedRows
+          .filter((row): row is { agentId: string; resolvedCount: number } => !!row.agentId)
+          .map((row) => [row.agentId, Number(row.resolvedCount)]),
+      );
+
+      const seen = new Set<string>();
+      const merged = costRows
+        .filter((row): row is typeof row & { agentId: string } => !!row.agentId)
+        .map((row) => {
+          seen.add(row.agentId);
+          const resolvedCount = resolvedByAgent.get(row.agentId) ?? 0;
+          const costCents = Number(row.costCents ?? 0);
+          return {
+            agentId: row.agentId,
+            agentName: row.agentName,
+            agentStatus: row.agentStatus,
+            resolvedCount,
+            costCents,
+            runCount: Number(row.runCount ?? 0),
+            costPerTaskCents: resolvedCount > 0 ? Math.round(costCents / resolvedCount) : null,
+          };
+        });
+
+      // Agents who resolved work in the window but incurred no cost.
+      for (const [agentId, resolvedCount] of resolvedByAgent) {
+        if (seen.has(agentId)) continue;
+        const info = extraAgentById.get(agentId);
+        merged.push({
+          agentId,
+          agentName: info?.name ?? null,
+          agentStatus: info?.status ?? null,
+          resolvedCount,
+          costCents: 0,
+          runCount: 0,
+          costPerTaskCents: null,
+        });
+      }
+
+      merged.sort((a, b) => b.resolvedCount - a.resolvedCount || b.costCents - a.costCents);
+      return merged;
+    },
+
     byProvider: async (companyId: string, range?: CostDateRange) => {
       const conditions: ReturnType<typeof eq>[] = [eq(costEvents.companyId, companyId)];
       if (range?.from) conditions.push(gte(costEvents.occurredAt, range.from));
@@ -309,6 +405,40 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
           costEvents.model,
         )
         .orderBy(costEvents.provider, costEvents.biller, costEvents.billingType, costEvents.model);
+    },
+
+    byIssue: async (
+      companyId: string,
+      options: { agentId?: string; range?: CostDateRange } = {},
+    ) => {
+      const { agentId, range } = options;
+      const conditions: ReturnType<typeof eq>[] = [
+        eq(costEvents.companyId, companyId),
+        isNotNull(costEvents.issueId),
+      ];
+      if (agentId) conditions.push(eq(costEvents.agentId, agentId));
+      if (range?.from) conditions.push(gte(costEvents.occurredAt, range.from));
+      if (range?.to) conditions.push(lte(costEvents.occurredAt, range.to));
+
+      const costCentsExpr = sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`;
+
+      return db
+        .select({
+          issueId: sql<string>`${costEvents.issueId}`,
+          issueIdentifier: issues.identifier,
+          issueTitle: issues.title,
+          agentId: costEvents.agentId,
+          costCents: costCentsExpr,
+          inputTokens: sql<number>`coalesce(sum(${costEvents.inputTokens}), 0)::int`,
+          cachedInputTokens: sql<number>`coalesce(sum(${costEvents.cachedInputTokens}), 0)::int`,
+          outputTokens: sql<number>`coalesce(sum(${costEvents.outputTokens}), 0)::int`,
+          runCount: sql<number>`count(distinct ${costEvents.heartbeatRunId})::int`,
+        })
+        .from(costEvents)
+        .leftJoin(issues, eq(issues.id, costEvents.issueId))
+        .where(and(...conditions))
+        .groupBy(costEvents.issueId, issues.identifier, issues.title, costEvents.agentId)
+        .orderBy(desc(costCentsExpr));
     },
 
     byProject: async (companyId: string, range?: CostDateRange) => {

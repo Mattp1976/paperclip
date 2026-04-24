@@ -102,6 +102,24 @@ export interface CostWindowSpendRow {
   outputTokens: number;
 }
 
+/**
+ * Cost aggregated per issue (task). Powers "cost-per-task" on AgentDetail.
+ * `runCount` is the number of distinct heartbeat runs that logged spend
+ * against the issue — call this "cost-per-decision" downstream when it's
+ * paired with the run count.
+ */
+export interface CostByIssue {
+  issueId: string;
+  issueIdentifier: string | null;
+  issueTitle: string | null;
+  agentId: string | null;
+  costCents: number;
+  inputTokens: number;
+  cachedInputTokens: number;
+  outputTokens: number;
+  runCount: number;
+}
+
 /** cost attributed to a project via heartbeat run → activity log → issue → project chain */
 export interface CostByProject {
   projectId: string | null;
@@ -110,4 +128,19 @@ export interface CostByProject {
   inputTokens: number;
   cachedInputTokens: number;
   outputTokens: number;
+}
+
+/**
+ * Per-agent outcome row: resolved tasks + spend in a window, with the
+ * derived cost-per-task so the UI can sort or bucket into low / mid / high
+ * tiers. `costPerTaskCents` is null when `resolvedCount` is zero.
+ */
+export interface AgentOutcome {
+  agentId: string;
+  agentName: string | null;
+  agentStatus: string | null;
+  resolvedCount: number;
+  costCents: number;
+  runCount: number;
+  costPerTaskCents: number | null;
 }

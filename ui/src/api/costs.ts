@@ -1,6 +1,8 @@
 import type {
+  AgentOutcome,
   CostSummary,
   CostByAgent,
+  CostByIssue,
   CostByProviderModel,
   CostByBiller,
   CostByAgentModel,
@@ -27,10 +29,20 @@ export const costsApi = {
     api.get<CostSummary>(`/companies/${companyId}/costs/summary${dateParams(from, to)}`),
   byAgent: (companyId: string, from?: string, to?: string) =>
     api.get<CostByAgent[]>(`/companies/${companyId}/costs/by-agent${dateParams(from, to)}`),
+  agentOutcomes: (companyId: string, from?: string, to?: string) =>
+    api.get<AgentOutcome[]>(`/companies/${companyId}/outcomes/by-agent${dateParams(from, to)}`),
   byAgentModel: (companyId: string, from?: string, to?: string) =>
     api.get<CostByAgentModel[]>(`/companies/${companyId}/costs/by-agent-model${dateParams(from, to)}`),
   byProject: (companyId: string, from?: string, to?: string) =>
     api.get<CostByProject[]>(`/companies/${companyId}/costs/by-project${dateParams(from, to)}`),
+  byIssue: (companyId: string, options: { agentId?: string; from?: string; to?: string } = {}) => {
+    const params = new URLSearchParams();
+    if (options.from) params.set("from", options.from);
+    if (options.to) params.set("to", options.to);
+    if (options.agentId) params.set("agentId", options.agentId);
+    const qs = params.toString();
+    return api.get<CostByIssue[]>(`/companies/${companyId}/costs/by-issue${qs ? `?${qs}` : ""}`);
+  },
   byProvider: (companyId: string, from?: string, to?: string) =>
     api.get<CostByProviderModel[]>(`/companies/${companyId}/costs/by-provider${dateParams(from, to)}`),
   byBiller: (companyId: string, from?: string, to?: string) =>

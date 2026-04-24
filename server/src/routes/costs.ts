@@ -128,6 +128,14 @@ export function costRoutes(db: Db) {
     res.json(rows);
   });
 
+  router.get("/companies/:companyId/outcomes/by-agent", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    const range = parseDateRange(req.query);
+    const rows = await costs.agentOutcomes(companyId, range);
+    res.json(rows);
+  });
+
   router.get("/companies/:companyId/costs/by-agent-model", async (req, res) => {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);
@@ -244,6 +252,16 @@ export function costRoutes(db: Db) {
     assertCompanyAccess(req, companyId);
     const range = parseDateRange(req.query);
     const rows = await costs.byProject(companyId, range);
+    res.json(rows);
+  });
+
+  router.get("/companies/:companyId/costs/by-issue", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    const range = parseDateRange(req.query);
+    const agentIdRaw = Array.isArray(req.query.agentId) ? req.query.agentId[0] : req.query.agentId;
+    const agentId = typeof agentIdRaw === "string" && agentIdRaw.trim() ? agentIdRaw : undefined;
+    const rows = await costs.byIssue(companyId, { agentId, range });
     res.json(rows);
   });
 
