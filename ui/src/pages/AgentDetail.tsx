@@ -15,6 +15,7 @@ import { ApiError } from "../api/client";
 import { ChartCard, RunActivityChart, PriorityChart, IssueStatusChart, SuccessRateChart } from "../components/ActivityCharts";
 import { activityApi } from "../api/activity";
 import { issuesApi } from "../api/issues";
+import { costsApi } from "../api/costs";
 import { usePanel } from "../context/PanelContext";
 import { useSidebar } from "../context/SidebarContext";
 import { useCompany } from "../context/CompanyContext";
@@ -43,6 +44,11 @@ import { AgentGuardrails } from "../components/AgentGuardrails";
 import { AgentIOPanel } from "../components/AgentIOPanel";
 import { AgentSecurityPanel } from "../components/AgentSecurityPanel";
 import { AgentMemoryPanel } from "../components/AgentMemoryPanel";
+import {
+  DelegationGraph,
+  computeDelegationEdges,
+  type DelegationEdge,
+} from "../components/DelegationGraph";
 import { LatestRunOutput } from "../components/LatestRunOutput";
 import { ScrollToBottom } from "../components/ScrollToBottom";
 import { formatCents, formatDate, relativeTime, formatTokens, visibleRunCostUsd, issueUrl } from "../lib/utils";
@@ -91,6 +97,7 @@ import {
   type HeartbeatRun,
   type HeartbeatRunEvent,
   type AgentRuntimeState,
+  type CostByIssue,
   type LiveEvent,
   type WorkspaceOperation,
 } from "@mattparrytfc/shared";
@@ -602,6 +609,12 @@ export function AgentDetail() {
     enabled: !!resolvedCompanyId && needsDashboardData,
   });
 
+  const { data: costByIssue } = useQuery({
+    queryKey: queryKeys.costsByIssue(resolvedCompanyId!, agent?.id),
+    queryFn: () => costsApi.byIssue(resolvedCompanyId!, { agentId: agent?.id }),
+    enabled: !!resolvedCompanyId && !!agent?.id && needsDashboardData,
+  });
+
   const { data: budgetOverview } = useQuery({
     queryKey: queryKeys.budgets.overview(resolvedCompanyId ?? "__none__"),
     queryFn: () => budgetsApi.overview(resolvedCompanyId!),
@@ -613,6 +626,18 @@ export function AgentDetail() {
   const assignedIssues = (allIssues ?? [])
     .filter((i) => i.assigneeAgentId === agent?.id)
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  const delegationEdges = useMemo(() => {
+    if (!agent?.id) return { incoming: [] as DelegationEdge[], outgoing: [] as DelegationEdge[] };
+    return computeDelegationEdges({
+      agentId: agent.id,
+      issues: allIssues ?? [],
+      agentsById: new Map((allAgents ?? []).map((a) => [a.id, a])),
+    });
+  }, [agent?.id, allIssues, allAgents]);
+  const costByIssueMap = useMemo(
+    () => new Map((costByIssue ?? []).map((row) => [row.issueId, row])),
+    [costByIssue],
+  );
   const reportsToAgent = (allAgents ?? []).find((a) => a.id === agent?.reportsTo);
   const directReports = (allAgents ?? []).filter((a) => a.reportsTo === agent?.id && a.status !== "terminated");
   const agentBudgetSummary = useMemo(() => {
@@ -845,7 +870,7 @@ export function AgentDetail() {
             onClick={() => openNewIssue({ assigneeAgentId: agent.id })}
           >
             <Plus className="h-3.5 w-3.5 sm:mr-1" />
-            <span className="hidden sm:inline">Assign Task</span>
+            <span className="hidden sm:inline">Route Task</span>
           </Button>
           <RunButton
             onClick={() => agentAction.mutate("invoke")}
@@ -1013,6 +1038,9 @@ export function AgentDetail() {
           runtimeState={runtimeState}
           agentId={agent.id}
           agentRouteId={canonicalAgentRef}
+          delegationIncoming={delegationEdges.incoming}
+          delegationOutgoing={delegationEdges.outgoing}
+          costByIssue={costByIssueMap}
         />
       )}
 
@@ -1181,6 +1209,9 @@ function AgentOverview({
   runtimeState,
   agentId,
   agentRouteId,
+  delegationIncoming,
+  delegationOutgoing,
+  costByIssue,
 }: {
   agent: AgentDetailRecord;
   runs: HeartbeatRun[];
@@ -1188,7 +1219,19 @@ function AgentOverview({
   runtimeState?: AgentRuntimeState;
   agentId: string;
   agentRouteId: string;
+  delegationIncoming: DelegationEdge[];
+  delegationOutgoing: DelegationEdge[];
+  costByIssue: Map<string, CostByIssue>;
 }) {
+  // Cost-per-task summary — only compute over tasks actually in the "Recent"
+  // list, so the headline number matches what the user sees on the row.
+  const costed = assignedIssues
+    .map((i) => costByIssue.get(i.id))
+    .filter((row): row is CostByIssue => !!row && row.costCents > 0);
+  const totalCostCents = costed.reduce((sum, row) => sum + row.costCents, 0);
+  const totalRuns = costed.reduce((sum, row) => sum + row.runCount, 0);
+  const costPerTaskCents = costed.length > 0 ? Math.round(totalCostCents / costed.length) : 0;
+  const costPerDecisionCents = totalRuns > 0 ? Math.round(totalCostCents / totalRuns) : 0;
   return (
     <div className="space-y-8">
       {/* Latest Output — full result visible without clicking into Runs */}
@@ -1196,48 +1239,100 @@ function AgentOverview({
 
       {/* Charts */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <ChartCard title="Run Activity" subtitle="Last 14 days">
+        <ChartCard title="Run activity" subtitle="Last 14 days">
           <RunActivityChart runs={runs} />
         </ChartCard>
-        <ChartCard title="Issues by Priority" subtitle="Last 14 days">
+        <ChartCard title="Tasks by priority" subtitle="Last 14 days">
           <PriorityChart issues={assignedIssues} />
         </ChartCard>
-        <ChartCard title="Issues by Status" subtitle="Last 14 days">
+        <ChartCard title="Tasks by status" subtitle="Last 14 days">
           <IssueStatusChart issues={assignedIssues} />
         </ChartCard>
-        <ChartCard title="Success Rate" subtitle="Last 14 days">
+        <ChartCard title="Success rate" subtitle="Last 14 days">
           <SuccessRateChart runs={runs} />
         </ChartCard>
       </div>
 
-      {/* Recent Issues */}
+      {/* Recent tasks */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">Recent Issues</h3>
+          <h3 className="text-sm font-medium">Recent tasks</h3>
           <Link to={`/issues?assignee=${agentId}`} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-            See All &rarr;
+            See all &rarr;
           </Link>
         </div>
+        {costed.length > 0 && (
+          <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 text-xs text-muted-foreground">
+            <span>
+              <span className="font-semibold text-foreground tabular-nums">
+                {formatCents(costPerTaskCents)}
+              </span>{" "}
+              avg cost per task
+            </span>
+            <span>
+              <span className="font-semibold text-foreground tabular-nums">
+                {formatCents(costPerDecisionCents)}
+              </span>{" "}
+              avg cost per decision
+            </span>
+            <span className="tabular-nums">
+              over {costed.length} task{costed.length === 1 ? "" : "s"} · {totalRuns} run
+              {totalRuns === 1 ? "" : "s"}
+            </span>
+          </div>
+        )}
         {assignedIssues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No assigned issues.</p>
+          <p className="text-sm text-muted-foreground">No assigned tasks</p>
         ) : (
           <div className="border border-border/40 dark:border-border rounded-xl overflow-hidden">
-            {assignedIssues.slice(0, 10).map((issue) => (
-              <EntityRow
-                key={issue.id}
-                identifier={issue.identifier ?? issue.id.slice(0, 8)}
-                title={issue.title}
-                to={issueUrl(issue)}
-                trailing={<StatusBadge status={issue.status} />}
-              />
-            ))}
+            {assignedIssues.slice(0, 10).map((issue) => {
+              const cost = costByIssue.get(issue.id);
+              return (
+                <EntityRow
+                  key={issue.id}
+                  identifier={issue.identifier ?? issue.id.slice(0, 8)}
+                  title={issue.title}
+                  to={issueUrl(issue)}
+                  trailing={
+                    <div className="flex items-center gap-3">
+                      {cost && cost.costCents > 0 ? (
+                        <span
+                          className="text-xs text-muted-foreground tabular-nums"
+                          title={`${cost.runCount} run${cost.runCount === 1 ? "" : "s"}`}
+                        >
+                          {formatCents(cost.costCents)}
+                        </span>
+                      ) : null}
+                      <StatusBadge status={issue.status} />
+                    </div>
+                  }
+                />
+              );
+            })}
             {assignedIssues.length > 10 && (
               <div className="px-3 py-2 text-xs text-muted-foreground text-center border-t border-border/40 dark:border-border">
-                +{assignedIssues.length - 10} more issues
+                +{assignedIssues.length - 10} more tasks
               </div>
             )}
           </div>
         )}
+      </div>
+
+      {/* Delegation graph — who routes to me, who I route to */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium">Delegation</h3>
+          <span className="text-xs text-muted-foreground">
+            {delegationIncoming.length} upstream · {delegationOutgoing.length} downstream
+          </span>
+        </div>
+        <div className="border border-border/40 dark:border-border rounded-xl p-4">
+          <DelegationGraph
+            incoming={delegationIncoming}
+            outgoing={delegationOutgoing}
+            selfLabel={agent.name}
+          />
+        </div>
       </div>
 
       {/* Costs */}
@@ -3179,7 +3274,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: Heartb
                       onClick={() => {
                         const issueCount = touchedIssueIds.length;
                         const confirmed = window.confirm(
-                          `Clear session for ${issueCount} issue${issueCount === 1 ? "" : "s"} touched by this run?`,
+                          `Clear session for ${issueCount} task${issueCount === 1 ? "" : "s"} touched by this run?`,
                         );
                         if (!confirmed) return;
                         clearSessionsForTouchedIssues.mutate();
@@ -3187,7 +3282,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: Heartb
                     >
                       {clearSessionsForTouchedIssues.isPending
                         ? "clearing session..."
-                        : "clear session for these issues"}
+                        : "clear session for these tasks"}
                     </button>
                     {clearSessionsForTouchedIssues.isError && (
                       <p className="text-[11px] text-destructive mt-1">
@@ -3204,10 +3299,10 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: Heartb
         )}
       </div>
 
-      {/* Issues touched by this run */}
+      {/* Tasks touched by this run */}
       {touchedIssues && touchedIssues.length > 0 && (
         <div className="space-y-2">
-          <span className="text-xs font-medium text-muted-foreground">Issues Touched ({touchedIssues.length})</span>
+          <span className="text-xs font-medium text-muted-foreground">Tasks touched ({touchedIssues.length})</span>
           <div className="border border-border rounded-lg divide-y divide-border">
             {touchedIssues.map((issue) => (
               <Link
