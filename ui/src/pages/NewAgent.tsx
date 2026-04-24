@@ -22,6 +22,7 @@ import { PageHeader } from "../components/PageHeader";
 import { defaultCreateValues } from "../components/agent-config-defaults";
 import { getUIAdapter } from "../adapters";
 import { AgentIcon } from "../components/AgentIconPicker";
+import { AdvancedSection } from "../components/AdvancedSection";
 import {
   DEFAULT_CODEX_LOCAL_BYPASS_APPROVALS_AND_SANDBOX,
   DEFAULT_CODEX_LOCAL_MODEL,
@@ -330,42 +331,52 @@ export function NewAgent() {
           adapterModels={adapterModels}
         />
 
+        {/* Optional company skills — tucked under AdvancedSection so the default create flow stays focused. */}
         <div className="border-t border-border px-4 py-4">
-          <div className="space-y-3">
-            <div>
-              <h2 className="text-sm font-medium">Company skills</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Optional skills from the company library. Built-in Paperclip runtime skills are added automatically.
-              </p>
-            </div>
-            {availableSkills.length === 0 ? (
+          <AdvancedSection
+            label="Company skills"
+            hint={
+              availableSkills.length === 0
+                ? "None installed"
+                : `${availableSkills.length} available${
+                    selectedSkillKeys.length > 0 ? ` · ${selectedSkillKeys.length} selected` : ""
+                  }`
+            }
+          >
+            <div className="space-y-3">
               <p className="text-xs text-muted-foreground">
-                No optional company skills installed yet.
+                Optional skills from the company library. Built-in Paperclip runtime skills are added
+                automatically.
               </p>
-            ) : (
-              <div className="space-y-3">
-                {availableSkills.map((skill) => {
-                  const inputId = `skill-${skill.id}`;
-                  const checked = selectedSkillKeys.includes(skill.key);
-                  return (
-                    <div key={skill.id} className="flex items-start gap-3">
-                      <Checkbox
-                        id={inputId}
-                        checked={checked}
-                        onCheckedChange={(next) => toggleSkill(skill.key, next === true)}
-                      />
-                      <label htmlFor={inputId} className="grid gap-1 leading-none">
-                        <span className="text-sm font-medium">{skill.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {skill.description ?? skill.key}
-                        </span>
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+              {availableSkills.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  No optional company skills installed yet.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {availableSkills.map((skill) => {
+                    const inputId = `skill-${skill.id}`;
+                    const checked = selectedSkillKeys.includes(skill.key);
+                    return (
+                      <div key={skill.id} className="flex items-start gap-3">
+                        <Checkbox
+                          id={inputId}
+                          checked={checked}
+                          onCheckedChange={(next) => toggleSkill(skill.key, next === true)}
+                        />
+                        <label htmlFor={inputId} className="grid gap-1 leading-none">
+                          <span className="text-sm font-medium">{skill.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {skill.description ?? skill.key}
+                          </span>
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </AdvancedSection>
         </div>
 
         {/* Footer */}

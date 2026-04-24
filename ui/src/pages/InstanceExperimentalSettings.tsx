@@ -5,6 +5,7 @@ import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
 import { cn } from "../lib/utils";
 import { PageHeader } from "../components/PageHeader";
+import { AdvancedSection } from "../components/AdvancedSection";
 
 export function InstanceExperimentalSettings() {
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -58,9 +59,9 @@ export function InstanceExperimentalSettings() {
   return (
     <div className="max-w-4xl space-y-6">
       <PageHeader
-        eyebrow="Instance Settings"
+        eyebrow="Instance settings"
         title="Experimental"
-        subtitle="Opt into features that are still being evaluated before they become default behavior."
+        subtitle="Features still being evaluated before they become default."
       />
 
       {actionError && (
@@ -72,7 +73,7 @@ export function InstanceExperimentalSettings() {
       <section className="rounded-xl border border-border bg-card p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">
-            <h2 className="text-sm font-semibold">Enable Isolated Workspaces</h2>
+            <h2 className="text-sm font-semibold">Enable isolated workspaces</h2>
             <p className="max-w-2xl text-sm text-muted-foreground">
               Show execution workspace controls in project configuration and allow isolated workspace behavior for new
               and existing issue runs.
@@ -98,36 +99,42 @@ export function InstanceExperimentalSettings() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-border bg-card p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1.5">
-            <h2 className="text-sm font-semibold">Auto-Restart Dev Server When Idle</h2>
-            <p className="max-w-2xl text-sm text-muted-foreground">
-              In `pnpm dev:once`, wait for all queued and running local agent runs to finish, then restart the server
-              automatically when backend changes or migrations make the current boot stale.
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="Toggle guarded dev-server auto-restart"
-            disabled={toggleMutation.isPending}
-            className={cn(
-              "relative inline-flex h-5 w-9 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60",
-              autoRestartDevServerWhenIdle ? "bg-primary" : "bg-muted",
-            )}
-            onClick={() =>
-              toggleMutation.mutate({ autoRestartDevServerWhenIdle: !autoRestartDevServerWhenIdle })
-            }
-          >
-            <span
+      {/* Dev-only toggle, not needed day-to-day — tucked behind AdvancedSection. */}
+      <AdvancedSection
+        label="Dev server — advanced"
+        hint="Guarded auto-restart of pnpm dev:once."
+      >
+        <section className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <h2 className="text-sm font-semibold">Auto-restart dev server when idle</h2>
+              <p className="max-w-2xl text-sm text-muted-foreground">
+                In `pnpm dev:once`, wait for all queued and running local agent runs to finish, then restart the server
+                automatically when backend changes or migrations make the current boot stale.
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-label="Toggle guarded dev-server auto-restart"
+              disabled={toggleMutation.isPending}
               className={cn(
-                "inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform",
-                autoRestartDevServerWhenIdle ? "translate-x-4.5" : "translate-x-0.5",
+                "relative inline-flex h-5 w-9 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+                autoRestartDevServerWhenIdle ? "bg-primary" : "bg-muted",
               )}
-            />
-          </button>
-        </div>
-      </section>
+              onClick={() =>
+                toggleMutation.mutate({ autoRestartDevServerWhenIdle: !autoRestartDevServerWhenIdle })
+              }
+            >
+              <span
+                className={cn(
+                  "inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform",
+                  autoRestartDevServerWhenIdle ? "translate-x-4.5" : "translate-x-0.5",
+                )}
+              />
+            </button>
+          </div>
+        </section>
+      </AdvancedSection>
     </div>
   );
 }

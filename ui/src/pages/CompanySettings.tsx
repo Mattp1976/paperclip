@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Download, Upload } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
 import { CompanyPatternIcon } from "../components/CompanyPatternIcon";
+import { AdvancedSection } from "../components/AdvancedSection";
 import {
   Field,
   ToggleField,
@@ -224,8 +225,8 @@ export function CompanySettings() {
   return (
     <div className="max-w-2xl space-y-6">
       <PageHeader
-        title="Company Settings"
-        subtitle="Company identity, brand colour, defaults, and integrations."
+        title="Company settings"
+        subtitle="Identity, brand, defaults."
       />
 
       {/* General */}
@@ -392,11 +393,11 @@ export function CompanySettings() {
         </div>
       </div>
 
-      {/* Invites */}
-      <div className="space-y-4">
-        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Invites
-        </div>
+      {/* Invites — power-user surface, hidden by default */}
+      <AdvancedSection
+        label="Invites — advanced"
+        hint="Generate an OpenClaw agent invite snippet."
+      >
         <div className="space-y-3 rounded-md border border-border px-4 py-4">
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-muted-foreground">
@@ -462,13 +463,13 @@ export function CompanySettings() {
             </div>
           )}
         </div>
-      </div>
+      </AdvancedSection>
 
-      {/* Import / Export */}
-      <div className="space-y-4">
-        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Company Packages
-        </div>
+      {/* Import / Export — power-user surface, hidden by default */}
+      <AdvancedSection
+        label="Company packages — advanced"
+        hint="Import and export your whole company."
+      >
         <div className="rounded-md border border-border px-4 py-4">
           <p className="text-sm text-muted-foreground">
             Import and export have moved to dedicated pages accessible from the{" "}
@@ -489,12 +490,12 @@ export function CompanySettings() {
             </Button>
           </div>
         </div>
-      </div>
+      </AdvancedSection>
 
-      {/* Danger Zone */}
+      {/* Danger zone — always visible, never hidden behind AdvancedSection */}
       <div className="space-y-4">
         <div className="text-xs font-medium text-destructive uppercase tracking-wide">
-          Danger Zone
+          Danger zone
         </div>
         <div className="space-y-3 rounded-md border border-destructive/40 bg-destructive/5 px-4 py-4">
           <p className="text-sm text-muted-foreground">
