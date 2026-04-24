@@ -27,6 +27,7 @@ import { standupRoutes } from "./routes/standup.js";
 import { agentQuestionRoutes } from "./routes/agent-questions.js";
 import { sidebarBadgeRoutes } from "./routes/sidebar-badges.js";
 import { instanceSettingsRoutes } from "./routes/instance-settings.js";
+import { fleetTemplateRoutes } from "./routes/fleet-templates.js";
 import { outputRouterRoutes } from "./routes/output-routers.js";
 import { llmRoutes } from "./routes/llms.js";
 import { assetRoutes } from "./routes/assets.js";
@@ -161,6 +162,7 @@ export async function createApp(
   api.use(agentQuestionRoutes(db));
   api.use(sidebarBadgeRoutes(db));
   api.use(instanceSettingsRoutes(db));
+  api.use(fleetTemplateRoutes(db));
   api.use(outputRouterRoutes(db));
 
   // Phase 3: Checkout lock recovery admin routes

@@ -17,3 +17,4 @@ export { instanceSettingsApi } from "./instanceSettings";
 export { sidebarBadgesApi } from "./sidebarBadges";
 export { companySkillsApi } from "./companySkills";
 export { agentQuestionsApi } from "./agent-questions";
+export { fleetTemplatesApi, type FleetTemplateListItem, type FleetInstallResult } from "./fleetTemplates";

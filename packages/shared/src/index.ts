@@ -611,3 +611,15 @@ export {
   type SecretsLocalEncryptedConfig,
   type ConfigMeta,
 } from "./config-schema.js";
+
+export {
+  FLEET_TEMPLATES,
+  getFleetTemplate,
+  type FleetTemplate,
+  type FleetAgentSpec,
+  type FleetAgentRole,
+  type FleetProjectSpec,
+  type FleetRoutineSpec,
+  type FleetStarterTaskSpec,
+  type FleetTaskPriority,
+} from "./fleet-templates.js";
