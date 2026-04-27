@@ -299,3 +299,18 @@ export {
   type SetPluginState,
   type ListPluginState,
 } from "./plugin.js";
+
+export {
+  createOutcomeSchema,
+  updateOutcomeSchema,
+  approvePlanSchema,
+  plannerLLMResultSchema,
+  reviewerLLMResultSchema,
+  assemblerLLMResultSchema,
+  type CreateOutcomeInput,
+  type UpdateOutcomeInput,
+  type ApprovePlanInput,
+  type PlannerLLMResultParsed,
+  type ReviewerLLMResultParsed,
+  type AssemblerLLMResultParsed,
+} from "./orchestra.js";

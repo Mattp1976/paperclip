@@ -334,6 +334,64 @@ export type {
 
 export { OUTPUT_ROUTER_PROVIDERS } from "./types/index.js";
 
+export type {
+  Outcome,
+  OutcomeStatus,
+  OutcomePriority,
+  OutcomeRiskLevel,
+  OutcomeTargetFormat,
+  OutcomeExecutionMode,
+  OrchestraPlan,
+  OrchestraPlanStatus,
+  OrchestraPlanRiskItem,
+  OrchestraPlanRequiredInput,
+  OrchestraPlanStep,
+  OrchestraPlanStepStatus,
+  OrchestraPlanStepType,
+  OrchestraStepAcceptanceCriterion,
+  OrchestraReview,
+  OrchestraReviewStatus,
+  OutcomeFinalAssembly,
+  OutcomeAssemblyStatus,
+  OrchestraEventType,
+  CreateOutcomeRequest,
+  OutcomeListItem,
+  OutcomeDetail,
+  OrchestraTimelineEvent,
+  PlannerLLMResult,
+  ReviewerLLMResult,
+  AssemblerLLMResult,
+} from "./types/index.js";
+
+export {
+  OUTCOME_STATUSES,
+  OUTCOME_PRIORITIES,
+  OUTCOME_RISK_LEVELS,
+  OUTCOME_TARGET_FORMATS,
+  OUTCOME_EXECUTION_MODES,
+  PLAN_STATUSES,
+  PLAN_STEP_STATUSES,
+  PLAN_STEP_TYPES,
+  REVIEW_STATUSES,
+  ASSEMBLY_STATUSES,
+  ORCHESTRA_EVENT_TYPES,
+} from "./types/index.js";
+
+export {
+  createOutcomeSchema,
+  updateOutcomeSchema,
+  approvePlanSchema,
+  plannerLLMResultSchema,
+  reviewerLLMResultSchema,
+  assemblerLLMResultSchema,
+  type CreateOutcomeInput,
+  type UpdateOutcomeInput,
+  type ApprovePlanInput,
+  type PlannerLLMResultParsed,
+  type ReviewerLLMResultParsed,
+  type AssemblerLLMResultParsed,
+} from "./validators/index.js";
+
 export {
   outputRouterProviderSchema,
   outputRouterFilterSchema,
@@ -627,3 +685,19 @@ export {
   type FleetStarterTaskSpec,
   type FleetTaskPriority,
 } from "./fleet-templates.js";
+
+export {
+  buildPlannerPrompt,
+  buildPlannerRepairPrompt,
+  type PlannerPromptInput,
+} from "./prompts/orchestra-planner.js";
+
+export {
+  buildReviewerPrompt,
+  type ReviewerPromptInput,
+} from "./prompts/orchestra-reviewer.js";
+
+export {
+  buildAssemblerPrompt,
+  type AssemblerPromptInput,
+} from "./prompts/orchestra-assembler.js";
