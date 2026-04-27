@@ -26,4 +26,4 @@ export type {
   ResolvedSessionCompactionPolicy,
   SessionCompactionPolicy,
   ServerAdapterModule,
-} from "@mattparrytfc/adapter-utils";
+} from "@orqestra/adapter-utils";

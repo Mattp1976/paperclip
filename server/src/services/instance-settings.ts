@@ -1,5 +1,5 @@
-import type { Db } from "@mattparrytfc/db";
-import { companies, instanceSettings } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { companies, instanceSettings } from "@orqestra/db";
 import {
   instanceGeneralSettingsSchema,
   type InstanceGeneralSettings,
@@ -8,7 +8,7 @@ import {
   type PatchInstanceGeneralSettings,
   type InstanceSettings,
   type PatchInstanceExperimentalSettings,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { eq } from "drizzle-orm";
 
 const DEFAULT_SINGLETON_KEY = "default";

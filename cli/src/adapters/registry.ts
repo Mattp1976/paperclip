@@ -1,11 +1,11 @@
-import type { CLIAdapterModule } from "@mattparrytfc/adapter-utils";
-import { printClaudeStreamEvent } from "@mattparrytfc/adapter-claude-local/cli";
-import { printCodexStreamEvent } from "@mattparrytfc/adapter-codex-local/cli";
-import { printCursorStreamEvent } from "@mattparrytfc/adapter-cursor-local/cli";
-import { printGeminiStreamEvent } from "@mattparrytfc/adapter-gemini-local/cli";
-import { printOpenCodeStreamEvent } from "@mattparrytfc/adapter-opencode-local/cli";
-import { printPiStreamEvent } from "@mattparrytfc/adapter-pi-local/cli";
-import { printOpenClawGatewayStreamEvent } from "@mattparrytfc/adapter-openclaw-gateway/cli";
+import type { CLIAdapterModule } from "@orqestra/adapter-utils";
+import { printClaudeStreamEvent } from "@orqestra/adapter-claude-local/cli";
+import { printCodexStreamEvent } from "@orqestra/adapter-codex-local/cli";
+import { printCursorStreamEvent } from "@orqestra/adapter-cursor-local/cli";
+import { printGeminiStreamEvent } from "@orqestra/adapter-gemini-local/cli";
+import { printOpenCodeStreamEvent } from "@orqestra/adapter-opencode-local/cli";
+import { printPiStreamEvent } from "@orqestra/adapter-pi-local/cli";
+import { printOpenClawGatewayStreamEvent } from "@orqestra/adapter-openclaw-gateway/cli";
 import { processCLIAdapter } from "./process/index.js";
 import { httpCLIAdapter } from "./http/index.js";
 

@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import type { DashboardSummary } from "@mattparrytfc/shared";
+import type { DashboardSummary } from "@orqestra/shared";
 import {
   addCommonClientOptions,
   handleCommandError,

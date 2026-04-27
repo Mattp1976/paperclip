@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 import type { Request, RequestHandler } from "express";
 import { and, eq, isNull } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { agentApiKeys, agents, companyMemberships, instanceUserRoles } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { agentApiKeys, agents, companyMemberships, instanceUserRoles } from "@orqestra/db";
 import { verifyLocalAgentJwt } from "../agent-auth-jwt.js";
-import type { DeploymentMode } from "@mattparrytfc/shared";
+import type { DeploymentMode } from "@orqestra/shared";
 import type { BetterAuthSessionResult } from "../auth/better-auth.js";
 import { logger } from "./logger.js";
 import { boardAuthService } from "../services/board-auth.js";

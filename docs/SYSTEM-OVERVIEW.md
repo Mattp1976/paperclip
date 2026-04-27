@@ -19,14 +19,14 @@ Live deploy: `https://www.agentswarm.co.uk` (Railway, Postgres add-on, server `0
 ```
 paperclip-build/
 ├── packages/
-│   ├── shared/          @mattparrytfc/shared      types, validators, fleet-templates, prompt builders
-│   ├── db/              @mattparrytfc/db          drizzle schema (61 tables) + 50 migrations
-│   ├── plugins/sdk/     @mattparrytfc/plugin-sdk  plugin manifest, capability decls, helpers
+│   ├── shared/          @orqestra/shared      types, validators, fleet-templates, prompt builders
+│   ├── db/              @orqestra/db          drizzle schema (61 tables) + 50 migrations
+│   ├── plugins/sdk/     @orqestra/plugin-sdk  plugin manifest, capability decls, helpers
 │   └── adapter-utils/                             shared bits for adapters
-├── server/              @mattparrytfc/server      express API, services, heartbeat, plugin runtime
-├── ui/                  @mattparrytfc/ui          React + Vite SPA (46 pages)
-├── cli/                 @mattparrytfc/paperclipai CLI entry point (`paperclipai`)
-├── desktop/             @mattparrytfc/desktop     Electron wrapper (scaffolded; not packaged)
+├── server/              @orqestra/server      express API, services, heartbeat, plugin runtime
+├── ui/                  @orqestra/ui          React + Vite SPA (46 pages)
+├── cli/                 @orqestra/paperclipai CLI entry point (`paperclipai`)
+├── desktop/             @orqestra/desktop     Electron wrapper (scaffolded; not packaged)
 ├── docs/                                          plans, audits, deploy notes, voice guide
 ├── scripts/                                       dev runner, release, backups
 ├── Dockerfile                                     prod image (server + UI dist + migrations)

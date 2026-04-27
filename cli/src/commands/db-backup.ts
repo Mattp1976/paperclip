@@ -1,7 +1,7 @@
 import path from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { formatDatabaseBackupResult, runDatabaseBackup } from "@mattparrytfc/db";
+import { formatDatabaseBackupResult, runDatabaseBackup } from "@orqestra/db";
 import {
   expandHomePrefix,
   resolveDefaultBackupDir,

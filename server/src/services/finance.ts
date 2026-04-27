@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { agents, costEvents, financeEvents, goals, heartbeatRuns, issues, projects } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { agents, costEvents, financeEvents, goals, heartbeatRuns, issues, projects } from "@orqestra/db";
 import { notFound, unprocessable } from "../errors.js";
 
 export interface FinanceDateRange {

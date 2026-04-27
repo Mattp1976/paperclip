@@ -8,7 +8,7 @@ Format: `- [date parked] [tag] [one-line description] — [why parked] [what it 
 
 ## Environmental (sandbox can't do this; need Matt's local machine)
 
-- [2026-04-22] #desktop `pnpm install --filter @mattparrytfc/desktop` fails in the sandbox with a `storePathRelativeToHome` error — blocks `pnpm typecheck` on the desktop package and any local-run of the Electron app.
+- [2026-04-22] #desktop `pnpm install --filter @orqestra/desktop` fails in the sandbox with a `storePathRelativeToHome` error — blocks `pnpm typecheck` on the desktop package and any local-run of the Electron app.
 - [2026-04-22] #testing `pnpm vitest run` in the sandbox dies on missing `@rollup/rollup-linux-arm64-gnu` — blocks running the new `rankAgentsForTask.test.ts` + `inbox.test.ts` suites in-loop. Matt runs them locally. (Retried 2026-04-23: same error. Still parked.)
 - [2026-04-22] #release Signed .dmg / notarisation / auto-updater smoke on #16 — needs Matt to dispatch the `Desktop release` GH Actions workflow with `dry_run: true` from a local trigger. Source-side work is complete; only the actual build step is parked.
 

@@ -1,4 +1,4 @@
-import type { ProviderQuotaResult } from "@mattparrytfc/shared";
+import type { ProviderQuotaResult } from "@orqestra/shared";
 import { listServerAdapters } from "../adapters/registry.js";
 
 const QUOTA_PROVIDER_TIMEOUT_MS = 20_000;

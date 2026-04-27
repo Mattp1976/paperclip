@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Issue } from "@mattparrytfc/shared";
+import type { Issue } from "@orqestra/shared";
 import { Link } from "@/lib/router";
 import { cn, issueUrl } from "../lib/utils";
 import { PriorityIcon } from "./PriorityIcon";

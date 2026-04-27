@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { models as codexFallbackModels } from "@mattparrytfc/adapter-codex-local";
-import { models as cursorFallbackModels } from "@mattparrytfc/adapter-cursor-local";
-import { resetOpenCodeModelsCacheForTests } from "@mattparrytfc/adapter-opencode-local/server";
+import { models as codexFallbackModels } from "@orqestra/adapter-codex-local";
+import { models as cursorFallbackModels } from "@orqestra/adapter-cursor-local";
+import { resetOpenCodeModelsCacheForTests } from "@orqestra/adapter-opencode-local/server";
 import { listAdapterModels } from "../adapters/index.js";
 import { resetCodexModelsCacheForTests } from "../adapters/codex-models.js";
 import { resetCursorModelsCacheForTests, setCursorModelsRunnerForTests } from "../adapters/cursor-models.js";

@@ -1,6 +1,6 @@
 import { Router, type Request } from "express";
-import type { Db } from "@mattparrytfc/db";
-import { AGENT_ICON_NAMES } from "@mattparrytfc/shared";
+import type { Db } from "@orqestra/db";
+import { AGENT_ICON_NAMES } from "@orqestra/shared";
 import { forbidden } from "../errors.js";
 import { listServerAdapters } from "../adapters/index.js";
 import { agentService } from "../services/agents.js";

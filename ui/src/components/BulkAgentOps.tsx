@@ -23,7 +23,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import type { Agent } from "@mattparrytfc/shared";
+import type { Agent } from "@orqestra/shared";
 
 /* ---- helpers ---- */
 

@@ -13,7 +13,7 @@ import {
   type PluginSettingsPageProps,
   type PluginSidebarProps,
   type PluginWidgetProps,
-} from "@mattparrytfc/plugin-sdk/ui";
+} from "@orqestra/plugin-sdk/ui";
 import {
   DEFAULT_CONFIG,
   JOB_KEYS,

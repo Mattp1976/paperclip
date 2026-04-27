@@ -1,4 +1,4 @@
-# @mattparrytfc/server
+# @orqestra/server
 
 ## 0.3.1
 
@@ -6,16 +6,16 @@
 
 - Stable release preparation for 0.3.1
 - Updated dependencies
-  - @mattparrytfc/adapter-utils@0.3.1
-  - @mattparrytfc/adapter-claude-local@0.3.1
-  - @mattparrytfc/adapter-codex-local@0.3.1
-  - @mattparrytfc/adapter-cursor-local@0.3.1
-  - @mattparrytfc/adapter-gemini-local@0.3.1
-  - @mattparrytfc/adapter-openclaw-gateway@0.3.1
-  - @mattparrytfc/adapter-opencode-local@0.3.1
-  - @mattparrytfc/adapter-pi-local@0.3.1
-  - @mattparrytfc/db@0.3.1
-  - @mattparrytfc/shared@0.3.1
+  - @orqestra/adapter-utils@0.3.1
+  - @orqestra/adapter-claude-local@0.3.1
+  - @orqestra/adapter-codex-local@0.3.1
+  - @orqestra/adapter-cursor-local@0.3.1
+  - @orqestra/adapter-gemini-local@0.3.1
+  - @orqestra/adapter-openclaw-gateway@0.3.1
+  - @orqestra/adapter-opencode-local@0.3.1
+  - @orqestra/adapter-pi-local@0.3.1
+  - @orqestra/db@0.3.1
+  - @orqestra/shared@0.3.1
 
 ## 0.3.0
 
@@ -27,15 +27,15 @@
 
 - Updated dependencies [6077ae6]
 - Updated dependencies
-  - @mattparrytfc/shared@0.3.0
-  - @mattparrytfc/adapter-utils@0.3.0
-  - @mattparrytfc/adapter-claude-local@0.3.0
-  - @mattparrytfc/adapter-codex-local@0.3.0
-  - @mattparrytfc/adapter-cursor-local@0.3.0
-  - @mattparrytfc/adapter-openclaw-gateway@0.3.0
-  - @mattparrytfc/adapter-opencode-local@0.3.0
-  - @mattparrytfc/adapter-pi-local@0.3.0
-  - @mattparrytfc/db@0.3.0
+  - @orqestra/shared@0.3.0
+  - @orqestra/adapter-utils@0.3.0
+  - @orqestra/adapter-claude-local@0.3.0
+  - @orqestra/adapter-codex-local@0.3.0
+  - @orqestra/adapter-cursor-local@0.3.0
+  - @orqestra/adapter-openclaw-gateway@0.3.0
+  - @orqestra/adapter-opencode-local@0.3.0
+  - @orqestra/adapter-pi-local@0.3.0
+  - @orqestra/db@0.3.0
 
 ## 0.2.7
 
@@ -43,12 +43,12 @@
 
 - Version bump (patch)
 - Updated dependencies
-  - @mattparrytfc/shared@0.2.7
-  - @mattparrytfc/adapter-utils@0.2.7
-  - @mattparrytfc/db@0.2.7
-  - @mattparrytfc/adapter-claude-local@0.2.7
-  - @mattparrytfc/adapter-codex-local@0.2.7
-  - @mattparrytfc/adapter-openclaw@0.2.7
+  - @orqestra/shared@0.2.7
+  - @orqestra/adapter-utils@0.2.7
+  - @orqestra/db@0.2.7
+  - @orqestra/adapter-claude-local@0.2.7
+  - @orqestra/adapter-codex-local@0.2.7
+  - @orqestra/adapter-openclaw@0.2.7
 
 ## 0.2.6
 
@@ -56,12 +56,12 @@
 
 - Version bump (patch)
 - Updated dependencies
-  - @mattparrytfc/shared@0.2.6
-  - @mattparrytfc/adapter-utils@0.2.6
-  - @mattparrytfc/db@0.2.6
-  - @mattparrytfc/adapter-claude-local@0.2.6
-  - @mattparrytfc/adapter-codex-local@0.2.6
-  - @mattparrytfc/adapter-openclaw@0.2.6
+  - @orqestra/shared@0.2.6
+  - @orqestra/adapter-utils@0.2.6
+  - @orqestra/db@0.2.6
+  - @orqestra/adapter-claude-local@0.2.6
+  - @orqestra/adapter-codex-local@0.2.6
+  - @orqestra/adapter-openclaw@0.2.6
 
 ## 0.2.5
 
@@ -69,12 +69,12 @@
 
 - Version bump (patch)
 - Updated dependencies
-  - @mattparrytfc/shared@0.2.5
-  - @mattparrytfc/adapter-utils@0.2.5
-  - @mattparrytfc/db@0.2.5
-  - @mattparrytfc/adapter-claude-local@0.2.5
-  - @mattparrytfc/adapter-codex-local@0.2.5
-  - @mattparrytfc/adapter-openclaw@0.2.5
+  - @orqestra/shared@0.2.5
+  - @orqestra/adapter-utils@0.2.5
+  - @orqestra/db@0.2.5
+  - @orqestra/adapter-claude-local@0.2.5
+  - @orqestra/adapter-codex-local@0.2.5
+  - @orqestra/adapter-openclaw@0.2.5
 
 ## 0.2.4
 
@@ -82,12 +82,12 @@
 
 - Version bump (patch)
 - Updated dependencies
-  - @mattparrytfc/shared@0.2.4
-  - @mattparrytfc/adapter-utils@0.2.4
-  - @mattparrytfc/db@0.2.4
-  - @mattparrytfc/adapter-claude-local@0.2.4
-  - @mattparrytfc/adapter-codex-local@0.2.4
-  - @mattparrytfc/adapter-openclaw@0.2.4
+  - @orqestra/shared@0.2.4
+  - @orqestra/adapter-utils@0.2.4
+  - @orqestra/db@0.2.4
+  - @orqestra/adapter-claude-local@0.2.4
+  - @orqestra/adapter-codex-local@0.2.4
+  - @orqestra/adapter-openclaw@0.2.4
 
 ## 0.2.3
 
@@ -95,12 +95,12 @@
 
 - Version bump (patch)
 - Updated dependencies
-  - @mattparrytfc/shared@0.2.3
-  - @mattparrytfc/adapter-utils@0.2.3
-  - @mattparrytfc/db@0.2.3
-  - @mattparrytfc/adapter-claude-local@0.2.3
-  - @mattparrytfc/adapter-codex-local@0.2.3
-  - @mattparrytfc/adapter-openclaw@0.2.3
+  - @orqestra/shared@0.2.3
+  - @orqestra/adapter-utils@0.2.3
+  - @orqestra/db@0.2.3
+  - @orqestra/adapter-claude-local@0.2.3
+  - @orqestra/adapter-codex-local@0.2.3
+  - @orqestra/adapter-openclaw@0.2.3
 
 ## 0.2.2
 
@@ -108,12 +108,12 @@
 
 - Version bump (patch)
 - Updated dependencies
-  - @mattparrytfc/shared@0.2.2
-  - @mattparrytfc/adapter-utils@0.2.2
-  - @mattparrytfc/db@0.2.2
-  - @mattparrytfc/adapter-claude-local@0.2.2
-  - @mattparrytfc/adapter-codex-local@0.2.2
-  - @mattparrytfc/adapter-openclaw@0.2.2
+  - @orqestra/shared@0.2.2
+  - @orqestra/adapter-utils@0.2.2
+  - @orqestra/db@0.2.2
+  - @orqestra/adapter-claude-local@0.2.2
+  - @orqestra/adapter-codex-local@0.2.2
+  - @orqestra/adapter-openclaw@0.2.2
 
 ## 0.2.1
 
@@ -121,9 +121,9 @@
 
 - Version bump (patch)
 - Updated dependencies
-  - @mattparrytfc/shared@0.2.1
-  - @mattparrytfc/adapter-utils@0.2.1
-  - @mattparrytfc/db@0.2.1
-  - @mattparrytfc/adapter-claude-local@0.2.1
-  - @mattparrytfc/adapter-codex-local@0.2.1
-  - @mattparrytfc/adapter-openclaw@0.2.1
+  - @orqestra/shared@0.2.1
+  - @orqestra/adapter-utils@0.2.1
+  - @orqestra/db@0.2.1
+  - @orqestra/adapter-claude-local@0.2.1
+  - @orqestra/adapter-codex-local@0.2.1
+  - @orqestra/adapter-openclaw@0.2.1

@@ -20,7 +20,7 @@ import {
   routineRuns,
   routines,
   routineTriggers,
-} from "@mattparrytfc/db";
+} from "@orqestra/db";
 import { issueService } from "../services/issues.ts";
 import { routineService } from "../services/routines.ts";
 

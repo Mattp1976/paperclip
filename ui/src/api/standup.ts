@@ -1,4 +1,4 @@
-import type { StandupDigest, StandupSnapshot } from "@mattparrytfc/shared";
+import type { StandupDigest, StandupSnapshot } from "@orqestra/shared";
 import { api } from "./client";
 
 export interface StandupDigestResponse {

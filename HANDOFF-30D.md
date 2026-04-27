@@ -6,8 +6,8 @@ Written 2026-04-23. The sandbox portion of `PLAN-30D.md` is done. What's below i
 
 All three packages typecheck clean on 2026-04-23:
 
-- `@mattparrytfc/shared` — pass
-- `@mattparrytfc/server` — pass
+- `@orqestra/shared` — pass
+- `@orqestra/server` — pass
 - `ui` — pass
 
 Desktop package still blocked in the sandbox (`storePathRelativeToHome` error on `pnpm install`) and tests still blocked (`@rollup/rollup-linux-arm64-gnu` missing). Both are logged in `PARKED.md` with retry notes; both resolve the moment you run `pnpm install` + `pnpm vitest run` on your laptop.

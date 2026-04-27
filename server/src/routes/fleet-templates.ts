@@ -18,8 +18,8 @@
  *     and start at budget 0 unless the template overrides it.
  */
 import { Router } from "express";
-import type { Db } from "@mattparrytfc/db";
-import { FLEET_TEMPLATES, getFleetTemplate, type FleetTemplate } from "@mattparrytfc/shared";
+import type { Db } from "@orqestra/db";
+import { FLEET_TEMPLATES, getFleetTemplate, type FleetTemplate } from "@orqestra/shared";
 import { agentService, projectService, issueService } from "../services/index.js";
 import { assertBoard, assertCompanyAccess } from "./authz.js";
 

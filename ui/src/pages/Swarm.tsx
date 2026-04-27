@@ -6,7 +6,7 @@ import { heartbeatsApi, type LiveRunForIssue } from "../api/heartbeats";
 import { useCompany } from "../context/CompanyContext";
 import { queryKeys } from "../lib/queryKeys";
 import { relativeTime } from "../lib/utils";
-import type { Agent } from "@mattparrytfc/shared";
+import type { Agent } from "@orqestra/shared";
 
 /* ── palette (design-system tokens) ─────────────────────────── */
 /**

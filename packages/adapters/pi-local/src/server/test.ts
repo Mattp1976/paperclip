@@ -2,7 +2,7 @@ import type {
   AdapterEnvironmentCheck,
   AdapterEnvironmentTestContext,
   AdapterEnvironmentTestResult,
-} from "@mattparrytfc/adapter-utils";
+} from "@orqestra/adapter-utils";
 import {
   asString,
   parseObject,
@@ -10,10 +10,10 @@ import {
   ensureCommandResolvable,
   ensurePathInEnv,
   runChildProcess,
-} from "@mattparrytfc/adapter-utils/server-utils";
+} from "@orqestra/adapter-utils/server-utils";
 import {
   asStringArray,
-} from "@mattparrytfc/adapter-utils/server-utils";
+} from "@orqestra/adapter-utils/server-utils";
 import { discoverPiModelsCached } from "./models.js";
 import { parsePiJsonl } from "./parse.js";
 

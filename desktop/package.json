@@ -1,5 +1,5 @@
 {
-  "name": "@mattparrytfc/desktop",
+  "name": "@orqestra/desktop",
   "version": "0.0.1",
   "private": true,
   "description": "Paperclip desktop shell — Electron wrapper around the existing server + UI",
@@ -13,13 +13,13 @@
     "dev:shell": "tsc && cross-env PAPERCLIP_URL=http://localhost:3100 electron dist/main.js",
     "dev:shell:watch": "tsc --watch",
     "start": "electron dist/main.js",
-    "prepackage": "pnpm --filter @mattparrytfc/shared build && pnpm --filter @mattparrytfc/db build && pnpm --filter @mattparrytfc/server build && pnpm --filter @mattparrytfc/ui build && pnpm --filter @mattparrytfc/server run prepare:ui-dist && pnpm run build",
+    "prepackage": "pnpm --filter @orqestra/shared build && pnpm --filter @orqestra/db build && pnpm --filter @orqestra/server build && pnpm --filter @orqestra/ui build && pnpm --filter @orqestra/server run prepare:ui-dist && pnpm run build",
     "package": "pnpm run prepackage && electron-builder",
     "package:dir": "pnpm run prepackage && electron-builder --dir",
     "publish": "pnpm run prepackage && electron-builder --publish always"
   },
   "dependencies": {
-    "@mattparrytfc/server": "workspace:*",
+    "@orqestra/server": "workspace:*",
     "electron-updater": "^6.3.9"
   },
   "devDependencies": {

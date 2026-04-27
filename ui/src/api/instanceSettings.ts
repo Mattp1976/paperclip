@@ -3,7 +3,7 @@ import type {
   InstanceGeneralSettings,
   PatchInstanceGeneralSettings,
   PatchInstanceExperimentalSettings,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { api } from "./client";
 
 export const instanceSettingsApi = {

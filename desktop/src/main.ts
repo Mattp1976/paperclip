@@ -5,9 +5,9 @@
  *
  * Two modes:
  *   - DEV:  PAPERCLIP_URL is set  → skip server, just open a BrowserWindow at that URL.
- *           Use this when you're running `pnpm --filter @mattparrytfc/server dev`
- *           alongside `pnpm --filter @mattparrytfc/ui dev`.
- *   - PROD: PAPERCLIP_URL unset   → import `startServer()` from @mattparrytfc/server,
+ *           Use this when you're running `pnpm --filter @orqestra/server dev`
+ *           alongside `pnpm --filter @orqestra/ui dev`.
+ *   - PROD: PAPERCLIP_URL unset   → import `startServer()` from @orqestra/server,
  *           boot it in-process with embedded Postgres, then open the window at the
  *           returned apiUrl.
  *
@@ -80,7 +80,7 @@ function createWindow(targetUrl: string): BrowserWindow {
 
 /**
  * Resolve the compiled server entrypoint. We can't use a normal
- * `import("@mattparrytfc/server")` because the server's `exports` map points at
+ * `import("@orqestra/server")` because the server's `exports` map points at
  * raw TypeScript (./src/index.ts) for in-monorepo dev consumers, which Node
  * can't execute. Instead we locate the compiled dist file at runtime:
  *
@@ -88,7 +88,7 @@ function createWindow(targetUrl: string): BrowserWindow {
  *     `process.resourcesPath/server/dist/index.js` (see desktop/package.json
  *     `build.extraResources`).
  *   - Dev / unpackaged: fall back to the sibling workspace path. Requires
- *     `pnpm --filter @mattparrytfc/server build` to have been run first.
+ *     `pnpm --filter @orqestra/server build` to have been run first.
  *
  * If neither file exists we throw a clear error pointing the user at the dev
  * loop (PAPERCLIP_URL) while they figure out their build.
@@ -104,7 +104,7 @@ function resolveServerEntry(): string {
     return monorepoPath;
   }
   throw new Error(
-    "Could not locate the compiled server. Run `pnpm --filter @mattparrytfc/server build` " +
+    "Could not locate the compiled server. Run `pnpm --filter @orqestra/server build` " +
       "and try again, or set PAPERCLIP_URL=http://localhost:3100 to wrap an already-running " +
       "dev server (see desktop/README.md).",
   );

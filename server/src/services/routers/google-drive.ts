@@ -18,7 +18,7 @@
  * message so a misconfigured router surfaces an explicit error rather
  * than silently swallowing runs.
  */
-import type { OutputRouterDeliveryResult } from "@mattparrytfc/shared";
+import type { OutputRouterDeliveryResult } from "@orqestra/shared";
 import type { SenderArgs } from "./slack.js";
 
 export async function sendViaGoogleDrive(

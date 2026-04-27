@@ -34,7 +34,7 @@ function createMockDb() {
 /*  Mock the DB schema import                                          */
 /* ---------------------------------------------------------------- */
 
-vi.mock("@mattparrytfc/db", () => ({
+vi.mock("@orqestra/db", () => ({
   pluginJobRuns: {
     id: "id",
     jobId: "jobId",

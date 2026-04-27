@@ -1,4 +1,4 @@
-import type { PaperclipPluginManifestV1 } from "@mattparrytfc/plugin-sdk";
+import type { PaperclipPluginManifestV1 } from "@orqestra/plugin-sdk";
 import {
   DEFAULT_CONFIG,
   EXPORT_NAMES,

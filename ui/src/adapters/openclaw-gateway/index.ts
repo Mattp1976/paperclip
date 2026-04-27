@@ -1,6 +1,6 @@
 import type { UIAdapterModule } from "../types";
-import { parseOpenClawGatewayStdoutLine } from "@mattparrytfc/adapter-openclaw-gateway/ui";
-import { buildOpenClawGatewayConfig } from "@mattparrytfc/adapter-openclaw-gateway/ui";
+import { parseOpenClawGatewayStdoutLine } from "@orqestra/adapter-openclaw-gateway/ui";
+import { buildOpenClawGatewayConfig } from "@orqestra/adapter-openclaw-gateway/ui";
 import { OpenClawGatewayConfigFields } from "./config-fields";
 
 export const openClawGatewayUIAdapter: UIAdapterModule = {

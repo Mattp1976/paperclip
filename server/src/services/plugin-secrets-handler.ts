@@ -34,9 +34,9 @@
  */
 
 import { eq, and, desc } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { companySecrets, companySecretVersions, pluginConfig } from "@mattparrytfc/db";
-import type { SecretProvider } from "@mattparrytfc/shared";
+import type { Db } from "@orqestra/db";
+import { companySecrets, companySecretVersions, pluginConfig } from "@orqestra/db";
+import type { SecretProvider } from "@orqestra/shared";
 import { getSecretProvider } from "../secrets/provider-registry.js";
 import { pluginRegistryService } from "./plugin-registry.js";
 

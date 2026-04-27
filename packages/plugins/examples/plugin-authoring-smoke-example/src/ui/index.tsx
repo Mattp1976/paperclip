@@ -1,4 +1,4 @@
-import { usePluginAction, usePluginData, type PluginWidgetProps } from "@mattparrytfc/plugin-sdk/ui";
+import { usePluginAction, usePluginData, type PluginWidgetProps } from "@orqestra/plugin-sdk/ui";
 
 type HealthData = {
   status: "ok" | "degraded" | "error";

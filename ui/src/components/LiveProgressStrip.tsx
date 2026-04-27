@@ -20,7 +20,7 @@ import {
   Clock,
   Zap,
 } from "lucide-react";
-import type { HeartbeatRun, Agent } from "@mattparrytfc/shared";
+import type { HeartbeatRun, Agent } from "@orqestra/shared";
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 

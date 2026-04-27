@@ -8,7 +8,7 @@
 import { useMemo } from "react";
 import { Link } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
-import type { Issue } from "@mattparrytfc/shared";
+import type { Issue } from "@orqestra/shared";
 import { heartbeatsApi, type LiveRunForIssue } from "../../api/heartbeats";
 import { issuesApi } from "../../api/issues";
 import { queryKeys } from "../../lib/queryKeys";

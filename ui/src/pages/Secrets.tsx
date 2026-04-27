@@ -4,7 +4,7 @@ import { useCompany } from "../context/CompanyContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useToast } from "../context/ToastContext";
 import { secretsApi } from "../api/secrets";
-import type { CompanySecret, SecretProviderDescriptor } from "@mattparrytfc/shared";
+import type { CompanySecret, SecretProviderDescriptor } from "@orqestra/shared";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {

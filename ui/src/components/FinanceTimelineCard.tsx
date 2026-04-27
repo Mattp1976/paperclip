@@ -1,4 +1,4 @@
-import type { FinanceEvent } from "@mattparrytfc/shared";
+import type { FinanceEvent } from "@orqestra/shared";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {

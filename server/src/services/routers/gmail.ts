@@ -14,7 +14,7 @@
  *   4. Handle threading / `In-Reply-To` when the router is attached to an
  *      issue that already has a Gmail conversation thread.
  */
-import type { OutputRouterDeliveryResult } from "@mattparrytfc/shared";
+import type { OutputRouterDeliveryResult } from "@orqestra/shared";
 import type { SenderArgs } from "./slack.js";
 
 export async function sendViaGmail(args: SenderArgs): Promise<OutputRouterDeliveryResult> {

@@ -20,7 +20,7 @@
  *   ready_to_execute → executing → reviewing → refining? → assembling → delivered
  */
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   agents,
   costEvents,
@@ -31,7 +31,7 @@ import {
   orchestraReviews,
   outcomeFinalAssemblies,
   activityLog,
-} from "@mattparrytfc/db";
+} from "@orqestra/db";
 import type {
   Outcome,
   OutcomeDetail,
@@ -55,7 +55,7 @@ import type {
   OrchestraStepAcceptanceCriterion,
   OrchestraEventType,
   CreateOutcomeRequest,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { unprocessable, notFound } from "../errors.js";
 import { issueService } from "./issues.js";
 

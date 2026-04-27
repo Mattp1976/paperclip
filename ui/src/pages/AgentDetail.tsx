@@ -100,8 +100,8 @@ import {
   type CostByIssue,
   type LiveEvent,
   type WorkspaceOperation,
-} from "@mattparrytfc/shared";
-import { redactHomePathUserSegments, redactHomePathUserSegmentsInValue } from "@mattparrytfc/adapter-utils";
+} from "@orqestra/shared";
+import { redactHomePathUserSegments, redactHomePathUserSegmentsInValue } from "@orqestra/adapter-utils";
 import { agentRouteRef } from "../lib/utils";
 import {
   applyAgentSkillSnapshot,

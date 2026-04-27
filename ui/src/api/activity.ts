@@ -1,4 +1,4 @@
-import type { ActivityEvent } from "@mattparrytfc/shared";
+import type { ActivityEvent } from "@orqestra/shared";
 import { api } from "./client";
 
 export interface RunForIssue {

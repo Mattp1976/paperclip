@@ -25,7 +25,7 @@ import {
   routineRuns,
   routines,
   routineTriggers,
-} from "@mattparrytfc/db";
+} from "@orqestra/db";
 import { errorHandler } from "../middleware/index.js";
 import { accessService } from "../services/access.js";
 
@@ -33,7 +33,7 @@ vi.mock("../services/index.js", async () => {
   const actual = await vi.importActual<typeof import("../services/index.js")>("../services/index.js");
   const { randomUUID } = await import("node:crypto");
   const { eq } = await import("drizzle-orm");
-  const { heartbeatRuns, issues } = await import("@mattparrytfc/db");
+  const { heartbeatRuns, issues } = await import("@orqestra/db");
 
   return {
     ...actual,

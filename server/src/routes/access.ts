@@ -10,13 +10,13 @@ import { fileURLToPath } from "node:url";
 import { Router } from "express";
 import type { Request } from "express";
 import { and, eq, isNull, desc } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   agentApiKeys,
   authUsers,
   invites,
   joinRequests
-} from "@mattparrytfc/db";
+} from "@orqestra/db";
 import {
   acceptInviteSchema,
   createCliAuthChallengeSchema,
@@ -28,8 +28,8 @@ import {
   updateMemberPermissionsSchema,
   updateUserCompanyAccessSchema,
   PERMISSION_KEYS
-} from "@mattparrytfc/shared";
-import type { DeploymentExposure, DeploymentMode } from "@mattparrytfc/shared";
+} from "@orqestra/shared";
+import type { DeploymentExposure, DeploymentMode } from "@orqestra/shared";
 import {
   forbidden,
   conflict,

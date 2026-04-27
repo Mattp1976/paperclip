@@ -1,4 +1,4 @@
-import type { AgentAdapterType, JoinRequest } from "@mattparrytfc/shared";
+import type { AgentAdapterType, JoinRequest } from "@orqestra/shared";
 import { api } from "./client";
 
 type InviteSummary = {

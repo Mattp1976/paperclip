@@ -1,4 +1,4 @@
-import type { Goal } from "@mattparrytfc/shared";
+import type { Goal } from "@orqestra/shared";
 import { api } from "./client";
 
 export const goalsApi = {

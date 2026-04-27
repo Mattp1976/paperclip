@@ -13,7 +13,7 @@ import {
   TrendingDown,
   Zap,
 } from "lucide-react";
-import type { Agent, HeartbeatRun, CostByAgent } from "@mattparrytfc/shared";
+import type { Agent, HeartbeatRun, CostByAgent } from "@orqestra/shared";
 
 /* ---- Types ---- */
 

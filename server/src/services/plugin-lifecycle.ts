@@ -36,12 +36,12 @@
  * @see PLUGIN_SPEC.md §12.5 — Graceful Shutdown Policy
  */
 import { EventEmitter } from "node:events";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import type {
   PluginStatus,
   PluginRecord,
   PaperclipPluginManifestV1,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { pluginRegistryService } from "./plugin-registry.js";
 import { pluginLoader, type PluginLoader } from "./plugin-loader.js";
 import type { PluginWorkerManager, WorkerStartOptions } from "./plugin-worker-manager.js";

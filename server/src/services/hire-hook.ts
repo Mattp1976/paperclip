@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { agents } from "@mattparrytfc/db";
-import type { HireApprovedPayload } from "@mattparrytfc/adapter-utils";
+import type { Db } from "@orqestra/db";
+import { agents } from "@orqestra/db";
+import type { HireApprovedPayload } from "@orqestra/adapter-utils";
 import { findServerAdapter } from "../adapters/registry.js";
 import { logger } from "../middleware/logger.js";
 import { logActivity } from "./activity-log.js";

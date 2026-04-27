@@ -9,7 +9,7 @@ import type {
   CompanyPortabilityInclude,
   CompanyPortabilityPreviewResult,
   CompanyPortabilityImportResult,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { ApiRequestError } from "../../client/http.js";
 import {
   addCommonClientOptions,

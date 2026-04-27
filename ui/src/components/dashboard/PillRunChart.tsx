@@ -6,7 +6,7 @@
  * - Dashed outline pills for days with zero runs (the "future" look)
  * - A subtle baseline, weekday labels, and a summary in the top-right
  */
-import type { HeartbeatRun } from "@mattparrytfc/shared";
+import type { HeartbeatRun } from "@orqestra/shared";
 import { useMemo } from "react";
 
 const DAYS_WINDOW = 14;

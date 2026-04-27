@@ -1,4 +1,4 @@
-import type { CreateConfigValues } from "@mattparrytfc/adapter-utils";
+import type { CreateConfigValues } from "@orqestra/adapter-utils";
 import { DEFAULT_GEMINI_LOCAL_MODEL } from "../index.js";
 
 function parseCommaArgs(value: string): string[] {

@@ -24,7 +24,7 @@ import {
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
-import type { Agent } from "@mattparrytfc/shared";
+import type { Agent } from "@orqestra/shared";
 import { agentsApi } from "../api/agents";
 import { queryKeys } from "../lib/queryKeys";
 import { cn } from "../lib/utils";

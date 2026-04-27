@@ -1,4 +1,4 @@
-import type { PluginLauncherRegistration } from "@mattparrytfc/plugin-sdk";
+import type { PluginLauncherRegistration } from "@orqestra/plugin-sdk";
 
 export const PLUGIN_ID = "paperclip-kitchen-sink-example";
 export const PLUGIN_VERSION = "0.1.0";

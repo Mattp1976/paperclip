@@ -5,7 +5,7 @@ import { costsApi } from "../api/costs";
 import { queryKeys } from "../lib/queryKeys";
 import { formatCents, cn } from "../lib/utils";
 import { CheckCircle2, Clock, Zap, DollarSign, Activity } from "lucide-react";
-import type { HeartbeatRun } from "@mattparrytfc/shared";
+import type { HeartbeatRun } from "@orqestra/shared";
 
 /* ---- Helpers ---- */
 

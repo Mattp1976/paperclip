@@ -20,8 +20,8 @@ import {
   type ScopeKey,
   type ToolResult,
   type ToolRunContext,
-} from "@mattparrytfc/plugin-sdk";
-import type { Goal, Issue } from "@mattparrytfc/shared";
+} from "@orqestra/plugin-sdk";
+import type { Goal, Issue } from "@orqestra/shared";
 import {
   DEFAULT_CONFIG,
   JOB_KEYS,

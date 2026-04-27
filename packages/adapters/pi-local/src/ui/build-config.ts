@@ -1,4 +1,4 @@
-import type { CreateConfigValues } from "@mattparrytfc/adapter-utils";
+import type { CreateConfigValues } from "@orqestra/adapter-utils";
 
 function parseEnvVars(text: string): Record<string, string> {
   const env: Record<string, string> = {};

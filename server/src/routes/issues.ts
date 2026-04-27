@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import multer from "multer";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   addAgentPeerNoteSchema,
   addIssueCommentSchema,
@@ -14,7 +14,7 @@ import {
   updateIssueWorkProductSchema,
   upsertIssueDocumentSchema,
   updateIssueSchema,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import type { StorageService } from "../storage/types.js";
 import { validate } from "../middleware/validate.js";
 import {

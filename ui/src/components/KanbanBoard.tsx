@@ -21,7 +21,7 @@ import { StatusIcon } from "./StatusIcon";
 import { PriorityIcon } from "./PriorityIcon";
 import { Identity } from "./Identity";
 import { issueUrl } from "../lib/utils";
-import type { Issue } from "@mattparrytfc/shared";
+import type { Issue } from "@orqestra/shared";
 
 const boardStatuses = [
   "backlog",

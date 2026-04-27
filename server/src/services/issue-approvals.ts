@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { approvals, issueApprovals, issues } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { approvals, issueApprovals, issues } from "@orqestra/db";
 import { notFound, unprocessable } from "../errors.js";
 import { redactEventPayload } from "../redaction.js";
 

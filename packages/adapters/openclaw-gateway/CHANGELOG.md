@@ -1,4 +1,4 @@
-# @mattparrytfc/adapter-openclaw-gateway
+# @orqestra/adapter-openclaw-gateway
 
 ## 0.3.1
 
@@ -6,7 +6,7 @@
 
 - Stable release preparation for 0.3.1
 - Updated dependencies
-  - @mattparrytfc/adapter-utils@0.3.1
+  - @orqestra/adapter-utils@0.3.1
 
 ## 0.3.0
 
@@ -17,4 +17,4 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @mattparrytfc/adapter-utils@0.3.0
+  - @orqestra/adapter-utils@0.3.0

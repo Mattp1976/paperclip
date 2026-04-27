@@ -1,4 +1,4 @@
-import type { AgentSkillEntry } from "@mattparrytfc/shared";
+import type { AgentSkillEntry } from "@orqestra/shared";
 
 export interface AgentSkillDraftState {
   draft: string[];

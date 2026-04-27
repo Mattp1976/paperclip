@@ -1,7 +1,7 @@
 import { Router } from "express";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import { and, eq, sql } from "drizzle-orm";
-import { joinRequests } from "@mattparrytfc/db";
+import { joinRequests } from "@orqestra/db";
 import { sidebarBadgeService } from "../services/sidebar-badges.js";
 import { accessService } from "../services/access.js";
 import { dashboardService } from "../services/dashboard.js";

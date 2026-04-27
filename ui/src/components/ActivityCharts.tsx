@@ -1,4 +1,4 @@
-import type { HeartbeatRun } from "@mattparrytfc/shared";
+import type { HeartbeatRun } from "@orqestra/shared";
 import { SoftCard } from "./SoftCard";
 
 /* ---- Utilities ---- */

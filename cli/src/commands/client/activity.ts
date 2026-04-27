@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import type { ActivityEvent } from "@mattparrytfc/shared";
+import type { ActivityEvent } from "@orqestra/shared";
 import {
   addCommonClientOptions,
   formatInlineRecord,

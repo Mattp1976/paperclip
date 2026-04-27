@@ -18,8 +18,8 @@
  */
 
 import { Router } from "express";
-import type { Db } from "@mattparrytfc/db";
-import { heartbeatRuns } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { heartbeatRuns } from "@orqestra/db";
 import { eq, inArray } from "drizzle-orm";
 import { createCheckoutLockRecoveryService } from "../services/checkout-lock-recovery.js";
 import type { CheckoutLockRecoveryService } from "../services/checkout-lock-recovery.js";

@@ -31,14 +31,14 @@
  */
 
 import { and, desc, eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { plugins, pluginJobs, pluginJobRuns } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { plugins, pluginJobs, pluginJobRuns } from "@orqestra/db";
 import type {
   PluginJobDeclaration,
   PluginJobRunStatus,
   PluginJobRunTrigger,
   PluginJobRecord,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { notFound } from "../errors.js";
 
 /**

@@ -52,7 +52,7 @@ import {
   XCircle,
   Clock3,
 } from "lucide-react";
-import type { HeartbeatRun, Agent } from "@mattparrytfc/shared";
+import type { HeartbeatRun, Agent } from "@orqestra/shared";
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 

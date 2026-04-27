@@ -5,7 +5,7 @@ import { createCheckoutLockRecoveryService } from "../services/checkout-lock-rec
 /*  Module mocks                                                       */
 /* ------------------------------------------------------------------ */
 
-vi.mock("@mattparrytfc/db", () => ({
+vi.mock("@orqestra/db", () => ({
   issues: {
     id: "id",
     identifier: "identifier",

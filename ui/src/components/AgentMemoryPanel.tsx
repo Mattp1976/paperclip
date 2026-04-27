@@ -13,7 +13,7 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
-import type { Agent, HeartbeatRun } from "@mattparrytfc/shared";
+import type { Agent, HeartbeatRun } from "@orqestra/shared";
 import { agentsApi } from "../api/agents";
 import { heartbeatsApi } from "../api/heartbeats";
 import { queryKeys } from "../lib/queryKeys";

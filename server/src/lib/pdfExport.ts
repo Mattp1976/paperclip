@@ -1,6 +1,6 @@
 import PDFDocument from "pdfkit";
 import type { Writable } from "node:stream";
-import { normalizeIssueSlug } from "@mattparrytfc/shared";
+import { normalizeIssueSlug } from "@orqestra/shared";
 
 // Issue-like shape — we only read the fields we need, so we keep the input loose
 // to avoid a hard coupling to the enriched Drizzle row type.

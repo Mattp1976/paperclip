@@ -102,8 +102,8 @@ pnpm build
 
 If full suite is too heavy locally, run at least:
 ```bash
-pnpm --filter @mattparrytfc/server test:run -- openclaw-gateway
-pnpm --filter @mattparrytfc/server typecheck
-pnpm --filter @mattparrytfc/ui typecheck
+pnpm --filter @orqestra/server test:run -- openclaw-gateway
+pnpm --filter @orqestra/server typecheck
+pnpm --filter @orqestra/ui typecheck
 pnpm --filter paperclipai typecheck
 ```

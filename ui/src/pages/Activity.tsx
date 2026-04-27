@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { History } from "lucide-react";
-import type { Agent } from "@mattparrytfc/shared";
+import type { Agent } from "@orqestra/shared";
 
 export function Activity() {
   const { selectedCompanyId } = useCompany();

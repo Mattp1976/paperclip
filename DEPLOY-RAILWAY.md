@@ -98,7 +98,7 @@ Most common failure modes:
 
 1. **`/health` times out on first deploy** — migrations can take a minute on a cold DB. Bump Railway's healthcheck timeout to 300s in Settings → Deploy.
 2. **401 on every request** — `PAPERCLIP_DEPLOYMENT_MODE` is wrong or `BETTER_AUTH_SECRET` is missing. Check variables.
-3. **UI loads but API calls 404** — the container built without the UI. Check build logs for `pnpm --filter @mattparrytfc/ui build` success.
+3. **UI loads but API calls 404** — the container built without the UI. Check build logs for `pnpm --filter @orqestra/ui build` success.
 4. **Data disappears on redeploy** — you're accidentally on embedded Postgres instead of the managed one. Confirm `DATABASE_URL` is wired via the reference, not blank.
 
 ## After it's live

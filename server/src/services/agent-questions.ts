@@ -15,9 +15,9 @@
  * to check `status` on its next heartbeat and proceed accordingly.
  */
 import { and, desc, eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { agentQuestions, agents, issues } from "@mattparrytfc/db";
-import type { AgentQuestionForUser } from "@mattparrytfc/shared";
+import type { Db } from "@orqestra/db";
+import { agentQuestions, agents, issues } from "@orqestra/db";
+import type { AgentQuestionForUser } from "@orqestra/shared";
 import { notFound } from "../errors.js";
 
 export interface AskAgentQuestionInput {

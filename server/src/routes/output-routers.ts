@@ -21,12 +21,12 @@
  */
 import { Router } from "express";
 import { eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { outputRouters } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { outputRouters } from "@orqestra/db";
 import {
   createOutputRouterSchema,
   updateOutputRouterSchema,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { validate } from "../middleware/validate.js";
 import { forbidden } from "../errors.js";
 import {

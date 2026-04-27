@@ -1,12 +1,12 @@
 import { Router } from "express";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   createCostEventSchema,
   createFinanceEventSchema,
   resolveBudgetIncidentSchema,
   updateBudgetSchema,
   upsertBudgetPolicySchema,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { validate } from "../middleware/validate.js";
 import {
   budgetService,

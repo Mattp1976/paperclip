@@ -6,7 +6,7 @@ import {
   updateIssueSchema,
   type Issue,
   type IssueComment,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import {
   addCommonClientOptions,
   formatInlineRecord,

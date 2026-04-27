@@ -1,4 +1,4 @@
-import type { AssetImage } from "@mattparrytfc/shared";
+import type { AssetImage } from "@orqestra/shared";
 import { api } from "./client";
 
 export const assetsApi = {

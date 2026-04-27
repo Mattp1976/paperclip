@@ -9,7 +9,7 @@
  */
 import { Link } from "@/lib/router";
 import { Target, ArrowRight, Plus } from "lucide-react";
-import type { Agent, Goal } from "@mattparrytfc/shared";
+import type { Agent, Goal } from "@orqestra/shared";
 import { Identity } from "../Identity";
 import { Button } from "@/components/ui/button";
 

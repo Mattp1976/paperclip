@@ -1,6 +1,6 @@
 # Paperclip desktop
 
-Electron shell that wraps the existing `@mattparrytfc/server` + `@mattparrytfc/ui` so
+Electron shell that wraps the existing `@orqestra/server` + `@orqestra/ui` so
 Paperclip can be distributed as a native desktop app (.dmg / .exe / AppImage) with
 no manual Postgres setup. The server's built-in `embedded-postgres` fallback handles
 the database — users get a working install from a single binary.
@@ -59,7 +59,7 @@ The `prepackage` script builds shared → db → server → ui, copies `ui/dist`
 enough:
 
 ```bash
-pnpm --filter @mattparrytfc/desktop package
+pnpm --filter @orqestra/desktop package
 ```
 
 Output lands in `desktop/release/`. On first boot the app creates its
@@ -71,7 +71,7 @@ migrations (`PAPERCLIP_MIGRATION_AUTO_APPLY=true` is set by the shell).
 The Electron main process locates the compiled server entrypoint at runtime —
 first under `process.resourcesPath/server/dist/index.js` (where electron-builder
 drops it via `extraResources`), then the sibling `../server/dist/index.js` in
-the monorepo for unpackaged runs. It does NOT import `@mattparrytfc/server` as
+the monorepo for unpackaged runs. It does NOT import `@orqestra/server` as
 a module — the workspace `exports` map points at raw TypeScript, which Node
 can't execute. If you switch the server package to a dual-export layout later,
 you can simplify this back to a normal `import`.

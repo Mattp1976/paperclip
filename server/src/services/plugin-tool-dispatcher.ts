@@ -22,12 +22,12 @@
  * @see PLUGIN_SPEC.md §13.10 — `executeTool`
  */
 
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import type {
   PaperclipPluginManifestV1,
   PluginRecord,
-} from "@mattparrytfc/shared";
-import type { ToolRunContext, ToolResult } from "@mattparrytfc/plugin-sdk";
+} from "@orqestra/shared";
+import type { ToolRunContext, ToolResult } from "@orqestra/plugin-sdk";
 import type { PluginWorkerManager } from "./plugin-worker-manager.js";
 import type { PluginLifecycleManager } from "./plugin-lifecycle.js";
 import {

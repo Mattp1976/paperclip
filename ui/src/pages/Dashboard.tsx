@@ -71,7 +71,7 @@ import { TeamActivityCard } from "../components/dashboard/TeamActivityCard";
 import { KillSwitch } from "../components/dashboard/KillSwitch";
 import { WelcomeZeroState } from "../components/dashboard/WelcomeZeroState";
 import { ActiveGoalsCard } from "../components/dashboard/ActiveGoalsCard";
-import type { Agent, HeartbeatRun, Issue } from "@mattparrytfc/shared";
+import type { Agent, HeartbeatRun, Issue } from "@orqestra/shared";
 import { PluginSlotOutlet } from "@/plugins/slots";
 import { Button } from "@/components/ui/button";
 

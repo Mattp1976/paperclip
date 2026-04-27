@@ -1,4 +1,4 @@
-import type { AgentQuestionForUser } from "@mattparrytfc/shared";
+import type { AgentQuestionForUser } from "@orqestra/shared";
 import { api } from "./client";
 
 export const agentQuestionsApi = {

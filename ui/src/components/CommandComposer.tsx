@@ -25,7 +25,7 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
-import type { Agent, Issue, Project } from "@mattparrytfc/shared";
+import type { Agent, Issue, Project } from "@orqestra/shared";
 
 /* ── Types ─────────────────────────────────────────────────────── */
 

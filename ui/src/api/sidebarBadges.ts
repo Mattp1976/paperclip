@@ -1,4 +1,4 @@
-import type { SidebarBadges } from "@mattparrytfc/shared";
+import type { SidebarBadges } from "@orqestra/shared";
 import { api } from "./client";
 
 export const sidebarBadgesApi = {

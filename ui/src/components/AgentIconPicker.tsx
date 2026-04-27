@@ -43,7 +43,7 @@ import {
   Fingerprint,
   type LucideIcon,
 } from "lucide-react";
-import { AGENT_ICON_NAMES, type AgentIconName } from "@mattparrytfc/shared";
+import { AGENT_ICON_NAMES, type AgentIconName } from "@orqestra/shared";
 import {
   Popover,
   PopoverContent,

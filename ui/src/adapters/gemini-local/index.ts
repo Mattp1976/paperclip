@@ -1,7 +1,7 @@
 import type { UIAdapterModule } from "../types";
-import { parseGeminiStdoutLine } from "@mattparrytfc/adapter-gemini-local/ui";
+import { parseGeminiStdoutLine } from "@orqestra/adapter-gemini-local/ui";
 import { GeminiLocalConfigFields } from "./config-fields";
-import { buildGeminiLocalConfig } from "@mattparrytfc/adapter-gemini-local/ui";
+import { buildGeminiLocalConfig } from "@orqestra/adapter-gemini-local/ui";
 
 export const geminiLocalUIAdapter: UIAdapterModule = {
   type: "gemini_local",

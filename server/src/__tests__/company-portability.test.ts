@@ -1,6 +1,6 @@
 import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { CompanyPortabilityFileEntry } from "@mattparrytfc/shared";
+import type { CompanyPortabilityFileEntry } from "@orqestra/shared";
 
 const companySvc = {
   getById: vi.fn(),

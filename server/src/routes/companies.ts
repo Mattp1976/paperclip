@@ -1,5 +1,5 @@
 import { Router, type Request } from "express";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   companyPortabilityExportSchema,
   companyPortabilityImportSchema,
@@ -7,7 +7,7 @@ import {
   createCompanySchema,
   updateCompanyBrandingSchema,
   updateCompanySchema,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { forbidden } from "../errors.js";
 import { validate } from "../middleware/validate.js";
 import {

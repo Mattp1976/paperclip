@@ -9,7 +9,7 @@ import type {
   Outcome,
   OutcomeListItem,
   OutcomeDetail,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { api } from "./client";
 
 export interface GeneratePlanResult {

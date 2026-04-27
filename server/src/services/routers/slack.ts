@@ -12,8 +12,8 @@
  * it. A richer Slack provider (bot token, chat.postMessage, permalinks)
  * is a follow-up.
  */
-import type { OutputRouter, OutputRouterDeliveryResult } from "@mattparrytfc/shared";
-import type { SlackWebhookRouterConfig } from "@mattparrytfc/shared";
+import type { OutputRouter, OutputRouterDeliveryResult } from "@orqestra/shared";
+import type { SlackWebhookRouterConfig } from "@orqestra/shared";
 import type { RunDispatchContext } from "../output-routers.js";
 
 export interface SenderArgs {

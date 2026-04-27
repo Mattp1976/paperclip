@@ -25,14 +25,14 @@
  * brick the heartbeat.
  */
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   issues,
   orchestraPlanSteps,
   orchestraPlans,
   outcomes as outcomesTable,
-} from "@mattparrytfc/db";
-import type { OrchestraPlanStepStatus } from "@mattparrytfc/shared";
+} from "@orqestra/db";
+import type { OrchestraPlanStepStatus } from "@orqestra/shared";
 import { issueService } from "./issues.js";
 import { orchestraService } from "./orchestra.js";
 import {

@@ -1,4 +1,4 @@
-import type { CompanySecret, SecretProviderDescriptor, SecretProvider } from "@mattparrytfc/shared";
+import type { CompanySecret, SecretProviderDescriptor, SecretProvider } from "@orqestra/shared";
 import { api } from "./client";
 
 export const secretsApi = {

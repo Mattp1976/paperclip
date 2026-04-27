@@ -10,9 +10,9 @@
  * grow this module as needs are identified than pre-empt behaviour.
  */
 import { and, desc, eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { agentPeerNotes, issues } from "@mattparrytfc/db";
-import type { AgentPeerNoteKind } from "@mattparrytfc/shared";
+import type { Db } from "@orqestra/db";
+import { agentPeerNotes, issues } from "@orqestra/db";
+import type { AgentPeerNoteKind } from "@orqestra/shared";
 import { notFound } from "../errors.js";
 
 const MAX_PEER_NOTE_PAGE_LIMIT = 500;

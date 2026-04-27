@@ -1,8 +1,8 @@
 import { and, desc, eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { companySecrets, companySecretVersions } from "@mattparrytfc/db";
-import type { AgentEnvConfig, EnvBinding, SecretProvider } from "@mattparrytfc/shared";
-import { envBindingSchema } from "@mattparrytfc/shared";
+import type { Db } from "@orqestra/db";
+import { companySecrets, companySecretVersions } from "@orqestra/db";
+import type { AgentEnvConfig, EnvBinding, SecretProvider } from "@orqestra/shared";
+import { envBindingSchema } from "@orqestra/shared";
 import { conflict, notFound, unprocessable } from "../errors.js";
 import { getSecretProvider, listSecretProviders } from "../secrets/provider-registry.js";
 

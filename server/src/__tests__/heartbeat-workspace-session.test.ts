@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { agents } from "@mattparrytfc/db";
+import type { agents } from "@orqestra/db";
 import { resolveDefaultAgentWorkspaceDir } from "../home-paths.js";
 import {
   formatRuntimeWorkspaceWarningLog,

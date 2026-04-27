@@ -7,7 +7,7 @@ import type {
   RoutineRunSummary,
   RoutineTrigger,
   RoutineTriggerSecretMaterial,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { activityApi } from "./activity";
 import { api } from "./client";
 

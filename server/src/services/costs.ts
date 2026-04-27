@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, isNotNull, lt, lte, sql } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { activityLog, agents, companies, costEvents, issues, projects } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { activityLog, agents, companies, costEvents, issues, projects } from "@orqestra/db";
 import { notFound, unprocessable } from "../errors.js";
 import { budgetService, type BudgetServiceHooks } from "./budgets.js";
 

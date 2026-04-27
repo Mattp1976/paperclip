@@ -5,8 +5,8 @@
  * information as the issues list and doesn't need a stronger guard.
  */
 import { Router } from "express";
-import type { Db } from "@mattparrytfc/db";
-import { renderStandupDigestMarkdown } from "@mattparrytfc/shared";
+import type { Db } from "@orqestra/db";
+import { renderStandupDigestMarkdown } from "@orqestra/shared";
 import { standupService } from "../services/standup.js";
 import { companyService } from "../services/companies.js";
 import { assertCompanyAccess } from "./authz.js";

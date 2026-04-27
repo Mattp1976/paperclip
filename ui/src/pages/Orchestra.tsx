@@ -28,8 +28,8 @@ import type {
   OutcomeTargetFormat,
   OutcomeExecutionMode,
   OrchestraTemplate,
-} from "@mattparrytfc/shared";
-import { ORCHESTRA_TEMPLATES } from "@mattparrytfc/shared";
+} from "@orqestra/shared";
+import { ORCHESTRA_TEMPLATES } from "@orqestra/shared";
 import { orchestraApi } from "../api/orchestra";
 import { useCompany } from "../context/CompanyContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";

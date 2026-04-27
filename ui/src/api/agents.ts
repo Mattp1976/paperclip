@@ -11,8 +11,8 @@ import type {
   HeartbeatRun,
   Approval,
   AgentConfigRevision,
-} from "@mattparrytfc/shared";
-import { isUuidLike, normalizeAgentUrlKey } from "@mattparrytfc/shared";
+} from "@orqestra/shared";
+import { isUuidLike, normalizeAgentUrlKey } from "@orqestra/shared";
 import { ApiError, api } from "./client";
 
 export interface AgentKey {

@@ -19,7 +19,7 @@ import { PageTabBar } from "../components/PageTabBar";
 import { Tabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Bot, Plus, List, GitBranch, SlidersHorizontal } from "lucide-react";
-import { AGENT_ROLE_LABELS, type Agent } from "@mattparrytfc/shared";
+import { AGENT_ROLE_LABELS, type Agent } from "@orqestra/shared";
 
 const adapterLabels: Record<string, string> = {
   claude_local: "Claude",

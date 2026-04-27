@@ -20,7 +20,7 @@ import {
   ChevronRight,
   Info,
 } from "lucide-react";
-import type { Agent, BudgetPolicySummary } from "@mattparrytfc/shared";
+import type { Agent, BudgetPolicySummary } from "@orqestra/shared";
 import { agentsApi } from "../api/agents";
 import { queryKeys } from "../lib/queryKeys";
 

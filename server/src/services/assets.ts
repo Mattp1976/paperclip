@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { assets } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { assets } from "@orqestra/db";
 
 export function assetService(db: Db) {
   return {

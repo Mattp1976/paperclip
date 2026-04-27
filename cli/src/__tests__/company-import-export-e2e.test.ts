@@ -69,7 +69,7 @@ async function startTempDatabase() {
   await instance.initialise();
   await instance.start();
 
-  const { applyPendingMigrations, ensurePostgresDatabase } = await import("@mattparrytfc/db");
+  const { applyPendingMigrations, ensurePostgresDatabase } = await import("@orqestra/db");
   const adminConnectionString = `postgres://paperclip:paperclip@127.0.0.1:${port}/postgres`;
   await ensurePostgresDatabase(adminConnectionString, "paperclip");
   const connectionString = `postgres://paperclip:paperclip@127.0.0.1:${port}/paperclip`;

@@ -14,7 +14,7 @@ import { SoftCard } from "../components/SoftCard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, ChevronRight, Sparkles } from "lucide-react";
-import type { ApprovalComment } from "@mattparrytfc/shared";
+import type { ApprovalComment } from "@orqestra/shared";
 import { MarkdownBody } from "../components/MarkdownBody";
 import { issueUrl } from "../lib/utils";
 

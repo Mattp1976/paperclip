@@ -3,7 +3,7 @@ import type {
   HeartbeatRunEvent,
   InstanceSchedulerHeartbeatAgent,
   WorkspaceOperation,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { api } from "./client";
 
 export interface ActiveRunForIssue extends HeartbeatRun {

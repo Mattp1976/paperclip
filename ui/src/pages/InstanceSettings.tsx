@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock3, ExternalLink } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
-import type { InstanceSchedulerHeartbeatAgent } from "@mattparrytfc/shared";
+import type { InstanceSchedulerHeartbeatAgent } from "@orqestra/shared";
 import { Link } from "@/lib/router";
 import { heartbeatsApi } from "../api/heartbeats";
 import { agentsApi } from "../api/agents";

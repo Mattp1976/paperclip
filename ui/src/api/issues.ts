@@ -10,7 +10,7 @@ import type {
   IssueLabel,
   IssueWorkProduct,
   UpsertIssueDocument,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { api } from "./client";
 
 export const issuesApi = {

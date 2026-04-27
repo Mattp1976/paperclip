@@ -1,4 +1,4 @@
-# @mattparrytfc/adapter-utils
+# @orqestra/adapter-utils
 
 ## 0.3.1
 

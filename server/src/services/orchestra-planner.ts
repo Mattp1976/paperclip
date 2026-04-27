@@ -21,8 +21,8 @@
  * The full agent-router (rankAgentsForTask-style) ships separately.
  */
 import { and, eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { agents, outcomes } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { agents, outcomes } from "@orqestra/db";
 import {
   buildPlannerPrompt,
   buildPlannerRepairPrompt,
@@ -31,7 +31,7 @@ import {
   type OutcomeStatus,
   type OrchestraPlanStepType,
   type OrchestraStepAcceptanceCriterion,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { unprocessable, notFound } from "../errors.js";
 import { orchestraService } from "./orchestra.js";
 import {

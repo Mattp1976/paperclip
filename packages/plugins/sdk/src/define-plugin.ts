@@ -11,7 +11,7 @@
  * @example
  * ```ts
  * // dist/worker.ts
- * import { definePlugin } from "@mattparrytfc/plugin-sdk";
+ * import { definePlugin } from "@orqestra/plugin-sdk";
  *
  * export default definePlugin({
  *   async setup(ctx) {
@@ -232,7 +232,7 @@ export interface PaperclipPlugin {
  *
  * @example
  * ```ts
- * import { definePlugin } from "@mattparrytfc/plugin-sdk";
+ * import { definePlugin } from "@orqestra/plugin-sdk";
  *
  * export default definePlugin({
  *   async setup(ctx) {

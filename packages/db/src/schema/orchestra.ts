@@ -11,7 +11,7 @@
  * Existing Issue / IssueWorkProduct / HeartbeatRun / CostEvent rows do
  * the heavy lifting at execution time — orchestra layers on top.
  *
- * Status enums use text + the matching constants from @mattparrytfc/shared
+ * Status enums use text + the matching constants from @orqestra/shared
  * are surfaced in zod validators rather than DB-level CHECKs, to keep
  * migrations cheap when we add a status. Indexes follow the pattern
  * (company_id), (outcome_id), (status), (created_at).

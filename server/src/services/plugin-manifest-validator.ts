@@ -9,9 +9,9 @@
  * @see PLUGIN_SPEC.md §10 — Plugin Manifest
  * @see packages/shared/src/validators/plugin.ts — Zod schema definition
  */
-import { pluginManifestV1Schema } from "@mattparrytfc/shared";
-import type { PaperclipPluginManifestV1 } from "@mattparrytfc/shared";
-import { PLUGIN_API_VERSION } from "@mattparrytfc/shared";
+import { pluginManifestV1Schema } from "@orqestra/shared";
+import type { PaperclipPluginManifestV1 } from "@orqestra/shared";
+import { PLUGIN_API_VERSION } from "@orqestra/shared";
 import { badRequest } from "../errors.js";
 
 // ---------------------------------------------------------------------------

@@ -16,7 +16,7 @@ import { Link } from "@/lib/router";
 import { costsApi } from "../../api/costs";
 import { queryKeys } from "../../lib/queryKeys";
 import { agentUrl, cn, friendlyCost } from "../../lib/utils";
-import type { AgentOutcome } from "@mattparrytfc/shared";
+import type { AgentOutcome } from "@orqestra/shared";
 
 interface AgentOutcomesTableProps {
   companyId: string;

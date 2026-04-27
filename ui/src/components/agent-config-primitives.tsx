@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { HelpCircle, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "../lib/utils";
-import { AGENT_ROLE_LABELS } from "@mattparrytfc/shared";
+import { AGENT_ROLE_LABELS } from "@orqestra/shared";
 
 /* ---- Help text for (?) tooltips ---- */
 export const help: Record<string, string> = {

@@ -17,7 +17,7 @@ import {
   Lightbulb,
   Activity,
 } from "lucide-react";
-import type { HeartbeatRun } from "@mattparrytfc/shared";
+import type { HeartbeatRun } from "@orqestra/shared";
 
 /* ── helpers ──────────────────────────────────────────────────── */
 

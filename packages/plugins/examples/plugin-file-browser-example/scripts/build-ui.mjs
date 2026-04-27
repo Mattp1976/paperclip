@@ -18,7 +18,7 @@ await esbuild.build({
     "react",
     "react-dom",
     "react/jsx-runtime",
-    "@mattparrytfc/plugin-sdk/ui",
+    "@orqestra/plugin-sdk/ui",
   ],
   logLevel: "info",
 });

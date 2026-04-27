@@ -26,7 +26,7 @@ import { EmptyState } from "../components/EmptyState";
 import { PageHeader } from "../components/PageHeader";
 import { cn, friendlyCost, visibleRunCostUsd } from "../lib/utils";
 import { Sparkles, Search, Filter, Zap, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
-import type { HeartbeatRun, Agent } from "@mattparrytfc/shared";
+import type { HeartbeatRun, Agent } from "@orqestra/shared";
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 

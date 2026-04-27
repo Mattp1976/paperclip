@@ -2,7 +2,7 @@ import type {
   AdapterEnvironmentCheck,
   AdapterEnvironmentTestContext,
   AdapterEnvironmentTestResult,
-} from "@mattparrytfc/adapter-utils";
+} from "@orqestra/adapter-utils";
 import {
   asString,
   asBoolean,
@@ -12,7 +12,7 @@ import {
   ensureCommandResolvable,
   ensurePathInEnv,
   runChildProcess,
-} from "@mattparrytfc/adapter-utils/server-utils";
+} from "@orqestra/adapter-utils/server-utils";
 import path from "node:path";
 import { parseCodexJsonl } from "./parse.js";
 

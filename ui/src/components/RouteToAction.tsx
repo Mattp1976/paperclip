@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Agent, Issue } from "@mattparrytfc/shared";
-import { AGENT_ROLE_LABELS } from "@mattparrytfc/shared";
+import type { Agent, Issue } from "@orqestra/shared";
+import { AGENT_ROLE_LABELS } from "@orqestra/shared";
 import { ArrowRightToLine } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { issuesApi } from "../api/issues";

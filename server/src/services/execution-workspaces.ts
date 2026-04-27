@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { executionWorkspaces } from "@mattparrytfc/db";
-import type { ExecutionWorkspace } from "@mattparrytfc/shared";
+import type { Db } from "@orqestra/db";
+import { executionWorkspaces } from "@orqestra/db";
+import type { ExecutionWorkspace } from "@orqestra/shared";
 
 type ExecutionWorkspaceRow = typeof executionWorkspaces.$inferSelect;
 

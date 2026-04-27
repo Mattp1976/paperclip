@@ -1,5 +1,5 @@
 {
-  "name": "@mattparrytfc/adapter-pi-local",
+  "name": "@orqestra/adapter-pi-local",
   "version": "0.3.1",
   "license": "MIT",
   "homepage": "https://github.com/paperclipai/paperclip",
@@ -50,7 +50,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mattparrytfc/adapter-utils": "workspace:*",
+    "@orqestra/adapter-utils": "workspace:*",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {

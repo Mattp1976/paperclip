@@ -1,4 +1,4 @@
-import { asNumber, asString, parseJson, parseObject } from "@mattparrytfc/adapter-utils/server-utils";
+import { asNumber, asString, parseJson, parseObject } from "@orqestra/adapter-utils/server-utils";
 
 function collectMessageText(message: unknown): string[] {
   if (typeof message === "string") {

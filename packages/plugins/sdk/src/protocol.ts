@@ -29,8 +29,8 @@ import type {
   IssueDocumentSummary,
   Agent,
   Goal,
-} from "@mattparrytfc/shared";
-export type { PluginLauncherRenderContextSnapshot } from "@mattparrytfc/shared";
+} from "@orqestra/shared";
+export type { PluginLauncherRenderContextSnapshot } from "@orqestra/shared";
 
 import type {
   PluginEvent,

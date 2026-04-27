@@ -1,4 +1,4 @@
-import { definePlugin, runWorker } from "@mattparrytfc/plugin-sdk";
+import { definePlugin, runWorker } from "@orqestra/plugin-sdk";
 import * as fs from "node:fs";
 import * as path from "node:path";
 

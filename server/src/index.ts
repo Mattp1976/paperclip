@@ -20,7 +20,7 @@ import {
   companies,
   companyMemberships,
   instanceUserRoles,
-} from "@mattparrytfc/db";
+} from "@orqestra/db";
 import detectPort from "detect-port";
 import { createApp } from "./app.js";
 import { loadConfig } from "./config.js";

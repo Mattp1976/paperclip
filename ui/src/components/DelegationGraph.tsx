@@ -1,5 +1,5 @@
 import { Link } from "@/lib/router";
-import type { Agent } from "@mattparrytfc/shared";
+import type { Agent } from "@orqestra/shared";
 import { AgentIcon } from "./AgentIconPicker";
 import { cn } from "../lib/utils";
 

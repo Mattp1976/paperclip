@@ -39,7 +39,7 @@ const workspacePaths = [
 // Workspace packages that are NOT bundled and must stay as npm dependencies.
 // These get published separately and resolved at runtime.
 const externalWorkspacePackages = new Set([
-  "@mattparrytfc/server",
+  "@orqestra/server",
 ]);
 
 // Collect all external dependencies from all workspace packages
@@ -52,10 +52,10 @@ for (const pkgPath of workspacePaths) {
   const optDeps = pkg.optionalDependencies || {};
 
   for (const [name, version] of Object.entries(deps)) {
-    if (name.startsWith("@mattparrytfc/") && !externalWorkspacePackages.has(name)) continue;
+    if (name.startsWith("@orqestra/") && !externalWorkspacePackages.has(name)) continue;
     // For external workspace packages, read their version directly
     if (externalWorkspacePackages.has(name)) {
-      const pkgDirMap = { "@mattparrytfc/server": "server" };
+      const pkgDirMap = { "@orqestra/server": "server" };
       const wsPkg = readPkg(pkgDirMap[name]);
       allDeps[name] = wsPkg.version;
       continue;

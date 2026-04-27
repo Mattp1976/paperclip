@@ -3,7 +3,7 @@ import type { Dirent } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { AdapterExecutionContext, AdapterExecutionResult } from "@mattparrytfc/adapter-utils";
+import type { AdapterExecutionContext, AdapterExecutionResult } from "@orqestra/adapter-utils";
 import {
   asBoolean,
   asNumber,
@@ -22,7 +22,7 @@ import {
   redactEnvForLogs,
   renderTemplate,
   runChildProcess,
-} from "@mattparrytfc/adapter-utils/server-utils";
+} from "@orqestra/adapter-utils/server-utils";
 import { DEFAULT_GEMINI_LOCAL_MODEL } from "../index.js";
 import {
   describeGeminiFailure,

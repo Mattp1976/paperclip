@@ -19,7 +19,7 @@
  *   to someone.
  */
 import { and, desc, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   agentPeerNotes,
   agents,
@@ -27,14 +27,14 @@ import {
   costEvents,
   heartbeatRuns,
   issues,
-} from "@mattparrytfc/db";
+} from "@orqestra/db";
 import type {
   AgentStandupEntry,
   StandupBlocker,
   StandupDigest,
   StandupIssueRef,
   StandupSnapshot,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 
 const DEFAULT_WINDOW_MS = 24 * 60 * 60 * 1000;
 const TODAY_ISSUE_STATUSES = ["in_progress", "in_review", "todo"] as const;

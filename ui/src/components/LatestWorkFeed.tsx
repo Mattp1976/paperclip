@@ -24,7 +24,7 @@ import {
   groupRunsByTask,
 } from "./ResultCard";
 import { Sparkles, X } from "lucide-react";
-import type { HeartbeatRun, Agent } from "@mattparrytfc/shared";
+import type { HeartbeatRun, Agent } from "@orqestra/shared";
 
 const FIRST_RESULT_TOOLTIP_KEY = "paperclip:onboarding:first-result-seen";
 

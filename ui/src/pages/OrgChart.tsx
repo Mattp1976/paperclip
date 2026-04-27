@@ -12,7 +12,7 @@ import { PageHeader } from "../components/PageHeader";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { AgentIcon } from "../components/AgentIconPicker";
 import { Download, Network, Upload } from "lucide-react";
-import { AGENT_ROLE_LABELS, type Agent } from "@mattparrytfc/shared";
+import { AGENT_ROLE_LABELS, type Agent } from "@orqestra/shared";
 
 // Layout constants
 const CARD_W = 200;

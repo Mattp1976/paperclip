@@ -22,8 +22,8 @@
 import type {
   PaperclipPluginManifestV1,
   PluginToolDeclaration,
-} from "@mattparrytfc/shared";
-import type { ToolRunContext, ToolResult, ExecuteToolParams } from "@mattparrytfc/plugin-sdk";
+} from "@orqestra/shared";
+import type { ToolRunContext, ToolResult, ExecuteToolParams } from "@orqestra/plugin-sdk";
 import type { PluginWorkerManager } from "./plugin-worker-manager.js";
 import { logger } from "../middleware/logger.js";
 

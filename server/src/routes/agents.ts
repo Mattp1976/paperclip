@@ -3,8 +3,8 @@ import { generateKeyPairSync, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveDefaultAgentWorkspaceDir } from "../home-paths.js";
-import type { Db } from "@mattparrytfc/db";
-import { agents as agentsTable, companies, heartbeatRuns } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { agents as agentsTable, companies, heartbeatRuns } from "@orqestra/db";
 import { and, desc, eq, inArray, not, sql } from "drizzle-orm";
 import {
   agentSkillSyncSchema,
@@ -23,11 +23,11 @@ import {
   updateAgentInstructionsPathSchema,
   wakeAgentSchema,
   updateAgentSchema,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import {
   readPaperclipSkillSyncPreference,
   writePaperclipSkillSyncPreference,
-} from "@mattparrytfc/adapter-utils/server-utils";
+} from "@orqestra/adapter-utils/server-utils";
 import { validate } from "../middleware/validate.js";
 import {
   agentService,
@@ -51,14 +51,14 @@ import { redactEventPayload } from "../redaction.js";
 import { redactCurrentUserValue } from "../log-redaction.js";
 import { renderOrgChartSvg, renderOrgChartPng, type OrgNode, type OrgChartStyle, ORG_CHART_STYLES } from "./org-chart-svg.js";
 import { instanceSettingsService } from "../services/instance-settings.js";
-import { runClaudeLogin } from "@mattparrytfc/adapter-claude-local/server";
+import { runClaudeLogin } from "@orqestra/adapter-claude-local/server";
 import {
   DEFAULT_CODEX_LOCAL_BYPASS_APPROVALS_AND_SANDBOX,
   DEFAULT_CODEX_LOCAL_MODEL,
-} from "@mattparrytfc/adapter-codex-local";
-import { DEFAULT_CURSOR_LOCAL_MODEL } from "@mattparrytfc/adapter-cursor-local";
-import { DEFAULT_GEMINI_LOCAL_MODEL } from "@mattparrytfc/adapter-gemini-local";
-import { ensureOpenCodeModelConfiguredAndAvailable } from "@mattparrytfc/adapter-opencode-local/server";
+} from "@orqestra/adapter-codex-local";
+import { DEFAULT_CURSOR_LOCAL_MODEL } from "@orqestra/adapter-cursor-local";
+import { DEFAULT_GEMINI_LOCAL_MODEL } from "@orqestra/adapter-gemini-local";
+import { ensureOpenCodeModelConfiguredAndAvailable } from "@orqestra/adapter-opencode-local/server";
 import {
   loadDefaultAgentInstructionsBundle,
   resolveDefaultAgentInstructionsBundleRole,

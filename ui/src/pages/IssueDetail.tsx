@@ -57,9 +57,9 @@ import {
   SlidersHorizontal,
   Trash2,
 } from "lucide-react";
-import type { ActivityEvent } from "@mattparrytfc/shared";
-import type { Agent, IssueAttachment } from "@mattparrytfc/shared";
-import { deriveIssueUrlKey } from "@mattparrytfc/shared";
+import type { ActivityEvent } from "@orqestra/shared";
+import type { Agent, IssueAttachment } from "@orqestra/shared";
+import { deriveIssueUrlKey } from "@orqestra/shared";
 
 type CommentReassignment = {
   assigneeAgentId: string | null;

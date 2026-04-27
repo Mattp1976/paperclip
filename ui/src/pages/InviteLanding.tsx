@@ -6,8 +6,8 @@ import { authApi } from "../api/auth";
 import { healthApi } from "../api/health";
 import { queryKeys } from "../lib/queryKeys";
 import { Button } from "@/components/ui/button";
-import { AGENT_ADAPTER_TYPES } from "@mattparrytfc/shared";
-import type { AgentAdapterType, JoinRequest } from "@mattparrytfc/shared";
+import { AGENT_ADAPTER_TYPES } from "@orqestra/shared";
+import type { AgentAdapterType, JoinRequest } from "@orqestra/shared";
 
 type JoinType = "human" | "agent";
 const joinAdapterOptions: AgentAdapterType[] = [...AGENT_ADAPTER_TYPES];

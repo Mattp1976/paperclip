@@ -1,6 +1,6 @@
 import { Router, type Request } from "express";
-import type { Db } from "@mattparrytfc/db";
-import { patchInstanceExperimentalSettingsSchema, patchInstanceGeneralSettingsSchema } from "@mattparrytfc/shared";
+import type { Db } from "@orqestra/db";
+import { patchInstanceExperimentalSettingsSchema, patchInstanceGeneralSettingsSchema } from "@orqestra/shared";
 import { forbidden } from "../errors.js";
 import { validate } from "../middleware/validate.js";
 import { instanceSettingsService, logActivity } from "../services/index.js";

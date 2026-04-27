@@ -1,7 +1,7 @@
 import type { UIAdapterModule } from "../types";
-import { parseCursorStdoutLine } from "@mattparrytfc/adapter-cursor-local/ui";
+import { parseCursorStdoutLine } from "@orqestra/adapter-cursor-local/ui";
 import { CursorLocalConfigFields } from "./config-fields";
-import { buildCursorLocalConfig } from "@mattparrytfc/adapter-cursor-local/ui";
+import { buildCursorLocalConfig } from "@orqestra/adapter-cursor-local/ui";
 
 export const cursorLocalUIAdapter: UIAdapterModule = {
   type: "cursor",

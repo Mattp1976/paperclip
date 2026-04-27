@@ -1,4 +1,4 @@
-import type { ExecutionWorkspace } from "@mattparrytfc/shared";
+import type { ExecutionWorkspace } from "@orqestra/shared";
 import { api } from "./client";
 
 export const executionWorkspacesApi = {

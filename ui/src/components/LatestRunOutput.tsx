@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 import { cn, formatTokens, visibleRunCostUsd, relativeTime } from "../lib/utils";
 import { MarkdownBody } from "./MarkdownBody";
 import { StatusBadge } from "./StatusBadge";
-import type { HeartbeatRun } from "@mattparrytfc/shared";
+import type { HeartbeatRun } from "@orqestra/shared";
 import {
   CheckCircle2,
   XCircle,

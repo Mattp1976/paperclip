@@ -2,8 +2,8 @@ import type {
   AdapterEnvironmentCheck,
   AdapterEnvironmentTestContext,
   AdapterEnvironmentTestResult,
-} from "@mattparrytfc/adapter-utils";
-import { asString, parseObject } from "@mattparrytfc/adapter-utils/server-utils";
+} from "@orqestra/adapter-utils";
+import { asString, parseObject } from "@orqestra/adapter-utils/server-utils";
 import { randomUUID } from "node:crypto";
 import { WebSocket } from "ws";
 

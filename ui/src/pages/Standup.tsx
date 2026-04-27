@@ -29,7 +29,7 @@ import type {
   AgentStandupEntry,
   StandupBlocker,
   StandupIssueRef,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { standupApi } from "../api/standup";
 import { useCompany } from "../context/CompanyContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";

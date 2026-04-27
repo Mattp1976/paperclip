@@ -1,4 +1,4 @@
-import type { Agent } from "@mattparrytfc/shared";
+import type { Agent } from "@orqestra/shared";
 
 /**
  * Rank agents by how well they fit a task.

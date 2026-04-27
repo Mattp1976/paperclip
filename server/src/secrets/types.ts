@@ -1,4 +1,4 @@
-import type { SecretProvider, SecretProviderDescriptor } from "@mattparrytfc/shared";
+import type { SecretProvider, SecretProviderDescriptor } from "@orqestra/shared";
 
 export interface StoredSecretVersionMaterial {
   [key: string]: unknown;

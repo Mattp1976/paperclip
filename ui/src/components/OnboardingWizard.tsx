@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { AdapterEnvironmentTestResult } from "@mattparrytfc/shared";
+import type { AdapterEnvironmentTestResult } from "@orqestra/shared";
 import { useLocation, useNavigate, useParams } from "@/lib/router";
 import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
@@ -28,9 +28,9 @@ import { parseOnboardingGoalInput } from "../lib/onboarding-goal";
 import {
   DEFAULT_CODEX_LOCAL_BYPASS_APPROVALS_AND_SANDBOX,
   DEFAULT_CODEX_LOCAL_MODEL
-} from "@mattparrytfc/adapter-codex-local";
-import { DEFAULT_CURSOR_LOCAL_MODEL } from "@mattparrytfc/adapter-cursor-local";
-import { DEFAULT_GEMINI_LOCAL_MODEL } from "@mattparrytfc/adapter-gemini-local";
+} from "@orqestra/adapter-codex-local";
+import { DEFAULT_CURSOR_LOCAL_MODEL } from "@orqestra/adapter-cursor-local";
+import { DEFAULT_GEMINI_LOCAL_MODEL } from "@orqestra/adapter-gemini-local";
 import { resolveRouteOnboardingOptions } from "../lib/onboarding-route";
 import { AsciiArtAnimation } from "./AsciiArtAnimation";
 import { OpenCodeLogoIcon } from "./OpenCodeLogoIcon";

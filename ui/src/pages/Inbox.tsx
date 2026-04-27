@@ -44,7 +44,7 @@ import {
 } from "lucide-react";
 import { AgentIcon } from "../components/AgentIconPicker";
 import { PageTabBar } from "../components/PageTabBar";
-import type { Agent, Approval, HeartbeatRun, Issue, JoinRequest } from "@mattparrytfc/shared";
+import type { Agent, Approval, HeartbeatRun, Issue, JoinRequest } from "@orqestra/shared";
 import {
   ACTIONABLE_APPROVAL_STATUSES,
   getApprovalsForTab,

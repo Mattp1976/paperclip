@@ -20,8 +20,8 @@
  * @see PLUGIN_SPEC.md §16.2 — Plugin-to-Plugin Events
  */
 
-import type { PluginEventType } from "@mattparrytfc/shared";
-import type { PluginEvent, EventFilter } from "@mattparrytfc/plugin-sdk";
+import type { PluginEventType } from "@orqestra/shared";
+import type { PluginEvent, EventFilter } from "@orqestra/plugin-sdk";
 
 // ---------------------------------------------------------------------------
 // Internal types

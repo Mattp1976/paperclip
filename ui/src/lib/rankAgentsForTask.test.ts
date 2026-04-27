@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Agent } from "@mattparrytfc/shared";
+import type { Agent } from "@orqestra/shared";
 import { rankAgentsForTask, tokenise } from "./rankAgentsForTask";
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {

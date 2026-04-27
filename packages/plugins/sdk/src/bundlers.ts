@@ -60,8 +60,8 @@ export interface PluginBundlerPresets {
  */
 export function createPluginBundlerPresets(input: PluginBundlerPresetInput = {}): PluginBundlerPresets {
   const uiExternal = [
-    "@mattparrytfc/plugin-sdk/ui",
-    "@mattparrytfc/plugin-sdk/ui/hooks",
+    "@orqestra/plugin-sdk/ui",
+    "@orqestra/plugin-sdk/ui/hooks",
     "react",
     "react-dom",
     "react/jsx-runtime",
@@ -129,7 +129,7 @@ export function createPluginBundlerPresets(input: PluginBundlerPresetInput = {})
       sourcemap,
       entryFileNames: "manifest.js",
     },
-    external: ["@mattparrytfc/plugin-sdk"],
+    external: ["@orqestra/plugin-sdk"],
   };
 
   const rollupUi = uiEntry

@@ -11,7 +11,7 @@ import {
   AlertTriangle,
   Calendar,
 } from "lucide-react";
-import type { HeartbeatRun } from "@mattparrytfc/shared";
+import type { HeartbeatRun } from "@orqestra/shared";
 
 /* ---- Types ---- */
 

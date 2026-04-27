@@ -20,12 +20,12 @@
  */
 import { Router } from "express";
 import { eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { outcomes } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { outcomes } from "@orqestra/db";
 import {
   createOutcomeSchema,
   approvePlanSchema,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { validate } from "../middleware/validate.js";
 import { orchestraService } from "../services/orchestra.js";
 import { orchestraPlannerService } from "../services/orchestra-planner.js";

@@ -13,5 +13,5 @@ export type {
   UsageSummary,
   AdapterAgent,
   AdapterRuntime,
-} from "@mattparrytfc/adapter-utils";
+} from "@orqestra/adapter-utils";
 export { runningProcesses } from "./utils.js";

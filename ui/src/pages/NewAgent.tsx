@@ -6,7 +6,7 @@ import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { agentsApi } from "../api/agents";
 import { companySkillsApi } from "../api/companySkills";
 import { queryKeys } from "../lib/queryKeys";
-import { AGENT_ROLES } from "@mattparrytfc/shared";
+import { AGENT_ROLES } from "@orqestra/shared";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -26,9 +26,9 @@ import { AdvancedSection } from "../components/AdvancedSection";
 import {
   DEFAULT_CODEX_LOCAL_BYPASS_APPROVALS_AND_SANDBOX,
   DEFAULT_CODEX_LOCAL_MODEL,
-} from "@mattparrytfc/adapter-codex-local";
-import { DEFAULT_CURSOR_LOCAL_MODEL } from "@mattparrytfc/adapter-cursor-local";
-import { DEFAULT_GEMINI_LOCAL_MODEL } from "@mattparrytfc/adapter-gemini-local";
+} from "@orqestra/adapter-codex-local";
+import { DEFAULT_CURSOR_LOCAL_MODEL } from "@orqestra/adapter-cursor-local";
+import { DEFAULT_GEMINI_LOCAL_MODEL } from "@orqestra/adapter-gemini-local";
 
 const SUPPORTED_ADVANCED_ADAPTER_TYPES = new Set<CreateConfigValues["adapterType"]>([
   "claude_local",

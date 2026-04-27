@@ -1,5 +1,5 @@
 {
-  "name": "@mattparrytfc/db",
+  "name": "@orqestra/db",
   "version": "0.3.1",
   "license": "MIT",
   "homepage": "https://github.com/paperclipai/paperclip",
@@ -43,7 +43,7 @@
     "seed": "tsx src/seed.ts"
   },
   "dependencies": {
-    "@mattparrytfc/shared": "workspace:*",
+    "@orqestra/shared": "workspace:*",
     "drizzle-orm": "^0.38.4",
     "embedded-postgres": "^18.1.0-beta.16",
     "postgres": "^3.4.5"

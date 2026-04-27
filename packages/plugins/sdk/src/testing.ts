@@ -9,7 +9,7 @@ import type {
   IssueComment,
   Agent,
   Goal,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import type {
   EventFilter,
   PluginContext,

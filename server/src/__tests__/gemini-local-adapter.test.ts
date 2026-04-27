@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { isGeminiUnknownSessionError, parseGeminiJsonl } from "@mattparrytfc/adapter-gemini-local/server";
-import { parseGeminiStdoutLine } from "@mattparrytfc/adapter-gemini-local/ui";
-import { printGeminiStreamEvent } from "@mattparrytfc/adapter-gemini-local/cli";
+import { isGeminiUnknownSessionError, parseGeminiJsonl } from "@orqestra/adapter-gemini-local/server";
+import { parseGeminiStdoutLine } from "@orqestra/adapter-gemini-local/ui";
+import { printGeminiStreamEvent } from "@orqestra/adapter-gemini-local/cli";
 
 describe("gemini_local parser", () => {
   it("extracts session, summary, usage, cost, and terminal error message", () => {

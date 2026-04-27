@@ -17,7 +17,7 @@
  * WHEN to invoke the assembler. This module just runs.
  */
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   agents,
   issueWorkProducts,
@@ -25,13 +25,13 @@ import {
   outcomeFinalAssemblies,
   orchestraPlans as orchestraPlansTable,
   outcomes as outcomesTable,
-} from "@mattparrytfc/db";
+} from "@orqestra/db";
 import {
   buildAssemblerPrompt,
   assemblerLLMResultSchema,
   type AssemblerLLMResultParsed,
   type OutcomeTargetFormat,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import {
   defaultAnthropicRunLLM,
   extractJsonBlob,

@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   agents,
   assets,
@@ -18,8 +18,8 @@ import {
   labels,
   projectWorkspaces,
   projects,
-} from "@mattparrytfc/db";
-import { extractIssueIdentifier, extractProjectMentionIds } from "@mattparrytfc/shared";
+} from "@orqestra/db";
+import { extractIssueIdentifier, extractProjectMentionIds } from "@orqestra/shared";
 import { conflict, notFound, unprocessable } from "../errors.js";
 import {
   defaultIssueExecutionWorkspaceSettingsForProject,

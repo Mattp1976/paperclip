@@ -12,7 +12,7 @@ import {
   XCircle,
   Activity,
 } from "lucide-react";
-import type { Agent, HeartbeatRun } from "@mattparrytfc/shared";
+import type { Agent, HeartbeatRun } from "@orqestra/shared";
 
 /* ---- Types ---- */
 

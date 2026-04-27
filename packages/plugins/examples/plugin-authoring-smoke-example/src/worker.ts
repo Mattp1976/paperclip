@@ -1,4 +1,4 @@
-import { definePlugin, runWorker } from "@mattparrytfc/plugin-sdk";
+import { definePlugin, runWorker } from "@orqestra/plugin-sdk";
 
 const plugin = definePlugin({
   async setup(ctx) {

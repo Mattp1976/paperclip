@@ -15,7 +15,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, ArrowRightLeft, Lightbulb, MessageCircle, Sparkles, CheckCircle2, Clock } from "lucide-react";
 import { useMemo } from "react";
-import type { AgentPeerNote, AgentPeerNoteKind, Agent } from "@mattparrytfc/shared";
+import type { AgentPeerNote, AgentPeerNoteKind, Agent } from "@orqestra/shared";
 import { issuesApi } from "../api/issues";
 import { queryKeys } from "../lib/queryKeys";
 import { cn, relativeTime } from "@/lib/utils";

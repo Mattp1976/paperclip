@@ -16,8 +16,8 @@
  */
 
 import { and, eq, lte, or } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
-import { pluginJobs, pluginJobRuns } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
+import { pluginJobs, pluginJobRuns } from "@orqestra/db";
 import type { PluginJobStore } from "./plugin-job-store.js";
 import type { PluginWorkerManager } from "./plugin-worker-manager.js";
 import type { RunRecoveryService } from "./run-recovery.js";

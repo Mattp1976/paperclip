@@ -1,4 +1,4 @@
-import type { FinanceByKind } from "@mattparrytfc/shared";
+import type { FinanceByKind } from "@orqestra/shared";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { financeEventKindDisplayName, formatCents } from "@/lib/utils";
 

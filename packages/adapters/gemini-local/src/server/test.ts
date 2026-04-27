@@ -3,7 +3,7 @@ import type {
   AdapterEnvironmentCheck,
   AdapterEnvironmentTestContext,
   AdapterEnvironmentTestResult,
-} from "@mattparrytfc/adapter-utils";
+} from "@orqestra/adapter-utils";
 import {
   asBoolean,
   asNumber,
@@ -14,7 +14,7 @@ import {
   ensurePathInEnv,
   parseObject,
   runChildProcess,
-} from "@mattparrytfc/adapter-utils/server-utils";
+} from "@orqestra/adapter-utils/server-utils";
 import { DEFAULT_GEMINI_LOCAL_MODEL } from "../index.js";
 import { detectGeminiAuthRequired, detectGeminiQuotaExhausted, parseGeminiJsonl } from "./parse.js";
 import { firstNonEmptyLine } from "./utils.js";

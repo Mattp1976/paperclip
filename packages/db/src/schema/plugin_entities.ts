@@ -8,7 +8,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { plugins } from "./plugins.js";
-import type { PluginStateScopeKind } from "@mattparrytfc/shared";
+import type { PluginStateScopeKind } from "@orqestra/shared";
 
 /**
  * `plugin_entities` table — persistent high-level mapping between Paperclip

@@ -3,7 +3,7 @@ import { promises as fs } from "node:fs";
 import { execFile } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import type {
   CompanyPortabilityAgentManifestEntry,
   CompanyPortabilityCollisionStrategy,
@@ -23,18 +23,18 @@ import type {
   CompanyPortabilityIssueManifestEntry,
   CompanyPortabilitySkillManifestEntry,
   CompanySkill,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import {
   ISSUE_PRIORITIES,
   ISSUE_STATUSES,
   PROJECT_STATUSES,
   deriveProjectUrlKey,
   normalizeAgentUrlKey,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import {
   readPaperclipSkillSyncPreference,
   writePaperclipSkillSyncPreference,
-} from "@mattparrytfc/adapter-utils/server-utils";
+} from "@orqestra/adapter-utils/server-utils";
 import { notFound, unprocessable } from "../errors.js";
 import type { StorageService } from "../storage/types.js";
 import { accessService } from "./access.js";

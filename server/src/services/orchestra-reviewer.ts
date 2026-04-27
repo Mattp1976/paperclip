@@ -20,20 +20,20 @@
  * waste an LLM call on undefined criteria).
  */
 import { and, desc, eq } from "drizzle-orm";
-import type { Db } from "@mattparrytfc/db";
+import type { Db } from "@orqestra/db";
 import {
   agents,
   issueWorkProducts,
   orchestraPlanSteps,
   orchestraReviews,
   outcomes as outcomesTable,
-} from "@mattparrytfc/db";
+} from "@orqestra/db";
 import {
   buildReviewerPrompt,
   reviewerLLMResultSchema,
   type ReviewerLLMResultParsed,
   type OrchestraStepAcceptanceCriterion,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import {
   defaultAnthropicRunLLM,
   extractJsonBlob,

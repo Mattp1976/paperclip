@@ -16,7 +16,7 @@ import {
   AlertCircle,
   CheckCircle2,
 } from "lucide-react";
-import type { IssueWorkProduct } from "@mattparrytfc/shared";
+import type { IssueWorkProduct } from "@orqestra/shared";
 
 /* ── Types & helpers ───────────────────────────────────────────── */
 

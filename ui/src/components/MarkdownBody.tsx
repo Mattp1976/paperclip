@@ -1,7 +1,7 @@
 import { isValidElement, useEffect, useId, useState, type CSSProperties, type ReactNode } from "react";
 import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { parseProjectMentionHref } from "@mattparrytfc/shared";
+import { parseProjectMentionHref } from "@orqestra/shared";
 import { cn } from "../lib/utils";
 import { useTheme } from "../context/ThemeContext";
 

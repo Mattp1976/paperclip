@@ -1,4 +1,4 @@
-import type { CompanyPortabilityFileEntry } from "@mattparrytfc/shared";
+import type { CompanyPortabilityFileEntry } from "@orqestra/shared";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();

@@ -6,7 +6,7 @@ import {
   resubmitApprovalSchema,
   type Approval,
   type ApprovalComment,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import {
   addCommonClientOptions,
   formatInlineRecord,

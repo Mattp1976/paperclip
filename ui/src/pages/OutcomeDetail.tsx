@@ -33,7 +33,7 @@ import type {
   OutcomeStatus,
   OrchestraPlanStep,
   OrchestraPlanStepStatus,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
 import { orchestraApi } from "../api/orchestra";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";

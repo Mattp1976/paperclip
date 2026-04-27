@@ -1,4 +1,4 @@
-import type { CreateConfigValues } from "@mattparrytfc/adapter-utils";
+import type { CreateConfigValues } from "@orqestra/adapter-utils";
 
 function parseCommaArgs(value: string): string[] {
   return value

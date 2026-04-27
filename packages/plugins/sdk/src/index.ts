@@ -1,13 +1,13 @@
 /**
- * `@mattparrytfc/plugin-sdk` — Paperclip plugin worker-side SDK.
+ * `@orqestra/plugin-sdk` — Paperclip plugin worker-side SDK.
  *
  * This is the main entrypoint for plugin worker code.  For plugin UI bundles,
- * import from `@mattparrytfc/plugin-sdk/ui` instead.
+ * import from `@orqestra/plugin-sdk/ui` instead.
  *
  * @example
  * ```ts
  * // Plugin worker entrypoint (dist/worker.ts)
- * import { definePlugin, runWorker, z } from "@mattparrytfc/plugin-sdk";
+ * import { definePlugin, runWorker, z } from "@orqestra/plugin-sdk";
  *
  * const plugin = definePlugin({
  *   async setup(ctx) {
@@ -206,9 +206,9 @@ export type {
   Goal,
 } from "./types.js";
 
-// Manifest and constant types re-exported from @mattparrytfc/shared
+// Manifest and constant types re-exported from @orqestra/shared
 // Plugin authors import manifest types from here so they have a single
-// dependency (@mattparrytfc/plugin-sdk) for all plugin authoring needs.
+// dependency (@orqestra/plugin-sdk) for all plugin authoring needs.
 export type {
   PaperclipPluginManifestV1,
   PluginJobDeclaration,
@@ -255,7 +255,7 @@ export type {
  *
  * @example
  * ```ts
- * import { z } from "@mattparrytfc/plugin-sdk";
+ * import { z } from "@orqestra/plugin-sdk";
  *
  * const configSchema = z.object({
  *   apiKey: z.string().describe("Your API key"),
@@ -283,4 +283,4 @@ export {
   PLUGIN_WEBHOOK_DELIVERY_STATUSES,
   PLUGIN_EVENT_TYPES,
   PLUGIN_BRIDGE_ERROR_CODES,
-} from "@mattparrytfc/shared";
+} from "@orqestra/shared";
