@@ -1,4 +1,10 @@
 /// <reference path="./types/express.d.ts" />
+// Run the env-compat shim FIRST so PAPERCLIP_* and ORQESTRA_* env vars
+// are mirrored both ways before any other module reads process.env.
+// See ./env-compat.ts for the rationale.
+import { applyOrqestraEnvCompat } from "./env-compat.js";
+const _orqestraEnvCompat = applyOrqestraEnvCompat();
+
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { createServer } from "node:http";
 import { resolve } from "node:path";

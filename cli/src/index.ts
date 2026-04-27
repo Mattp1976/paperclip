@@ -1,3 +1,21 @@
+// Run the env-compat shim FIRST so PAPERCLIP_* and ORQESTRA_* env vars
+// are mirrored both ways before anything else reads process.env.
+(function applyOrqestraEnvCompat() {
+  for (const key of Object.keys(process.env)) {
+    if (key.startsWith("ORQESTRA_")) {
+      const oldName = `PAPERCLIP_${key.slice("ORQESTRA_".length)}`;
+      if (process.env[oldName] === undefined && process.env[key] !== undefined) {
+        process.env[oldName] = process.env[key];
+      }
+    } else if (key.startsWith("PAPERCLIP_")) {
+      const newName = `ORQESTRA_${key.slice("PAPERCLIP_".length)}`;
+      if (process.env[newName] === undefined && process.env[key] !== undefined) {
+        process.env[newName] = process.env[key];
+      }
+    }
+  }
+})();
+
 import { Command } from "commander";
 import { onboard } from "./commands/onboard.js";
 import { doctor } from "./commands/doctor.js";

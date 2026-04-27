@@ -1,7 +1,10 @@
+import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
 const DEFAULT_INSTANCE_ID = "default";
+const ORQESTRA_DIR_NAME = ".orqestra";
+const LEGACY_PAPERCLIP_DIR_NAME = ".paperclip";
 const INSTANCE_ID_RE = /^[a-zA-Z0-9_-]+$/;
 const PATH_SEGMENT_RE = /^[a-zA-Z0-9_-]+$/;
 const FRIENDLY_PATH_SEGMENT_RE = /[^a-zA-Z0-9._-]+/g;
@@ -13,9 +16,25 @@ function expandHomePrefix(value: string): string {
 }
 
 export function resolvePaperclipHomeDir(): string {
+  // Env override takes precedence (PAPERCLIP_HOME or ORQESTRA_HOME — the
+  // env-compat shim mirrors them both ways at server startup).
   const envHome = process.env.PAPERCLIP_HOME?.trim();
   if (envHome) return path.resolve(expandHomePrefix(envHome));
-  return path.resolve(os.homedir(), ".paperclip");
+
+  // Default to ~/.orqestra. Fall back to ~/.paperclip if it exists and the
+  // new dir does not — keeps existing local installs working through the
+  // rebrand without forcing users to rename their data dir.
+  const home = os.homedir();
+  const orqestraPath = path.resolve(home, ORQESTRA_DIR_NAME);
+  const legacyPath = path.resolve(home, LEGACY_PAPERCLIP_DIR_NAME);
+  try {
+    const orqestraExists = fs.existsSync(orqestraPath);
+    if (orqestraExists) return orqestraPath;
+    if (fs.existsSync(legacyPath)) return legacyPath;
+  } catch {
+    // fs check threw — ignore and fall through to the default path
+  }
+  return orqestraPath;
 }
 
 export function resolvePaperclipInstanceId(): string {
