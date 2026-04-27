@@ -23,6 +23,10 @@ const BOARD_ROUTE_ROOTS = new Set([
   "plugins",
   "settings",
   "execution-workspaces",
+  "outcomes",
+  "orchestra",
+  "standup",
+  "help",
 ]);
 
 const GLOBAL_ROUTE_ROOTS = new Set(["auth", "invite", "board-claim", "cli-auth", "docs", "instance"]);
