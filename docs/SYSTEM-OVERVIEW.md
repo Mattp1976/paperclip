@@ -25,7 +25,7 @@ paperclip-build/
 │   └── adapter-utils/                             shared bits for adapters
 ├── server/              @orqestra/server      express API, services, heartbeat, plugin runtime
 ├── ui/                  @orqestra/ui          React + Vite SPA (46 pages)
-├── cli/                 @orqestra/paperclipai CLI entry point (`paperclipai`)
+├── cli/                 @orqestra/cli         CLI entry point (`orqestra`, alias: `paperclipai`)
 ├── desktop/             @orqestra/desktop     Electron wrapper (scaffolded; not packaged)
 ├── docs/                                          plans, audits, deploy notes, voice guide
 ├── scripts/                                       dev runner, release, backups
@@ -33,7 +33,7 @@ paperclip-build/
 └── railway.json                                   Railway service config
 ```
 
-Build entry points: `pnpm dev` (server + UI watch), `pnpm typecheck` (`tsc -b` across all), `pnpm build`, `pnpm paperclipai <cmd>`.
+Build entry points: `pnpm dev` (server + UI watch), `pnpm typecheck` (`tsc -b` across all), `pnpm build`, `pnpm orqestra <cmd>`.
 
 ## 3. Runtime stack
 

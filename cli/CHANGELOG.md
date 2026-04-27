@@ -1,4 +1,4 @@
-# paperclipai
+# @orqestra/cli (formerly paperclipai)
 
 ## 0.3.1
 

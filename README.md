@@ -174,7 +174,7 @@ Orqestra handles the hard orchestration details correctly.
 Open source. Self-hosted. No Orqestra account required.
 
 ```bash
-npx paperclipai onboard --yes
+npx orqestra onboard --yes
 ```
 
 Or manually:

@@ -90,7 +90,7 @@ Example:
 This keeps the default install path unchanged while allowing explicit installs with:
 
 ```bash
-npx paperclipai@canary onboard
+npx orqestra@canary onboard
 ```
 
 ### Stable

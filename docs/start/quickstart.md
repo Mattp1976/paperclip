@@ -8,7 +8,7 @@ Get Paperclip running locally in under 5 minutes.
 ## Quick Start (Recommended)
 
 ```sh
-npx paperclipai onboard --yes
+npx orqestra onboard --yes
 ```
 
 This walks you through setup, configures your environment, and gets Paperclip running.
@@ -16,10 +16,10 @@ This walks you through setup, configures your environment, and gets Paperclip ru
 To start Paperclip again later:
 
 ```sh
-npx paperclipai run
+npx orqestra run
 ```
 
-> **Note:** If you used `npx` for setup, always use `npx paperclipai` to run commands. The `pnpm paperclipai` form only works inside a cloned copy of the Paperclip repository (see Local Development below).
+> **Note:** If you used `npx` for setup, always use `npx orqestra` to run commands. The `pnpm orqestra` form only works inside a cloned copy of the Paperclip repository (see Local Development below).
 
 ## Local Development
 
@@ -39,7 +39,7 @@ No external database required — Paperclip uses an embedded PostgreSQL instance
 When working from the cloned repo, you can also use:
 
 ```sh
-pnpm paperclipai run
+pnpm orqestra run
 ```
 
 This auto-onboards if config is missing, runs health checks with auto-repair, and starts the server.
