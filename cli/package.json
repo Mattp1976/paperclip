@@ -1,13 +1,14 @@
 {
-  "name": "@orqestra/paperclipai",
+  "name": "@orqestra/cli",
   "version": "0.3.1",
-  "description": "Paperclip CLI — orchestrate AI agent teams to run a business",
+  "description": "Orqestra CLI — orchestrate AI agent teams to run a business",
   "type": "module",
   "bin": {
+    "orqestra": "./dist/index.js",
     "paperclipai": "./dist/index.js"
   },
   "keywords": [
-    "paperclip",
+    "orqestra",
     "ai",
     "agents",
     "orchestration",
