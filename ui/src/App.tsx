@@ -26,6 +26,8 @@ import { Costs } from "./pages/Costs";
 import { Activity } from "./pages/Activity";
 import { Inbox } from "./pages/Inbox";
 import { Standup } from "./pages/Standup";
+import { Orchestra } from "./pages/Orchestra";
+import { OutcomeDetail } from "./pages/OutcomeDetail";
 import { CompanySettings } from "./pages/CompanySettings";
 import { Secrets } from "./pages/Secrets";
 import { CompanySkills } from "./pages/CompanySkills";
@@ -184,6 +186,8 @@ function boardRoutes() {
       <Route path="inbox/all" element={<Inbox />} />
       <Route path="inbox/new" element={<Navigate to="/inbox/recent" replace />} />
       <Route path="standup" element={<Standup />} />
+      <Route path="orchestra" element={<Orchestra />} />
+      <Route path="orchestra/:outcomeId" element={<OutcomeDetail />} />
       <Route path="design-guide" element={<DesignGuide />} />
       <Route path="help" element={<Help />} />
       <Route path="tests/ux/runs" element={<RunTranscriptUxLab />} />

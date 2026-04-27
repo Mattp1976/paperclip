@@ -28,11 +28,14 @@ import {
 } from "@mattparrytfc/shared";
 import { validate } from "../middleware/validate.js";
 import { orchestraService } from "../services/orchestra.js";
+import { orchestraPlannerService } from "../services/orchestra-planner.js";
+import { OrchestraLLMNotConfiguredError } from "../services/orchestra-llm.js";
 import { assertCompanyAccess } from "./authz.js";
 
 export function orchestraRoutes(db: Db) {
   const router = Router();
   const svc = orchestraService(db);
+  const planner = orchestraPlannerService(db);
 
   // ─── List + create on company scope ────────────────────────────────
 
@@ -118,11 +121,29 @@ export function orchestraRoutes(db: Db) {
   // ─── Phase 2.5 / Phase 6 — pending implementation ──────────────────
 
   router.post("/orchestra/outcomes/:id/plan", async (req, res) => {
-    res.status(501).json({
-      error:
-        "Planner not yet wired. Coming in next iteration: orchestra-planner service.",
-      hint: "For now, persist a plan directly via the orchestra service from a script or test, then call /approve-plan.",
-    });
+    const id = req.params.id as string;
+    const companyId = await resolveCompanyForOutcome(db, id);
+    if (!companyId) {
+      res.status(404).json({ error: "Outcome not found" });
+      return;
+    }
+    assertCompanyAccess(req, companyId);
+    try {
+      const result = await planner.generatePlan({
+        companyId,
+        outcomeId: id,
+      });
+      res.json(result);
+    } catch (err) {
+      if (err instanceof OrchestraLLMNotConfiguredError) {
+        res.status(503).json({
+          error: "Planner not configured",
+          hint: "Set ANTHROPIC_API_KEY on the server environment.",
+        });
+        return;
+      }
+      throw err;
+    }
   });
 
   router.post("/orchestra/outcomes/:id/assemble", async (req, res) => {

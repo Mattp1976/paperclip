@@ -99,6 +99,11 @@ export const queryKeys = {
   dashboard: (companyId: string) => ["dashboard", companyId] as const,
   standup: (companyId: string, windowHours?: number) =>
     ["standup", companyId, windowHours ?? null] as const,
+  outcomes: {
+    list: (companyId: string) => ["outcomes", companyId] as const,
+    detail: (outcomeId: string) => ["outcome", outcomeId] as const,
+    events: (outcomeId: string) => ["outcome-events", outcomeId] as const,
+  },
   agentQuestions: {
     open: (companyId: string) => ["agent-questions", "open", companyId] as const,
   },

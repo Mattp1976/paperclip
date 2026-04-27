@@ -18,3 +18,9 @@ export { sidebarBadgesApi } from "./sidebarBadges";
 export { companySkillsApi } from "./companySkills";
 export { agentQuestionsApi } from "./agent-questions";
 export { fleetTemplatesApi, type FleetTemplateListItem, type FleetInstallResult } from "./fleetTemplates";
+export {
+  orchestraApi,
+  type GeneratePlanResult,
+  type ApprovePlanResult,
+  type OrchestraTimelineEvent,
+} from "./orchestra";
