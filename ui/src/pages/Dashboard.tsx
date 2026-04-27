@@ -252,7 +252,7 @@ export function Dashboard() {
       return (
         <EmptyState
           icon={LayoutDashboard}
-          message="Welcome to Paperclip"
+          message="Welcome to Orqestra"
           description="Set up your first company and agent to begin."
           action="Get started"
           onAction={openOnboarding}

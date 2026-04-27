@@ -91,13 +91,13 @@ export function WelcomeZeroState({
       <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-[#FAF7F2] via-[#F6F0E7] to-[#EFE6D9] px-8 py-10 dark:from-[#22251F] dark:via-[#2A2D26] dark:to-[#32352E]">
         <div className="relative z-10 max-w-2xl">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary">
-            Welcome to Paperclip
+            Welcome to Orqestra
           </p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
             Let's get your agents set up
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            Paperclip runs a fleet of AI agents — planning, researching, writing,
+            Orqestra runs a fleet of AI agents — planning, researching, writing,
             coding, reporting back. Three steps until one's running.
           </p>
         </div>

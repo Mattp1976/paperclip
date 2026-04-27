@@ -164,7 +164,7 @@ export function PluginManager() {
       <Dialog open={installDialogOpen} onOpenChange={setInstallDialogOpen}>
         <PageHeader
           title="Plugin Manager"
-          subtitle="Extend Paperclip with additional skills, integrations, and UI surfaces. Plugins install from npm and can be enabled per company."
+          subtitle="Extend Orqestra with additional skills, integrations, and UI surfaces. Plugins install from npm and can be enabled per company."
           actions={
             <DialogTrigger asChild>
               <Button size="sm" variant="sage" className="gap-2">

@@ -1,10 +1,10 @@
-# Paperclip — System Overview
+# Orqestra — System Overview
 
 > Generated 2026-04-27. A snapshot of what's built, how it's wired together, and where the seams are. Audience: a smart collaborator (LLM or human) being briefed for the first time so they can help plan improvements.
 
-## 1. What is Paperclip?
+## 1. What is Orqestra?
 
-Paperclip is a **self-hostable platform for running AI agent fleets**. A user defines "companies" (tenants) populated with **agents** that work autonomously on **tasks** (called "issues" internally — the rename to "tasks" is mid-migration through the UI). Agents can delegate to each other, are gated by **approvals** when their work crosses budget or risk thresholds, and report back through a **standup**, **dashboard**, and pluggable **output routers** (Slack today, Drive/Gmail scaffolded).
+Orqestra is a **self-hostable platform for running AI agent fleets**. A user defines "companies" (tenants) populated with **agents** that work autonomously on **tasks** (called "issues" internally — the rename to "tasks" is mid-migration through the UI). Agents can delegate to each other, are gated by **approvals** when their work crosses budget or risk thresholds, and report back through a **standup**, **dashboard**, and pluggable **output routers** (Slack today, Drive/Gmail scaffolded).
 
 The product runs in three modes:
 
@@ -170,7 +170,7 @@ An agent has:
 
 ## 8. Plugin system
 
-Heavily plumbed but library is sparse. A `PaperclipPluginManifestV1` declares **jobs** (cron), **webhooks** (inbound HTTP), **tools** (callable from agents), **UI slots** (slot outlet rendering), and **launcher actions** (custom new-task buttons). Lifecycle:
+Heavily plumbed but library is sparse. A `OrqestraPluginManifestV1` declares **jobs** (cron), **webhooks** (inbound HTTP), **tools** (callable from agents), **UI slots** (slot outlet rendering), and **launcher actions** (custom new-task buttons). Lifecycle:
 
 - `pluginRegistryService` — install / update / disable.
 - `pluginLifecycleManager` — load + boot + reload-on-watch.

@@ -63,7 +63,7 @@ export function Orchestra() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Orchestra" }]);
+    setBreadcrumbs([{ label: "Outcomes" }]);
   }, [setBreadcrumbs]);
 
   const companyId = selectedCompany?.id ?? null;
@@ -82,7 +82,7 @@ export function Orchestra() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.outcomes.list(companyId!),
       });
-      navigate(`/orchestra/${outcome.id}`);
+      navigate(`/outcomes/${outcome.id}`);
     },
   });
 
@@ -100,8 +100,8 @@ export function Orchestra() {
   return (
     <div className="px-4 pb-24 max-w-5xl mx-auto space-y-8">
       <PageHeader
-        title="Orchestra"
-        subtitle="Tell Paperclip what outcome you want. It will plan, delegate, execute, review and deliver."
+        title="Outcomes"
+        subtitle="Tell Orqestra what outcome you want. It will plan, delegate, execute, review and deliver."
       />
 
       <TemplatePicker
@@ -219,7 +219,7 @@ function NewOutcomeForm({
           Start an outcome
         </h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Describe what you want and Paperclip will plan how to deliver it.
+          Describe what you want and Orqestra will plan how to deliver it.
         </p>
       </div>
 
@@ -385,7 +385,7 @@ function OutcomeRow({ outcome }: { outcome: OutcomeListItem }) {
   }, [outcome.stepsTotal, outcome.stepsCompleted]);
 
   return (
-    <Link to={`/orchestra/${outcome.id}`} className="group block">
+    <Link to={`/outcomes/${outcome.id}`} className="group block">
       <SoftCard className="p-4 transition-colors hover:bg-muted/40">
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">

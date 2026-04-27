@@ -28,6 +28,12 @@ import { Inbox } from "./pages/Inbox";
 import { Standup } from "./pages/Standup";
 import { Orchestra } from "./pages/Orchestra";
 import { OutcomeDetail } from "./pages/OutcomeDetail";
+
+/** Legacy /orchestra/:outcomeId → /outcomes/:outcomeId redirect during the rebrand. */
+function OutcomeRedirect() {
+  const { outcomeId } = useParams<{ outcomeId: string }>();
+  return <Navigate to={`/outcomes/${outcomeId ?? ""}`} replace />;
+}
 import { CompanySettings } from "./pages/CompanySettings";
 import { Secrets } from "./pages/Secrets";
 import { CompanySkills } from "./pages/CompanySkills";
@@ -186,8 +192,11 @@ function boardRoutes() {
       <Route path="inbox/all" element={<Inbox />} />
       <Route path="inbox/new" element={<Navigate to="/inbox/recent" replace />} />
       <Route path="standup" element={<Standup />} />
-      <Route path="orchestra" element={<Orchestra />} />
-      <Route path="orchestra/:outcomeId" element={<OutcomeDetail />} />
+      <Route path="outcomes" element={<Orchestra />} />
+      <Route path="outcomes/:outcomeId" element={<OutcomeDetail />} />
+      {/* Legacy aliases — preserved for any saved /orchestra links during the rebrand. */}
+      <Route path="orchestra" element={<Navigate to="/outcomes" replace />} />
+      <Route path="orchestra/:outcomeId" element={<OutcomeRedirect />} />
       <Route path="design-guide" element={<DesignGuide />} />
       <Route path="help" element={<Help />} />
       <Route path="tests/ux/runs" element={<RunTranscriptUxLab />} />
@@ -230,7 +239,7 @@ function OnboardingRoutePage() {
   }, [isFirstTime, onboardingOpen, openOnboarding]);
 
   const eyebrow = isFirstTime
-    ? "Welcome to Paperclip"
+    ? "Welcome to Orqestra"
     : matchedCompany
       ? `Add to ${matchedCompany.name}`
       : "Onboarding";
@@ -243,7 +252,7 @@ function OnboardingRoutePage() {
     ? "Run onboarding again to add an agent and a starter task for this company."
     : hasExistingCompany
       ? "Run onboarding again to create another company and seed its first agent."
-      : "Paperclip runs a fleet of AI agents that work on your behalf — planning, researching, writing, coding, and reporting back. A few quick steps and you'll have an agent running its first task.";
+      : "Orqestra runs a fleet of AI agents that work on your behalf — planning, researching, writing, coding, and reporting back. A few quick steps and you'll have an agent running its first task.";
   const ctaLabel = matchedCompany
     ? "Add agent"
     : hasExistingCompany

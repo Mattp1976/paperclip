@@ -227,7 +227,7 @@ export function Help() {
     <div className="mx-auto w-full max-w-5xl px-8 pt-10 pb-16 space-y-10">
       <PageHeader
         eyebrow="Getting started"
-        title="How to use Paperclip"
+        title="How to use Orqestra"
         subtitle="A quick tour of the moving parts and a five-step checklist to go from empty workspace to first delivered output."
       />
 
@@ -242,7 +242,7 @@ export function Help() {
           </div>
           <div className="flex-1">
             <p className="text-base font-semibold text-foreground">
-              Think of Paperclip as an AI company you manage.
+              Think of Orqestra as an AI company you manage.
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               You hire agents, give them tasks, and they produce outputs — the same shape as a
@@ -337,7 +337,7 @@ export function Help() {
             question="Where do agent outputs actually live on my disk?"
             answer={
               <>
-                Under your Paperclip instance folder at{" "}
+                Under your Orqestra instance folder at{" "}
                 <code className="rounded bg-muted px-1 py-0.5 text-[11px]">
                   ~/.paperclip/instances/&lt;id&gt;/projects/&lt;company&gt;/&lt;project&gt;/runs/&lt;runId&gt;/
                 </code>

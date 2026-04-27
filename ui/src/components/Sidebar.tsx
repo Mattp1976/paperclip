@@ -101,7 +101,7 @@ export function Sidebar() {
             alert={inboxBadge.failedRuns > 0}
           />
           <SidebarNavItem to="/standup" label="Standup" icon={Megaphone} />
-          <SidebarNavItem to="/orchestra" label="Orchestra" icon={Sparkles} />
+          <SidebarNavItem to="/outcomes" label="Outcomes" icon={Sparkles} />
           <SidebarNavItem to="/outputs" label="Outputs" icon={Sparkles} />
           <SidebarNavItem to="/issues" label="Tasks" icon={CircleDot} />
           <SidebarNavItem to="/approvals" label="Approvals" icon={CheckCircle2} />

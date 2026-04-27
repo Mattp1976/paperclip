@@ -101,7 +101,7 @@ export function OutcomeDetail() {
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Orchestra", href: `/orchestra` },
+      { label: "Outcomes", href: `/outcomes` },
       { label: detailQuery.data?.title ?? "Outcome" },
     ]);
   }, [setBreadcrumbs, detailQuery.data?.title]);
@@ -156,8 +156,8 @@ export function OutcomeDetail() {
         <EmptyState
           icon={AlertCircle}
           message="Outcome not found"
-          action="Back to Orchestra"
-          onAction={() => navigate(`/orchestra`)}
+          action="Back to Outcomes"
+          onAction={() => navigate(`/outcomes`)}
         />
       </div>
     );
@@ -178,11 +178,11 @@ export function OutcomeDetail() {
   return (
     <div className="px-4 pb-24 max-w-5xl mx-auto space-y-6">
       <Link
-        to={`/orchestra`}
+        to={`/outcomes`}
         className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3 w-3" />
-        Back to Orchestra
+        Back to Outcomes
       </Link>
 
       <PageHeader
@@ -363,7 +363,7 @@ function ClarificationSection({
       <div className="flex items-center gap-2">
         <AlertCircle className="h-4 w-4 text-amber-700" />
         <h2 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-          Paperclip needs clarification
+          Orqestra needs clarification
         </h2>
       </div>
       <ul className="space-y-1.5 text-sm text-amber-900 dark:text-amber-200">
@@ -386,7 +386,7 @@ function PlanSection({ outcome }: { outcome: OutcomeDetailType }) {
       <SoftCard className="p-5">
         <p className="text-sm text-muted-foreground">
           No plan yet. Click <span className="font-medium">Generate plan</span> above
-          and Paperclip will draft how to deliver this outcome.
+          and Orqestra will draft how to deliver this outcome.
         </p>
       </SoftCard>
     );
