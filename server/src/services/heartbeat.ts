@@ -762,7 +762,44 @@ export function heartbeatService(db: Db) {
       secretsSvc.resolveSecretValue(companyId, secretId, "latest"),
     workProducts: workProductsSvc,
   });
-  const orchestraStepCompletion = orchestraStepCompletionService(db);
+  const orchestraStepCompletion = orchestraStepCompletionService(db, {
+    onOutcomeDelivered: async (ctx) => {
+      // Reuse the existing per-run dispatch by synthesizing a
+      // RunDispatchContext from the assembled outcome. Companies that
+      // have a Slack router configured will get a single "outcome
+      // delivered" message — the body is the executive summary; the
+      // full markdown lives on the work product page they can click
+      // through to.
+      const dispatchCtx: RunDispatchContext = {
+        companyId: ctx.companyId,
+        projectId: ctx.projectId,
+        issueId: ctx.lastStepIssueId,
+        // No real heartbeat run for the synthesis itself — reuse the
+        // last step's run id if we have it, else "" which the routers
+        // tolerate (they don't require a real run to format a message).
+        runId: ctx.lastStepRunId ?? "",
+        agentId: ctx.assemblerAgentId,
+        agentName: `${ctx.assemblerAgentName} (assembler)`,
+        status: "succeeded",
+        startedAt: null,
+        finishedAt: new Date(),
+        costUsd: ctx.totalCostCents > 0 ? ctx.totalCostCents / 100 : null,
+        summary: `Outcome delivered: ${ctx.outcomeTitle}\n\n${ctx.executiveSummary}`,
+        resultJson: {
+          outcomeId: ctx.outcomeId,
+          finalWorkProductId: ctx.finalWorkProductId,
+        },
+      };
+      try {
+        await outputRoutersSvc.dispatchForRun(dispatchCtx);
+      } catch (err) {
+        logger.warn(
+          { err, outcomeId: ctx.outcomeId },
+          "outcome-delivery output router dispatch threw",
+        );
+      }
+    },
+  });
   const activeRunExecutions = new Set<string>();
   const budgetHooks = {
     cancelWorkForScope: cancelBudgetScopeWork,

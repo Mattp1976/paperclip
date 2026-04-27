@@ -41,6 +41,36 @@ import {
 
 export interface AssemblerServiceDeps {
   runLLM?: OrchestraRunLLM;
+  /**
+   * Optional callback fired after an outcome is delivered. Lets the
+   * caller (heartbeat / step-completion) wire the existing
+   * outputRouterService.dispatchForRun so Slack/etc receive a single
+   * "outcome delivered" notification rather than only per-step ones.
+   * The callback should be best-effort — failures must not affect the
+   * delivery itself, which has already happened by the time we call it.
+   */
+  onDelivered?: (ctx: AssemblerDeliveryContext) => Promise<void>;
+}
+
+/**
+ * Snapshot of a delivered outcome handed to onDelivered() so the caller
+ * can route it through output routers without round-tripping the DB.
+ */
+export interface AssemblerDeliveryContext {
+  companyId: string;
+  outcomeId: string;
+  outcomeTitle: string;
+  projectId: string | null;
+  finalWorkProductId: string | null;
+  /** Last step's issue id; useful for routing scope. */
+  lastStepIssueId: string | null;
+  /** Last step's heartbeat run id (or null if there isn't one). */
+  lastStepRunId: string | null;
+  assemblerAgentId: string;
+  assemblerAgentName: string;
+  finalMarkdown: string;
+  executiveSummary: string;
+  totalCostCents: number;
 }
 
 export function orchestraAssemblerService(
@@ -294,6 +324,39 @@ export function orchestraAssemblerService(
           updatedAt: new Date(),
         })
         .where(eq(outcomesTable.id, outcomeId));
+
+      // Fire the delivered callback (best-effort — never blocks delivery).
+      if (deps.onDelivered) {
+        try {
+          const assemblerName =
+            agentNameById.get(assemblerAgentId) ??
+            (
+              await db
+                .select({ name: agents.name })
+                .from(agents)
+                .where(eq(agents.id, assemblerAgentId))
+                .limit(1)
+            )[0]?.name ??
+            "Orchestra Assembler";
+
+          await deps.onDelivered({
+            companyId,
+            outcomeId,
+            outcomeTitle: outcomeRow.title,
+            projectId: outcomeRow.projectId ?? null,
+            finalWorkProductId,
+            lastStepIssueId: lastStep.issueId ?? null,
+            lastStepRunId: null,
+            assemblerAgentId,
+            assemblerAgentName: assemblerName,
+            finalMarkdown: parsed.finalMarkdown,
+            executiveSummary: parsed.executiveSummary,
+            totalCostCents: 0,
+          });
+        } catch {
+          // Best-effort.
+        }
+      }
 
       return { assemblyId, finalWorkProductId, delivered: true };
     },

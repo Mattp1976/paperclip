@@ -39,12 +39,29 @@ import {
   orchestraReviewerService,
   type ReviewerVerdict,
 } from "./orchestra-reviewer.js";
-import { orchestraAssemblerService } from "./orchestra-assembler.js";
+import {
+  orchestraAssemblerService,
+  type AssemblerDeliveryContext,
+} from "./orchestra-assembler.js";
 
-export function orchestraStepCompletionService(db: Db) {
+export interface StepCompletionDeps {
+  /**
+   * Forwarded to the assembler. Heartbeat passes a callback that fires
+   * the existing outputRouterService.dispatchForRun for the assembled
+   * delivery, so Slack/etc. get a single "outcome delivered" message.
+   */
+  onOutcomeDelivered?: (ctx: AssemblerDeliveryContext) => Promise<void>;
+}
+
+export function orchestraStepCompletionService(
+  db: Db,
+  deps: StepCompletionDeps = {},
+) {
   const orchestra = orchestraService(db);
   const reviewer = orchestraReviewerService(db);
-  const assembler = orchestraAssemblerService(db);
+  const assembler = orchestraAssemblerService(db, {
+    onDelivered: deps.onOutcomeDelivered,
+  });
   const issuesSvc = issueService(db);
 
   /**

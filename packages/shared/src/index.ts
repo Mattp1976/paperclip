@@ -701,3 +701,12 @@ export {
   buildAssemblerPrompt,
   type AssemblerPromptInput,
 } from "./prompts/orchestra-assembler.js";
+
+export {
+  ORCHESTRA_TEMPLATES,
+  STRATEGIC_MARKET_INTELLIGENCE_REPORT,
+  COMPETITOR_BATTLECARD,
+  CLIENT_PROPOSAL,
+  getOrchestraTemplate,
+  type OrchestraTemplate,
+} from "./orchestra-templates.js";

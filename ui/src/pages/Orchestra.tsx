@@ -27,7 +27,9 @@ import type {
   OutcomeStatus,
   OutcomeTargetFormat,
   OutcomeExecutionMode,
+  OrchestraTemplate,
 } from "@mattparrytfc/shared";
+import { ORCHESTRA_TEMPLATES } from "@mattparrytfc/shared";
 import { orchestraApi } from "../api/orchestra";
 import { useCompany } from "../context/CompanyContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
@@ -65,6 +67,7 @@ export function Orchestra() {
   }, [setBreadcrumbs]);
 
   const companyId = selectedCompany?.id ?? null;
+  const [template, setTemplate] = useState<OrchestraTemplate | null>(null);
 
   const outcomesQuery = useQuery({
     queryKey: queryKeys.outcomes.list(companyId ?? "_"),
@@ -101,7 +104,20 @@ export function Orchestra() {
         subtitle="Tell Paperclip what outcome you want. It will plan, delegate, execute, review and deliver."
       />
 
+      <TemplatePicker
+        onPick={(t) => {
+          // Smooth-scroll to the form so the prefill is visible.
+          setTemplate(t);
+          setTimeout(() => {
+            document
+              .getElementById("new-outcome-form")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 30);
+        }}
+      />
+
       <NewOutcomeForm
+        template={template}
         submitting={createMutation.isPending}
         error={createMutation.error}
         onSubmit={(input) => createMutation.mutate(input)}
@@ -135,11 +151,42 @@ export function Orchestra() {
 // New outcome form
 // ─────────────────────────────────────────────────────────────────────────
 
+function TemplatePicker({
+  onPick,
+}: {
+  onPick: (template: OrchestraTemplate) => void;
+}) {
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+        Or start from a template
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {ORCHESTRA_TEMPLATES.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => onPick(t)}
+            className="group inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground/90 hover:bg-muted/60 transition-colors"
+            title={t.description}
+          >
+            {t.icon ? <span className="text-base leading-none">{t.icon}</span> : null}
+            <span>{t.name}</span>
+            <ArrowRight className="h-3 w-3 text-muted-foreground/60 group-hover:text-foreground/80" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function NewOutcomeForm({
+  template,
   submitting,
   error,
   onSubmit,
 }: {
+  template: OrchestraTemplate | null;
   submitting: boolean;
   error: unknown;
   onSubmit: (input: CreateOutcomeRequest) => void;
@@ -151,10 +198,22 @@ function NewOutcomeForm({
   const [executionMode, setExecutionMode] =
     useState<OutcomeExecutionMode>("review_plan_first");
 
+  // When a template is picked, prefill the form with its defaults. We
+  // overwrite — the template button is an explicit "give me this start"
+  // signal, not a partial merge.
+  useEffect(() => {
+    if (template) {
+      setTitle(template.defaultTitle);
+      setBrief(template.defaultBrief);
+      setTargetFormat(template.defaultTargetFormat);
+      setExecutionMode(template.defaultExecutionMode);
+    }
+  }, [template]);
+
   const canSubmit = title.trim().length > 0 && brief.trim().length > 0 && !submitting;
 
   return (
-    <SoftCard className="p-5 space-y-4">
+    <SoftCard id="new-outcome-form" className="p-5 space-y-4">
       <div>
         <h2 className="text-base font-semibold text-foreground">
           Start an outcome
@@ -245,6 +304,7 @@ function NewOutcomeForm({
               brief: brief.trim(),
               targetFormat,
               executionMode,
+              templateId: template?.id ?? null,
             })
           }
           className="gap-2 rounded-2xl px-5"
