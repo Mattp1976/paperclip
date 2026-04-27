@@ -51,6 +51,7 @@ import {
   outputRouterService,
   type RunDispatchContext,
 } from "./output-routers.js";
+import { orchestraStepCompletionService } from "./orchestra-step-completion.js";
 import {
   buildExecutionWorkspaceAdapterConfig,
   gateProjectExecutionWorkspacePolicy,
@@ -761,6 +762,7 @@ export function heartbeatService(db: Db) {
       secretsSvc.resolveSecretValue(companyId, secretId, "latest"),
     workProducts: workProductsSvc,
   });
+  const orchestraStepCompletion = orchestraStepCompletionService(db);
   const activeRunExecutions = new Set<string>();
   const budgetHooks = {
     cancelWorkForScope: cancelBudgetScopeWork,
@@ -2679,6 +2681,33 @@ export function heartbeatService(db: Db) {
           logger.warn(
             { err: dispatchErr, runId: finalizedRun.id },
             "output router dispatch threw",
+          );
+        }
+
+        // Orchestra hook: if this Issue belongs to an OrchestraPlanStep,
+        // run the reviewer + promote dependents + (if all steps done)
+        // trigger the assembler. Wrapped in try/catch — orchestra
+        // failures must never block the heartbeat tick.
+        try {
+          const ctxSnap = (finalizedRun.contextSnapshot ?? {}) as Record<string, unknown>;
+          const orchestraIssueId =
+            typeof ctxSnap.issueId === "string"
+              ? (ctxSnap.issueId as string)
+              : typeof ctxSnap.taskId === "string"
+                ? (ctxSnap.taskId as string)
+                : null;
+          if (orchestraIssueId) {
+            const issueStatusForOrchestra =
+              outcome === "succeeded" ? "done" : outcome;
+            await orchestraStepCompletion.handleIssueTerminal({
+              issueId: orchestraIssueId,
+              issueStatus: issueStatusForOrchestra,
+            });
+          }
+        } catch (orchestraErr) {
+          logger.warn(
+            { err: orchestraErr, runId: finalizedRun.id },
+            "orchestra step-completion handler threw",
           );
         }
       }

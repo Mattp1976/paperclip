@@ -248,6 +248,16 @@ export function OutcomeDetail() {
         <ClarificationSection requiredInputs={outcome.plan.requiredInputs} />
       ) : null}
 
+      {outcome.finalAssembly?.status === "completed" &&
+      outcome.finalAssembly.finalMarkdown ? (
+        <FinalDeliverableSection
+          markdown={outcome.finalAssembly.finalMarkdown}
+          executiveSummary={outcome.finalAssembly.finalSummary}
+          unresolvedLimitations={outcome.finalAssembly.unresolvedLimitations}
+          recommendedNextActions={outcome.finalAssembly.recommendedNextActions}
+        />
+      ) : null}
+
       <PlanSection outcome={outcome} />
 
       <Timeline events={eventsQuery.data ?? []} />
@@ -267,6 +277,68 @@ function ErrorBanner({ error }: { error: unknown }) {
     <div className="rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-950/30 dark:border-rose-900/50 p-3 text-sm text-rose-800 dark:text-rose-300">
       {error instanceof Error ? error.message : String(error)}
     </div>
+  );
+}
+
+function FinalDeliverableSection({
+  markdown,
+  executiveSummary,
+  unresolvedLimitations,
+  recommendedNextActions,
+}: {
+  markdown: string;
+  executiveSummary: string | null;
+  unresolvedLimitations: string[];
+  recommendedNextActions: string[];
+}) {
+  return (
+    <SoftCard className="p-5 space-y-4 border-emerald-300/60 bg-emerald-50/30 dark:bg-emerald-950/20">
+      <div className="flex items-center gap-2">
+        <CheckCircle2 className="h-5 w-5 text-emerald-700" />
+        <h2 className="text-base font-semibold text-emerald-900 dark:text-emerald-200">
+          Final deliverable
+        </h2>
+      </div>
+      {executiveSummary ? (
+        <div className="rounded-lg bg-white/60 dark:bg-background/40 p-3">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+            Executive summary
+          </p>
+          <p className="text-sm text-foreground/90 whitespace-pre-wrap">
+            {executiveSummary}
+          </p>
+        </div>
+      ) : null}
+      <div className="rounded-lg bg-white/60 dark:bg-background/40 p-4 max-h-[60vh] overflow-y-auto">
+        <pre className="text-sm whitespace-pre-wrap font-sans text-foreground leading-relaxed">
+          {markdown}
+        </pre>
+      </div>
+      {recommendedNextActions.length ? (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+            Recommended next actions
+          </p>
+          <ul className="text-sm text-foreground/80 space-y-1">
+            {recommendedNextActions.map((a, i) => (
+              <li key={i}>· {a}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {unresolvedLimitations.length ? (
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+            Unresolved limitations
+          </p>
+          <ul className="text-sm text-foreground/70 space-y-1">
+            {unresolvedLimitations.map((a, i) => (
+              <li key={i}>· {a}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </SoftCard>
   );
 }
 
