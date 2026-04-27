@@ -29,6 +29,7 @@ import { sidebarBadgeRoutes } from "./routes/sidebar-badges.js";
 import { instanceSettingsRoutes } from "./routes/instance-settings.js";
 import { fleetTemplateRoutes } from "./routes/fleet-templates.js";
 import { outputRouterRoutes } from "./routes/output-routers.js";
+import { orchestraRoutes } from "./routes/orchestra.js";
 import { llmRoutes } from "./routes/llms.js";
 import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
@@ -164,6 +165,7 @@ export async function createApp(
   api.use(instanceSettingsRoutes(db));
   api.use(fleetTemplateRoutes(db));
   api.use(outputRouterRoutes(db));
+  api.use(orchestraRoutes(db));
 
   // Phase 3: Checkout lock recovery admin routes
   api.use(adminLockRoutes({ db }).router);

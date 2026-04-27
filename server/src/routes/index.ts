@@ -19,3 +19,4 @@ export { accessRoutes } from "./access.js";
 export { instanceSettingsRoutes } from "./instance-settings.js";
 export { fleetTemplateRoutes } from "./fleet-templates.js";
 export { outputRouterRoutes } from "./output-routers.js";
+export { orchestraRoutes } from "./orchestra.js";
