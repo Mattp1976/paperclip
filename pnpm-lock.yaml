@@ -227,19 +227,6 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  packages/adapters/openrouter-local:
-    dependencies:
-      '@orqestra/adapter-utils':
-        specifier: workspace:*
-        version: link:../../adapter-utils
-    devDependencies:
-      '@types/node':
-        specifier: ^24.6.0
-        version: 24.12.2
-      typescript:
-        specifier: ^5.7.3
-        version: 5.9.3
-
   packages/adapters/pi-local:
     dependencies:
       '@orqestra/adapter-utils':
@@ -494,9 +481,6 @@ importers:
       '@orqestra/adapter-opencode-local':
         specifier: workspace:*
         version: link:../packages/adapters/opencode-local
-      '@orqestra/adapter-openrouter-local':
-        specifier: workspace:*
-        version: link:../packages/adapters/openrouter-local
       '@orqestra/adapter-pi-local':
         specifier: workspace:*
         version: link:../packages/adapters/pi-local

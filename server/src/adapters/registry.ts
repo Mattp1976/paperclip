@@ -46,14 +46,6 @@ import {
   agentConfigurationDoc as openCodeAgentConfigurationDoc,
 } from "@orqestra/adapter-opencode-local";
 import {
-  execute as openRouterExecute,
-  testEnvironment as openRouterTestEnvironment,
-} from "@orqestra/adapter-openrouter-local/server";
-import {
-  agentConfigurationDoc as openRouterAgentConfigurationDoc,
-  models as openRouterModels,
-} from "@orqestra/adapter-openrouter-local";
-import {
   execute as openclawGatewayExecute,
   testEnvironment as openclawGatewayTestEnvironment,
 } from "@orqestra/adapter-openclaw-gateway/server";
@@ -179,15 +171,6 @@ const piLocalAdapter: ServerAdapterModule = {
   agentConfigurationDoc: piAgentConfigurationDoc,
 };
 
-const openRouterLocalAdapter: ServerAdapterModule = {
-  type: "openrouter_local",
-  execute: openRouterExecute,
-  testEnvironment: openRouterTestEnvironment,
-  models: openRouterModels,
-  supportsLocalAgentJwt: true,
-  agentConfigurationDoc: openRouterAgentConfigurationDoc,
-};
-
 const hermesLocalAdapter: ServerAdapterModule = {
   type: "hermes_local",
   execute: hermesExecute,
@@ -207,7 +190,6 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
     cursorLocalAdapter,
     geminiLocalAdapter,
     openclawGatewayAdapter,
-    openRouterLocalAdapter,
     hermesLocalAdapter,
     processAdapter,
     httpAdapter,
