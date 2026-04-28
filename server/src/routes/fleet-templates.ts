@@ -33,6 +33,10 @@ interface InstallSummary {
 }
 
 function publicTemplate(template: FleetTemplate) {
+  // Distinct adapter types across this template's agents.
+  const requiredAdapters = Array.from(
+    new Set(template.agents.map((a) => a.adapterType)),
+  );
   return {
     id: template.id,
     name: template.name,
@@ -42,10 +46,13 @@ function publicTemplate(template: FleetTemplate) {
     color: template.color,
     bgColor: template.bgColor,
     bestFor: template.bestFor,
+    estimatedSetupMinutes: template.estimatedSetupMinutes,
     agentCount: template.agents.length,
     projectCount: template.projects.length,
     routineCount: template.routines.length,
     starterTaskCount: template.starterTasks.length,
+    starterOutcomeCount: template.starterOutcomes.length,
+    requiredAdapters,
     agents: template.agents.map((a) => ({
       slug: a.slug,
       name: a.name,
@@ -66,6 +73,11 @@ function publicTemplate(template: FleetTemplate) {
       description: t.description,
       priority: t.priority,
       assigneeSlug: t.assigneeSlug,
+    })),
+    starterOutcomes: template.starterOutcomes.map((o) => ({
+      title: o.title,
+      brief: o.brief,
+      targetFormat: o.targetFormat,
     })),
   };
 }

@@ -29,6 +29,7 @@ import { Standup } from "./pages/Standup";
 import { Orchestra } from "./pages/Orchestra";
 import { OutcomeDetail } from "./pages/OutcomeDetail";
 import { OutcomeStart } from "./pages/OutcomeStart";
+import { Clipmart } from "./pages/Clipmart";
 
 /** Legacy /orchestra/:outcomeId → /outcomes/:outcomeId redirect during the rebrand. */
 function OutcomeRedirect() {
@@ -194,6 +195,7 @@ function boardRoutes() {
       <Route path="inbox/new" element={<Navigate to="/inbox/recent" replace />} />
       <Route path="standup" element={<Standup />} />
       <Route path="start" element={<OutcomeStart />} />
+      <Route path="clipmart" element={<Clipmart />} />
       <Route path="outcomes" element={<Orchestra />} />
       <Route path="outcomes/:outcomeId" element={<OutcomeDetail />} />
       {/* Legacy aliases — preserved for any saved /orchestra links during the rebrand. */}
@@ -425,6 +427,7 @@ export function App() {
           <Route path="outputs" element={<UnprefixedBoardRedirect />} />
           <Route path="standup" element={<UnprefixedBoardRedirect />} />
           <Route path="start" element={<UnprefixedBoardRedirect />} />
+          <Route path="clipmart" element={<UnprefixedBoardRedirect />} />
           <Route path="tests/ux/runs" element={<UnprefixedBoardRedirect />} />
           <Route path=":companyPrefix" element={<Layout />}>
             {boardRoutes()}

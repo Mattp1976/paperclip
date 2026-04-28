@@ -10,10 +10,13 @@ export interface FleetTemplateListItem {
   color: string;
   bgColor: string;
   bestFor: string;
+  estimatedSetupMinutes: number;
   agentCount: number;
   projectCount: number;
   routineCount: number;
   starterTaskCount: number;
+  starterOutcomeCount: number;
+  requiredAdapters: string[];
   agents: {
     slug: string;
     name: string;
@@ -34,6 +37,19 @@ export interface FleetTemplateListItem {
     description: string;
     priority: "urgent" | "high" | "medium" | "low";
     assigneeSlug: string;
+  }[];
+  starterOutcomes: {
+    title: string;
+    brief: string;
+    targetFormat:
+      | "report"
+      | "memo"
+      | "deck_outline"
+      | "email"
+      | "strategy"
+      | "audit"
+      | "research_brief"
+      | "custom";
   }[];
 }
 

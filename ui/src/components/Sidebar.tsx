@@ -94,6 +94,7 @@ export function Sidebar() {
         <div className="flex flex-col gap-1">
           <SidebarNavItem to="/dashboard" label="Dashboard" icon={LayoutDashboard} liveCount={liveRunCount} />
           <SidebarNavItem to="/start" label="Start" icon={Wand2} />
+          <SidebarNavItem to="/clipmart" label="Clipmart" icon={Boxes} />
           <SidebarNavItem
             to="/inbox"
             label="Inbox"

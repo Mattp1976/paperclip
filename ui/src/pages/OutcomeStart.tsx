@@ -15,7 +15,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, Link } from "@/lib/router";
+import { useNavigate, Link, useLocation } from "@/lib/router";
 import { Loader2, Settings, Sparkles } from "lucide-react";
 import type {
   CreateOutcomeRequest,
@@ -57,10 +57,28 @@ export function OutcomeStart() {
   }, [setBreadcrumbs]);
 
   const companyId = selectedCompany?.id ?? null;
+  const location = useLocation();
+
+  // If we arrived from Clipmart with a starter outcome to seed, prefill.
+  const prefillFromState = useMemo<OutcomeBriefInputValue | null>(() => {
+    const raw = (location.state as
+      | { outcomeBriefPrefill?: { title: string; brief: string; targetFormat?: string } }
+      | null
+      | undefined)?.outcomeBriefPrefill;
+    if (!raw) return null;
+    return {
+      title: raw.title,
+      brief: raw.brief,
+      targetFormat: (raw.targetFormat ??
+        "report") as OutcomeTargetFormat,
+      templateId: null,
+    };
+  }, [location.state]);
 
   const [stage, setStage] = useState<Stage>("brief");
-  const [briefValue, setBriefValue] =
-    useState<OutcomeBriefInputValue>(INITIAL_VALUE);
+  const [briefValue, setBriefValue] = useState<OutcomeBriefInputValue>(
+    prefillFromState ?? INITIAL_VALUE,
+  );
   const [outcomeId, setOutcomeId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
