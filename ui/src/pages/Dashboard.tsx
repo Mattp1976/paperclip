@@ -72,6 +72,7 @@ import { KillSwitch } from "../components/dashboard/KillSwitch";
 import { WelcomeZeroState } from "../components/dashboard/WelcomeZeroState";
 import { ActiveGoalsCard } from "../components/dashboard/ActiveGoalsCard";
 import { OutcomeLedHero } from "../components/dashboard/OutcomeLedHero";
+import { DashboardNarrative } from "../components/narrative/DashboardNarrative";
 import type { Agent, HeartbeatRun, Issue } from "@orqestra/shared";
 import { PluginSlotOutlet } from "@/plugins/slots";
 import { Button } from "@/components/ui/button";
@@ -335,6 +336,8 @@ export function Dashboard() {
       {error && <p className="text-sm text-destructive">{error.message}</p>}
 
       {selectedCompanyId && <OutcomeLedHero companyId={selectedCompanyId} />}
+
+      {selectedCompanyId && <DashboardNarrative companyId={selectedCompanyId} />}
 
       {hasNoAgents && (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 px-5 py-4 dark:border-amber-500/20 dark:bg-amber-950/40">

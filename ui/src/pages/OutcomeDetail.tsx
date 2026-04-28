@@ -39,7 +39,8 @@ import { OutcomeHeader } from "@/components/outcome-detail/OutcomeHeader";
 import { ExecutionState } from "@/components/outcome-detail/ExecutionState";
 import { PlanTimeline } from "@/components/outcome-detail/PlanTimeline";
 import { AgentTeam } from "@/components/outcome-detail/AgentTeam";
-import { OutcomeNarrative } from "@/components/outcome-detail/OutcomeNarrative";
+import { OutcomeEventTimeline } from "@/components/outcome-detail/OutcomeEventTimeline";
+import { OutcomeNarrative } from "@/components/narrative/OutcomeNarrative";
 import { OutcomeCostPanel } from "@/components/outcome-detail/OutcomeCostPanel";
 import { OutcomeDecisionQueue } from "@/components/outcome-detail/OutcomeDecisionQueue";
 import { WorkProducts } from "@/components/outcome-detail/WorkProducts";
@@ -263,7 +264,9 @@ export function OutcomeDetail() {
 
       <AgentTeam steps={outcome.steps} agents={agentsQuery.data ?? []} />
 
-      <OutcomeNarrative events={eventsQuery.data ?? []} />
+      <OutcomeNarrative outcomeId={outcome.id} />
+
+      <OutcomeEventTimeline events={eventsQuery.data ?? []} />
 
       <OutcomeCostPanel
         estimatedCostCents={outcome.plan?.estimatedCostCents ?? null}

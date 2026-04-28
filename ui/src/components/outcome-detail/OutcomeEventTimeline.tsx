@@ -1,19 +1,16 @@
 /**
- * OutcomeNarrative — plain-English rendering of what's happened so far.
+ * OutcomeEventTimeline — the chronological log of system events for an
+ * outcome (factual, no interpretation).
  *
- * Sprint 2 v1: structured rendering of the outcome's event timeline,
- * grouped sensibly. Sprint 4 will replace the internals with an LLM-
- * generated narrative service. The component contract stays stable:
- * receives a list of events, renders sentences.
- *
- * Rules: factual, concise, never invents progress. If nothing's happened
- * yet, say so honestly.
+ * Sits underneath the LLM-backed OutcomeNarrative on the outcome detail
+ * page. Narrative tells the user what's happening; timeline shows the
+ * receipts.
  */
-import { History, MessageSquare } from "lucide-react";
+import { History } from "lucide-react";
 import { SoftCard } from "@/components/SoftCard";
 import { relativeTime } from "@/lib/utils";
 
-interface OutcomeNarrativeProps {
+interface OutcomeEventTimelineProps {
   events: Array<{
     id: string;
     kind: string;
@@ -22,17 +19,16 @@ interface OutcomeNarrativeProps {
   }>;
 }
 
-export function OutcomeNarrative({ events }: OutcomeNarrativeProps) {
+export function OutcomeEventTimeline({ events }: OutcomeEventTimelineProps) {
   if (events.length === 0) {
     return (
       <SoftCard className="p-5">
         <div className="flex items-center gap-2 mb-2">
-          <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold text-foreground">What happened</h2>
+          <History className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold text-foreground">Event log</h2>
         </div>
         <p className="text-sm text-muted-foreground">
-          Nothing has happened yet. The narrative will appear here as work
-          starts
+          The event log will fill in as work happens
         </p>
       </SoftCard>
     );
@@ -47,7 +43,7 @@ export function OutcomeNarrative({ events }: OutcomeNarrativeProps) {
     <SoftCard className="p-5 space-y-3">
       <div className="flex items-center gap-2">
         <History className="h-4 w-4 text-muted-foreground" />
-        <h2 className="text-sm font-semibold text-foreground">What happened</h2>
+        <h2 className="text-sm font-semibold text-foreground">Event log</h2>
       </div>
       <ol className="space-y-2.5">
         {ordered.map((e) => (
