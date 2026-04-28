@@ -107,7 +107,7 @@ export function Sidebar() {
           <SidebarNavItem to="/outcomes" label="Outcomes" icon={Sparkles} />
           <SidebarNavItem to="/outputs" label="Outputs" icon={Sparkles} />
           <SidebarNavItem to="/issues" label="Tasks" icon={CircleDot} />
-          <SidebarNavItem to="/approvals" label="Approvals" icon={CheckCircle2} />
+          <SidebarNavItem to="/decisions" label="Decisions" icon={CheckCircle2} />
           <PluginSlotOutlet
             slotTypes={["sidebar"]}
             context={pluginContext}

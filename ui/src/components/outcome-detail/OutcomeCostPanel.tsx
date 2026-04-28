@@ -1,16 +1,24 @@
 /**
  * OutcomeCostPanel — money story for one outcome.
  *
- * Sprint 2 v1: estimated · spent · projected · budget. Three numbers
- * the user can read in a glance, plus a small overshoot/undershoot
- * indicator vs the estimate.
+ * Sprint 5 (cost-as-confidence) v2: estimated · spent · projected ·
+ * budget, plus a clearly-labelled human-equivalent estimate and a
+ * confidence band derived from completion progress and overshoot.
  *
- * Sprint 6 (cost-as-confidence) layers on: human-equivalent estimate,
- * confidence band, per-agent breakdown, time saved.
+ * Honesty rules (per the brief):
+ *   - "Human equivalent" is ALWAYS labelled as an estimate — never
+ *     presented as financial proof.
+ *   - "Confidence" is derived from facts the system has, not invented.
+ *
+ * Per-agent and per-step breakdowns will land in a later sprint once
+ * the server exposes per-cost-event aggregation per outcome.
  */
-import { Coins, TrendingUp } from "lucide-react";
+import { Coins, TrendingUp, Gauge, UserCheck } from "lucide-react";
 import { SoftCard } from "@/components/SoftCard";
 import { friendlyCost, cn } from "@/lib/utils";
+
+/** Rough multiplier for "what would this cost a human consultant for the same output". */
+const HUMAN_EQUIVALENT_MULTIPLIER = 35;
 
 interface OutcomeCostPanelProps {
   estimatedCostCents: number | null;
@@ -104,8 +112,123 @@ export function OutcomeCostPanel({
             : `Tracking ${friendlyCost(Math.abs(overshoot) / 100)} below the planner's estimate`}
         </div>
       ) : null}
+
+      <ConfidenceRow
+        humanEquivCents={
+          (estimatedCostCents ?? projectedCents ?? null) != null
+            ? Math.round(
+                (estimatedCostCents ?? projectedCents ?? 0) *
+                  HUMAN_EQUIVALENT_MULTIPLIER,
+              )
+            : null
+        }
+        confidenceLevel={confidenceLevel({
+          stepsCompleted,
+          stepsTotal,
+          overshoot,
+          haveEstimate: estimatedCostCents != null,
+        })}
+      />
     </SoftCard>
   );
+}
+
+function ConfidenceRow({
+  humanEquivCents,
+  confidenceLevel,
+}: {
+  humanEquivCents: number | null;
+  confidenceLevel: { label: "Low" | "Medium" | "High"; reason: string };
+}) {
+  return (
+    <div className="grid sm:grid-cols-2 gap-3 pt-2 border-t border-border/40">
+      <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+        <div className="flex items-center gap-1 mb-0.5">
+          <UserCheck className="h-3 w-3 text-muted-foreground" />
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            Human equivalent
+          </p>
+        </div>
+        <p className="text-base font-semibold text-foreground">
+          {humanEquivCents != null
+            ? friendlyCost(humanEquivCents / 100)
+            : "—"}
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+          Estimate of what comparable human work would cost. Not a
+          financial guarantee
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+        <div className="flex items-center gap-1 mb-0.5">
+          <Gauge className="h-3 w-3 text-muted-foreground" />
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            Confidence
+          </p>
+        </div>
+        <p
+          className={cn(
+            "text-base font-semibold",
+            confidenceLevel.label === "High"
+              ? "text-emerald-700 dark:text-emerald-300"
+              : confidenceLevel.label === "Medium"
+                ? "text-foreground"
+                : "text-amber-700 dark:text-amber-300",
+          )}
+        >
+          {confidenceLevel.label}
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+          {confidenceLevel.reason}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function confidenceLevel(input: {
+  stepsCompleted: number;
+  stepsTotal: number;
+  overshoot: number | null;
+  haveEstimate: boolean;
+}): { label: "Low" | "Medium" | "High"; reason: string } {
+  if (!input.haveEstimate) {
+    return {
+      label: "Low",
+      reason: "No planner estimate yet. Confidence will rise once a plan is drafted",
+    };
+  }
+  if (input.stepsTotal === 0) {
+    return {
+      label: "Medium",
+      reason: "Plan drafted. Confidence will firm up once steps run",
+    };
+  }
+  const completion = input.stepsCompleted / input.stepsTotal;
+  // Big overshoot dominates.
+  if (input.overshoot != null && input.overshoot > 200) {
+    return {
+      label: "Low",
+      reason: "Spend is well above the planner's estimate. Treat the projection cautiously",
+    };
+  }
+  if (completion >= 0.5) {
+    return {
+      label: "High",
+      reason: "More than half the steps are done. Projection is grounded in actual spend",
+    };
+  }
+  if (completion >= 0.2) {
+    return {
+      label: "Medium",
+      reason: "A few steps complete. The projection is firming up",
+    };
+  }
+  return {
+    label: "Medium",
+    reason: "Early days. Projection is the planner's read",
+  };
 }
 
 function Stat({
