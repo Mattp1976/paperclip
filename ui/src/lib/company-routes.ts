@@ -26,6 +26,9 @@ const BOARD_ROUTE_ROOTS = new Set([
   "outcomes",
   "orchestra",
   "standup",
+  "start",
+  "clipmart",
+  "decisions",
   "help",
 ]);
 

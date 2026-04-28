@@ -21,6 +21,7 @@ import {
   Sparkles,
   HelpCircle,
   Megaphone,
+  Wand2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarNavItem } from "./SidebarNavItem";
@@ -92,6 +93,7 @@ export function Sidebar() {
         {/* Primary */}
         <div className="flex flex-col gap-1">
           <SidebarNavItem to="/dashboard" label="Dashboard" icon={LayoutDashboard} liveCount={liveRunCount} />
+          <SidebarNavItem to="/start" label="Start" icon={Wand2} />
           <SidebarNavItem
             to="/inbox"
             label="Inbox"
