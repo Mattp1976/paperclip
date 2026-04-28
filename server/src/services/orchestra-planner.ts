@@ -35,7 +35,7 @@ import {
 import { unprocessable, notFound } from "../errors.js";
 import { orchestraService } from "./orchestra.js";
 import {
-  defaultAnthropicRunLLM,
+  defaultRunLLM,
   extractJsonBlob,
   OrchestraLLMNotConfiguredError,
   type OrchestraRunLLM,
@@ -54,7 +54,7 @@ export function orchestraPlannerService(
   deps: PlannerServiceDeps = {},
 ) {
   const orchestra = orchestraService(db);
-  const runLLM = deps.runLLM ?? defaultAnthropicRunLLM;
+  const runLLM = deps.runLLM ?? defaultRunLLM;
 
   return {
     /**

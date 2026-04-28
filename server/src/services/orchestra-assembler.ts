@@ -33,7 +33,7 @@ import {
   type OutcomeTargetFormat,
 } from "@orqestra/shared";
 import {
-  defaultAnthropicRunLLM,
+  defaultRunLLM,
   extractJsonBlob,
   OrchestraLLMNotConfiguredError,
   type OrchestraRunLLM,
@@ -77,7 +77,7 @@ export function orchestraAssemblerService(
   db: Db,
   deps: AssemblerServiceDeps = {},
 ) {
-  const runLLM = deps.runLLM ?? defaultAnthropicRunLLM;
+  const runLLM = deps.runLLM ?? defaultRunLLM;
 
   return {
     /**
