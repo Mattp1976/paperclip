@@ -263,6 +263,23 @@ export async function createApp(
   }));
 
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+  // Marketing landing page (public). Mounted BEFORE the SPA catch-all so it
+  // takes precedence on /welcome and its assets (fonts, etc.). The landing
+  // is a self-contained static HTML file.
+  const landingCandidates = [
+    path.resolve(__dirname, "../../marketing/landing"),
+    path.resolve(__dirname, "../marketing/landing"),
+  ];
+  const landingDir = landingCandidates.find((p) => fs.existsSync(path.join(p, "index.html")));
+  if (landingDir) {
+    app.use("/welcome", express.static(landingDir, { fallthrough: true }));
+    // Pretty URL: /welcome → index.html (express.static handles this with index option)
+    app.get("/welcome", (_req, res) => {
+      res.sendFile(path.join(landingDir, "index.html"));
+    });
+  }
+
   if (opts.uiMode === "static") {
     // Try published location first (server/ui-dist/), then monorepo dev location (../../ui/dist)
     const candidates = [
