@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Orqestra horizontal lockup.
+  Mark + wordmark, set in IBM Plex Serif.
+
+  When rendering this SVG, IBM Plex Serif must be available. For web
+  contexts, register it via @font-face in the host document (see the
+  landing page CSS). For static rendering, the rasterized PNG companion
+  (orqestra-lockup.png) is the canonical bitmap.
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 200"
+  fill="none"
+  role="img"
+  aria-label="Orqestra"
+>
+  <!-- Mark, scaled into the left third. -->
+  <g transform="translate(40 60)">
+    <circle
+      cx="44"
+      cy="42"
+      r="22"
+      stroke="currentColor"
+      stroke-width="4"
+    />
+    <line
+      x1="64"
+      y1="50"
+      x2="64"
+      y2="92"
+      stroke="currentColor"
+      stroke-width="4"
+      stroke-linecap="square"
+    />
+  </g>
+
+  <!-- Wordmark. -->
+  <text
+    x="180"
+    y="128"
+    fill="currentColor"
+    font-family="'IBM Plex Serif', 'Plex Serif', Georgia, serif"
+    font-size="96"
+    font-weight="600"
+    letter-spacing="-2"
+  >orqestra</text>
+</svg>
