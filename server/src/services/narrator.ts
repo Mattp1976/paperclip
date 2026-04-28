@@ -27,7 +27,7 @@ import {
   heartbeatRuns,
 } from "@orqestra/db";
 import {
-  defaultRunLLM,
+  defaultAnthropicRunLLM,
   OrchestraLLMNotConfiguredError,
   type OrchestraRunLLM,
 } from "./orchestra-llm.js";
@@ -75,7 +75,7 @@ interface NarratorDeps {
 }
 
 export function narratorService(db: Db, deps: NarratorDeps = {}) {
-  const runLLM = deps.runLLM ?? defaultRunLLM;
+  const runLLM = deps.runLLM ?? defaultAnthropicRunLLM;
   const cache = new Map<string, CacheEntry>();
 
   async function gatherCompanyFacts(companyId: string) {

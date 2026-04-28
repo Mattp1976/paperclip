@@ -35,7 +35,7 @@ import {
   type OrchestraStepAcceptanceCriterion,
 } from "@orqestra/shared";
 import {
-  defaultRunLLM,
+  defaultAnthropicRunLLM,
   extractJsonBlob,
   OrchestraLLMNotConfiguredError,
   type OrchestraRunLLM,
@@ -67,7 +67,7 @@ export function orchestraReviewerService(
   db: Db,
   deps: ReviewerServiceDeps = {},
 ) {
-  const runLLM = deps.runLLM ?? defaultRunLLM;
+  const runLLM = deps.runLLM ?? defaultAnthropicRunLLM;
 
   return {
     /**
