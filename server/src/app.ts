@@ -10,6 +10,7 @@ import { actorMiddleware } from "./middleware/auth.js";
 import { boardMutationGuard } from "./middleware/board-mutation-guard.js";
 import { privateHostnameGuard, resolvePrivateHostnameAllowSet } from "./middleware/private-hostname-guard.js";
 import { healthRoutes } from "./routes/health.js";
+import { previewRoutes } from "./routes/preview.js";
 import { companyRoutes } from "./routes/companies.js";
 import { companySkillRoutes } from "./routes/company-skills.js";
 import { agentRoutes } from "./routes/agents.js";
@@ -134,6 +135,11 @@ export async function createApp(
     app.all("/api/auth/*authPath", opts.betterAuthHandler);
   }
   app.use(llmRoutes(db));
+
+  // Public, unauthenticated preview endpoint for the marketing landing page.
+  // Mounted BEFORE the /api router so it bypasses the board-mutation guard
+  // and the rest of the API auth chain.
+  app.use("/api/preview", previewRoutes());
 
   // Mount API routes
   const api = Router();

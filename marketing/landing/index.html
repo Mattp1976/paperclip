@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Orqestra — A workforce of intelligent agents, conducted around your outcomes.</title>
-<meta name="description" content="Orqestra orchestrates a workforce of intelligent agents around the outcomes your business cares about — not your tools. One sentence in. A finished result out." />
+<title>Orqestra — Run a company with AI</title>
+<meta name="description" content="Tell Orqestra what you want. It plans the work, builds the team, and delivers the result." />
 <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
 <style>
   /* ── Type ─────────────────────────────────────────────────────────── */
@@ -52,393 +52,548 @@
   ::selection { background: var(--oxblood); color: var(--paper); }
   a { color: inherit; text-decoration: none; }
   em.ox { color: var(--oxblood); font-style: italic; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
 
   /* ── Layout primitives ────────────────────────────────────────────── */
   .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 var(--gutter); }
   .rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
 
-  /* Section heads — § I · Title */
-  .section-head {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 60px;
-    margin-bottom: 64px;
-    align-items: baseline;
+  /* ── Masthead (minimal) ──────────────────────────────────────────── */
+  .masthead {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 5;
+    padding: 28px 0;
   }
-  .section-head .label {
+  .masthead .wrap { display: flex; align-items: center; justify-content: space-between; }
+  .mark { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); }
+  .mark svg { width: 24px; height: 24px; }
+  .mark .word { font-family: var(--serif); font-weight: 700; font-size: 20px; letter-spacing: -0.5px; }
+  .signin {
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
+  }
+  .signin:hover { color: var(--oxblood); border-color: var(--oxblood); }
+
+  /* ── Hero ─────────────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 0 80px;
+  }
+  .hero .wrap {
+    max-width: 980px;
+    width: 100%;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(56px, 9vw, 124px);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    margin: 0 0 32px;
+  }
+  .hero h1 em { font-style: italic; font-weight: 400; color: var(--oxblood); }
+  .hero .standfirst {
+    font-family: var(--serif);
+    font-size: clamp(20px, 2vw, 24px);
+    line-height: 1.4;
+    color: var(--ink-muted);
+    margin: 0 0 56px;
+    max-width: 38ch;
+  }
+
+  /* ── Outcome form ─────────────────────────────────────────────────── */
+  .outcome-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 640px;
+  }
+  .outcome-input-wrap {
+    position: relative;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    padding: 18px 22px;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+  }
+  .outcome-input-wrap:focus-within {
+    border-color: var(--oxblood);
+    box-shadow: 0 0 0 3px rgba(139, 42, 42, 0.08);
+  }
+  textarea#outcome-input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    resize: none;
+    background: transparent;
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 32px;
+    color: var(--ink);
+    padding: 0;
+    margin: 0;
+    min-height: 32px;
+    max-height: 200px;
+  }
+  textarea#outcome-input::placeholder {
+    color: var(--ink-faint);
+    font-style: italic;
+    transition: opacity 400ms ease;
+  }
+  .outcome-input-wrap.rotating textarea#outcome-input::placeholder { opacity: 0; }
+  .outcome-form .row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .helper {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .helper kbd {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--rule-soft);
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin: 0 2px;
+  }
+
+  /* ── Buttons ──────────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--sans);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    padding: 16px 28px;
+    border: 1.5px solid var(--ink);
+    color: var(--ink);
+    background: transparent;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+    font-weight: 700;
+    text-align: center;
+  }
+  .btn:disabled { cursor: not-allowed; opacity: 0.6; }
+  .btn--primary { background: var(--ink); color: var(--paper); }
+  .btn--primary:hover:not(:disabled) { background: var(--oxblood); border-color: var(--oxblood); }
+  .btn--ghost:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+  .btn--large {
+    padding: 22px 40px;
+    font-size: 14px;
+  }
+  .btn .arrow { font-family: var(--serif); font-size: 18px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .btn .spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 1.5px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Preview section ─────────────────────────────────────────────── */
+  .preview {
+    border-top: 1px solid var(--rule);
+    background: var(--paper-warm);
+    padding: 96px 0 112px;
+    display: none;
+  }
+  .preview.visible { display: block; animation: fadeIn 600ms ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .preview .kicker {
     font-family: var(--sans);
     font-size: 12px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--ink-muted);
+    margin: 0 0 24px;
   }
-  .section-head h2 {
+  .preview .kicker .ox { color: var(--oxblood); font-style: italic; text-transform: none; letter-spacing: -0.005em; font-family: var(--serif); }
+  .preview-title {
     font-family: var(--serif);
-    font-size: clamp(32px, 4.4vw, 52px);
+    font-weight: 700;
+    font-size: clamp(36px, 5vw, 60px);
     line-height: 1.06;
     letter-spacing: -0.025em;
-    font-weight: 700;
-    margin: 0;
+    margin: 0 0 56px;
     max-width: 24ch;
   }
-  .section-head h2 em { font-style: italic; font-weight: 400; color: var(--oxblood); }
-  .section-head .standfirst {
-    grid-column: 2;
-    font-family: var(--serif);
-    font-size: 19px;
-    line-height: 30px;
-    color: var(--ink-muted);
-    max-width: 56ch;
-    margin: 24px 0 0;
+  .preview-title em { font-style: italic; font-weight: 400; color: var(--oxblood); }
+  .preview-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--ink);
   }
-
-  /* ── Masthead ─────────────────────────────────────────────────────── */
-  .masthead { padding: 24px 0; border-bottom: 1px solid var(--rule); position: sticky; top: 0; background: rgba(244, 239, 230, 0.92); backdrop-filter: blur(8px); z-index: 10; }
-  .masthead .wrap { display: flex; align-items: center; justify-content: space-between; }
-  .mark { display: inline-flex; align-items: center; gap: 14px; color: var(--ink); }
-  .mark svg { width: 28px; height: 28px; }
-  .mark .word { font-family: var(--serif); font-weight: 700; font-size: 22px; letter-spacing: -0.6px; }
-  .nav { display: flex; gap: 28px; align-items: center; font-family: var(--sans); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); }
-  .nav a:hover { color: var(--ink); }
-  .nav .signin { color: var(--ink); border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
-
-  /* ── Hero ─────────────────────────────────────────────────────────── */
-  .hero { padding: 112px 0 96px; }
-  .hero .wrap { display: grid; grid-template-columns: 5fr 4fr; gap: 80px; align-items: end; }
-  .eyebrow { font-family: var(--sans); font-size: 13px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-muted); margin: 0 0 32px; }
-  .eyebrow .dot { color: var(--oxblood); }
-  h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(48px, 7vw, 96px); line-height: 1.02; letter-spacing: -0.035em; margin: 0 0 8px; }
-  h1 em { font-style: italic; font-weight: 400; color: var(--oxblood); }
-  .standfirst { font-family: var(--serif); font-size: 22px; line-height: 32px; color: var(--ink); margin: 0 0 28px; max-width: 38ch; }
-  .standfirst .em { color: var(--oxblood); font-style: italic; }
-  .tagline {
+  .preview-grid .col {
+    padding: 32px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .preview-grid .col + .col {
+    padding-left: 56px;
+    border-left: 1px solid var(--rule);
+  }
+  .preview-grid h3 {
     font-family: var(--sans);
-    font-size: 13px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.22em;
     color: var(--ink-muted);
-    margin: 0;
-    padding-top: 24px;
-    border-top: 1px solid var(--rule);
-    max-width: 38ch;
+    margin: 0 0 20px;
+    font-weight: 700;
   }
-  .tagline em {
+  .preview-grid ol, .preview-grid ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: pstep;
+  }
+  .preview-grid ol li {
+    counter-increment: pstep;
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 28px;
+    padding: 10px 0 10px 56px;
+    border-bottom: 1px dashed var(--rule);
+    position: relative;
+  }
+  .preview-grid ol li:last-child { border-bottom: 0; }
+  .preview-grid ol li::before {
+    content: counter(pstep, lower-roman) ".";
+    position: absolute;
+    left: 0;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-muted);
+    letter-spacing: 0.04em;
+    top: 14px;
+    width: 40px;
+    text-align: right;
+  }
+  .preview-grid ul li {
+    font-family: var(--serif);
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .preview-grid ul li:last-child { border-bottom: 0; }
+  .preview-grid ul li strong {
+    display: block;
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 24px;
+    color: var(--ink);
+  }
+  .preview-grid ul li em {
+    font-style: italic;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--ink-muted);
+  }
+  .preview-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-top: 0;
+    border-top: 1px solid var(--ink);
+  }
+  .preview-meta .stat {
+    padding: 32px 0;
+    border-right: 1px solid var(--rule);
+  }
+  .preview-meta .stat:last-child { border-right: 0; padding-left: 56px; }
+  .preview-meta h4 {
+    font-family: var(--sans);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--ink-muted);
+    margin: 0 0 12px;
+    font-weight: 400;
+  }
+  .preview-meta .value {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin: 0;
+  }
+  .preview-meta .value em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--oxblood);
+  }
+  .preview-cta {
+    margin-top: 56px;
+    text-align: center;
+  }
+  .preview-cta .footnote {
     font-family: var(--serif);
     font-style: italic;
-    text-transform: none;
-    letter-spacing: -0.005em;
-    font-size: 18px;
+    font-size: 14px;
+    color: var(--ink-muted);
+    margin: 16px 0 0;
+  }
+
+  /* ── What is this ─────────────────────────────────────────────────── */
+  .what {
+    padding: 120px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .what-block {
+    font-family: var(--serif);
+    font-size: clamp(22px, 2.6vw, 30px);
+    line-height: 1.5;
+    margin: 0 auto 64px;
+    max-width: 28ch;
+    color: var(--ink);
+  }
+  .what-block .lead {
+    display: block;
+    font-weight: 700;
+    font-size: clamp(28px, 3.4vw, 40px);
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+  .what-block .lead em { font-style: italic; font-weight: 400; color: var(--oxblood); }
+  .what-block p { margin: 0 0 8px; }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 24px;
+    padding-top: 40px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--serif);
+    font-size: 22px;
+    letter-spacing: -0.01em;
+  }
+  .flow span {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .flow .arrow {
     color: var(--oxblood);
-    margin-right: 6px;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 18px;
   }
-  .ctas { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 32px; }
-  .btn { display: inline-flex; align-items: center; gap: 10px; font-family: var(--sans); font-size: 13px; text-transform: uppercase; letter-spacing: 0.16em; padding: 16px 28px; border: 1px solid var(--ink); color: var(--ink); background: transparent; cursor: pointer; transition: background 200ms ease, color 200ms ease; }
-  .btn--primary { background: var(--ink); color: var(--paper); }
-  .btn--primary:hover { background: var(--oxblood); border-color: var(--oxblood); }
-  .btn--ghost:hover { background: var(--ink); color: var(--paper); }
-  .btn .arrow { font-family: var(--serif); font-size: 16px; }
 
-  .score { align-self: end; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 24px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-muted); line-height: 24px; }
-  .score .row { display: grid; grid-template-columns: 80px 1fr 64px; align-items: center; gap: 16px; border-top: 1px dashed var(--rule); padding: 6px 0; }
-  .score .row:first-of-type { border-top: 0; }
-  .score .label { color: var(--ink); letter-spacing: 0.04em; text-transform: uppercase; font-size: 11px; }
-  .score .bar { height: 1px; background: var(--ink); }
-  .score .b1 .bar { width: 64%; }
-  .score .b2 .bar { width: 88%; }
-  .score .b3 .bar { width: 42%; background: var(--oxblood); height: 2px; }
-  .score .b4 .bar { width: 76%; }
-  .score .b5 .bar { width: 22%; }
-  .score .meta { text-align: right; font-variant-numeric: tabular-nums; }
-
-  /* ── Section: What it does (now § I) ──────────────────────────────── */
-  section.what { padding: 96px 0; border-top: 1px solid var(--rule); }
-  .what-list { list-style: none; margin: 0; padding: 0; }
-  .what-list li { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 60px; padding: 32px 0; border-top: 1px solid var(--rule); align-items: baseline; }
-  .what-list li:last-child { border-bottom: 1px solid var(--rule); }
-  .what-list .num { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); letter-spacing: 0.04em; }
-  .what-list .head { font-family: var(--serif); font-weight: 700; font-size: 28px; line-height: 36px; letter-spacing: -0.018em; margin: 0; }
-  .what-list .head em { font-style: italic; font-weight: 400; color: var(--oxblood); }
-  .what-list .body { font-family: var(--serif); font-size: 17px; line-height: 27px; color: var(--ink-muted); margin: 0; }
-
-  /* ── Section: How it works ────────────────────────────────────────── */
-  section.how { padding: 96px 0; border-top: 1px solid var(--rule); background: var(--paper-warm); }
-  .how-architecture {
+  /* ── Examples (Clipmart teaser) ──────────────────────────────────── */
+  .examples {
+    padding: 96px 0;
+    border-top: 1px solid var(--rule);
+    background: var(--paper-warm);
+  }
+  .examples-head {
+    margin: 0 0 64px;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    max-width: 24ch;
+  }
+  .examples-head em { font-style: italic; font-weight: 400; color: var(--oxblood); }
+  .examples-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 56px;
-    margin-bottom: 80px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--ink);
   }
-  .how-architecture figure {
-    margin: 0;
-    padding: 40px;
+  .example {
+    padding: 32px 28px 36px;
     background: var(--paper);
-    border: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    text-align: left;
+    font-family: var(--serif);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 180ms ease, border-color 180ms ease;
+    width: 100%;
+    border-top: 0;
+    border-left: 0;
+    appearance: none;
   }
-  .how-architecture figcaption {
+  .example:nth-child(3n) { border-right: 0; }
+  .example:hover { background: var(--paper-warm); }
+  .example .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin: 0 0 16px;
+    display: block;
+  }
+  .example h3 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 28px;
+    letter-spacing: -0.014em;
+    margin: 0 0 12px;
+  }
+  .example h3 em { font-style: italic; font-weight: 400; }
+  .example p {
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--ink-muted);
+    margin: 0 0 16px;
+  }
+  .example .produces {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink);
+    border-top: 1px dashed var(--rule);
+    padding-top: 12px;
+    margin: 0 0 16px;
+  }
+  .example .try {
     font-family: var(--sans);
     font-size: 12px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--ink-muted);
-    margin-top: 16px;
+    color: var(--oxblood);
+    font-weight: 700;
+  }
+
+  /* ── Trust ────────────────────────────────────────────────────────── */
+  .trust {
+    padding: 120px 0;
+    border-top: 1px solid var(--rule);
     text-align: center;
   }
-
-  .how-stages {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 48px 80px;
-  }
-  .how-stages li { padding-top: 24px; border-top: 2px solid var(--ink); }
-  .how-stages .stage-num {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--oxblood);
-    margin: 0 0 12px;
-  }
-  .how-stages h3 {
+  .trust .declaration {
     font-family: var(--serif);
     font-weight: 700;
-    font-size: 24px;
-    letter-spacing: -0.012em;
-    margin: 0 0 12px;
+    font-size: clamp(36px, 5vw, 60px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin: 0 0 32px;
   }
-  .how-stages p {
+  .trust .declaration em { font-style: italic; font-weight: 400; color: var(--oxblood); }
+  .trust .body {
     font-family: var(--serif);
-    font-size: 16px;
-    line-height: 26px;
+    font-size: 20px;
+    line-height: 1.5;
     color: var(--ink-muted);
-    margin: 0 0 12px;
+    max-width: 50ch;
+    margin: 0 auto 48px;
   }
-  .how-stages code {
+  .trust .proof {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 20px 32px;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
     font-family: var(--mono);
     font-size: 13px;
-    background: rgba(139, 42, 42, 0.06);
-    color: var(--oxblood);
-    padding: 1px 6px;
-    border-radius: 2px;
-  }
-
-  /* Worked example */
-  .example {
-    margin-top: 80px;
-    padding-top: 64px;
-    border-top: 1px solid var(--rule);
-  }
-  .example-head { font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-muted); margin: 0 0 20px; }
-  .example-prompt {
-    font-family: var(--serif);
-    font-size: clamp(24px, 3vw, 36px);
-    line-height: 1.18;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin: 0 0 48px;
-    max-width: 28ch;
-  }
-  .example-prompt em { font-style: italic; font-weight: 400; color: var(--oxblood); }
-  .example-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: var(--mono);
-    font-size: 14px;
-  }
-  .example-table th {
-    text-align: left;
-    font-family: var(--sans);
-    font-weight: 400;
-    font-size: 11px;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--ink-muted);
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--ink);
   }
-  .example-table td {
-    padding: 16px;
-    border-bottom: 1px solid var(--rule-soft);
-    vertical-align: top;
+  .trust .proof .number {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    text-transform: none;
+    color: var(--oxblood);
   }
-  .example-table td.role { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink); width: 22%; }
-  .example-table td.task { font-family: var(--serif); font-size: 16px; color: var(--ink-muted); }
-  .example-table td.cost { text-align: right; color: var(--ink); white-space: nowrap; }
-  .example-table tr.total td { border-bottom: 0; padding-top: 24px; }
-  .example-table tr.total td.role { font-style: normal; font-weight: 700; }
-  .example-table tr.total td.cost { color: var(--oxblood); font-weight: 400; }
 
-  /* ── Section: Who it's for ────────────────────────────────────────── */
-  section.audience { padding: 96px 0 56px; border-top: 1px solid var(--rule); }
-  .audience-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--rule); }
-  .audience-grid .card { padding: 32px 24px 40px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-  .audience-grid .card:last-child { border-right: 0; }
-  .audience-grid .num { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); letter-spacing: 0.06em; margin: 0 0 24px; }
-  .audience-grid .card h3 { font-family: var(--serif); font-weight: 700; font-size: 22px; line-height: 28px; letter-spacing: -0.01em; margin: 0 0 16px; }
-  .audience-grid .card h3 em { font-style: italic; font-weight: 400; }
-  .audience-grid .card p { font-family: var(--serif); font-size: 16px; line-height: 25px; color: var(--ink-muted); margin: 0; }
-
-  /* ── Section: Getting started ─────────────────────────────────────── */
-  section.start { padding: 96px 0; border-top: 1px solid var(--rule); }
-  .start-list { list-style: none; counter-reset: stepc; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 0; }
-  .start-list li {
-    counter-increment: stepc;
-    display: grid;
-    grid-template-columns: 80px 1fr 1.4fr;
-    gap: 56px;
-    padding: 40px 0;
+  /* ── Final CTA ────────────────────────────────────────────────────── */
+  .close {
+    padding: 120px 0;
     border-top: 1px solid var(--rule);
-    align-items: start;
+    text-align: center;
+    background: var(--paper-warm);
   }
-  .start-list li:last-child { border-bottom: 1px solid var(--rule); }
-  .start-list .step-tag { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; color: var(--ink-muted); text-transform: uppercase; padding-top: 4px; }
-  .start-list h3 { font-family: var(--serif); font-weight: 700; font-size: 24px; line-height: 32px; letter-spacing: -0.014em; margin: 0 0 8px; }
-  .start-list h3 em { font-style: italic; font-weight: 400; color: var(--oxblood); }
-  .start-list p { font-family: var(--serif); font-size: 16px; line-height: 26px; color: var(--ink-muted); margin: 0; }
-  .start-list .detail { font-family: var(--serif); font-size: 16px; line-height: 26px; color: var(--ink-muted); }
-  .start-list code { font-family: var(--mono); font-size: 13px; background: rgba(14, 14, 12, 0.06); color: var(--ink); padding: 2px 7px; border-radius: 2px; }
+  .close h2 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(40px, 6vw, 80px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    margin: 0 0 48px;
+  }
+  .close h2 em { font-style: italic; font-weight: 400; color: var(--oxblood); }
 
-  /* ── Section: Templates ───────────────────────────────────────────── */
-  section.templates { padding: 96px 0; border-top: 1px solid var(--rule); }
-  .templates-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--rule); }
-  .templates-grid .tpl { padding: 36px 28px 40px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-  .templates-grid .tpl:last-child { border-right: 0; }
-  .templates-grid .tpl .meta { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-muted); margin: 0 0 16px; }
-  .templates-grid .tpl h3 { font-family: var(--serif); font-weight: 700; font-size: 24px; line-height: 30px; letter-spacing: -0.014em; margin: 0 0 16px; }
-  .templates-grid .tpl h3 em { font-style: italic; font-weight: 400; }
-  .templates-grid .tpl p { font-family: var(--serif); font-size: 16px; line-height: 26px; color: var(--ink-muted); margin: 0 0 20px; }
-  .templates-grid .tpl .stat { font-family: var(--mono); font-size: 12px; color: var(--ink); letter-spacing: 0.04em; }
-  .templates-grid .tpl .stat strong { color: var(--oxblood); font-weight: 400; font-style: italic; font-family: var(--serif); }
-
-  /* ── Section: Requirements (table) ────────────────────────────────── */
-  section.req { padding: 96px 0; border-top: 1px solid var(--rule); background: var(--paper-warm); }
-  .req-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
-  .req-block h3 { font-family: var(--sans); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 400; color: var(--ink-muted); margin: 0 0 24px; padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
-  .req-block dl { margin: 0; }
-  .req-block dt { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink); margin: 16px 0 4px; }
-  .req-block dt:first-child { margin-top: 0; }
-  .req-block dd { margin: 0; font-family: var(--serif); font-size: 15px; line-height: 24px; color: var(--ink-muted); padding-bottom: 16px; border-bottom: 1px dashed var(--rule); }
-  .req-block dd:last-of-type { border-bottom: 0; }
-  .req-block code { font-family: var(--mono); font-size: 13px; background: rgba(14, 14, 12, 0.06); color: var(--ink); padding: 1px 6px; border-radius: 2px; }
-
-  /* ── Section: Connectors ──────────────────────────────────────────── */
-  section.connectors { padding: 96px 0; border-top: 1px solid var(--rule); }
-  .connectors-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
-  .connectors-grid .item { background: var(--paper); padding: 28px 16px; text-align: center; font-family: var(--serif); font-size: 16px; color: var(--ink); }
-  .connectors-grid .item .small { display: block; font-family: var(--sans); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-muted); margin-top: 6px; }
-  .connectors-note { margin-top: 32px; font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--ink-muted); max-width: 60ch; }
-  .connectors-note code { font-family: var(--mono); font-size: 14px; color: var(--ink); }
-
-  /* ── Section: Cost ────────────────────────────────────────────────── */
-  section.pricing { padding: 96px 0; border-top: 1px solid var(--rule); background: var(--paper-warm); }
-  .pricing-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--ink); }
-  .pricing-cards .plan { padding: 32px 28px 36px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--paper); }
-  .pricing-cards .plan:last-child { border-right: 0; }
-  .pricing-cards .plan.featured { background: var(--ink); color: var(--paper); }
-  .pricing-cards .plan.featured .meta { color: var(--paper); opacity: 0.7; }
-  .pricing-cards .plan.featured h3 em { color: var(--paper); }
-  .pricing-cards .plan.featured ul li { color: var(--paper); }
-  .pricing-cards .plan.featured ul li::before { color: var(--paper); }
-  .pricing-cards .plan.featured .price em { color: var(--paper); }
-  .pricing-cards .plan .meta { font-family: var(--sans); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-muted); margin: 0 0 24px; }
-  .pricing-cards .plan h3 { font-family: var(--serif); font-weight: 700; font-size: 24px; margin: 0 0 16px; letter-spacing: -0.014em; }
-  .pricing-cards .plan h3 em { font-style: italic; font-weight: 400; color: var(--oxblood); }
-  .pricing-cards .price { font-family: var(--serif); font-weight: 700; font-size: 40px; letter-spacing: -0.025em; line-height: 1; margin: 0 0 8px; }
-  .pricing-cards .price em { font-family: var(--serif); font-weight: 400; font-style: italic; font-size: 18px; color: var(--ink-muted); }
-  .pricing-cards .plan ul { list-style: none; padding: 0; margin: 24px 0 0; font-family: var(--serif); font-size: 15px; line-height: 22px; color: var(--ink-muted); }
-  .pricing-cards .plan li { padding: 8px 0 8px 18px; position: relative; }
-  .pricing-cards .plan li::before { content: "·"; position: absolute; left: 4px; color: var(--oxblood); font-weight: 700; }
-
-  /* ── Pull quote ───────────────────────────────────────────────────── */
-  section.quote { padding: 120px 0; text-align: center; border-top: 1px solid var(--rule); }
-  .pull { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(28px, 4vw, 48px); line-height: 1.18; letter-spacing: -0.015em; max-width: 24ch; margin: 0 auto 32px; }
-  .pull .em { color: var(--oxblood); font-style: italic; }
-  .pull-attr { font-family: var(--sans); font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-muted); }
-
-  /* ── FAQ ──────────────────────────────────────────────────────────── */
-  section.faq { padding: 96px 0; border-top: 1px solid var(--rule); }
-  .faq-list { list-style: none; margin: 0; padding: 0; }
-  .faq-list details {
+  /* ── Footer ───────────────────────────────────────────────────────── */
+  footer {
     border-top: 1px solid var(--rule);
-    padding: 28px 0;
+    padding: 32px 0 56px;
+    color: var(--ink-muted);
   }
-  .faq-list details:last-of-type { border-bottom: 1px solid var(--rule); }
-  .faq-list summary {
-    cursor: pointer;
-    list-style: none;
+  footer .wrap {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     gap: 24px;
-    font-family: var(--serif);
-    font-weight: 700;
-    font-size: 22px;
-    letter-spacing: -0.012em;
+    flex-wrap: wrap;
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.06em;
   }
-  .faq-list summary::-webkit-details-marker { display: none; }
-  .faq-list summary::after { content: "+"; font-family: var(--serif); font-size: 26px; font-weight: 400; color: var(--ink-muted); transition: transform 200ms ease; }
-  .faq-list details[open] summary::after { content: "−"; }
-  .faq-list summary em { font-style: italic; font-weight: 400; color: var(--oxblood); }
-  .faq-list .ans {
-    margin-top: 20px;
+  footer .colophon {
     font-family: var(--serif);
-    font-size: 17px;
-    line-height: 28px;
-    color: var(--ink-muted);
-    max-width: 64ch;
+    font-style: italic;
+    font-size: 13px;
   }
-  .faq-list .ans p { margin: 0 0 12px; }
-  .faq-list .ans p:last-child { margin-bottom: 0; }
-  .faq-list .ans code { font-family: var(--mono); font-size: 14px; background: rgba(14, 14, 12, 0.06); padding: 1px 6px; border-radius: 2px; color: var(--ink); }
-
-  /* ── Closing CTA ──────────────────────────────────────────────────── */
-  section.close { padding: 80px 0 120px; border-top: 1px solid var(--rule); }
-  .close .wrap { display: grid; grid-template-columns: 2fr 1fr; gap: 80px; align-items: end; }
-  .close h2 { font-family: var(--serif); font-weight: 700; font-size: clamp(36px, 5vw, 64px); line-height: 1.06; letter-spacing: -0.03em; margin: 0; }
-  .close h2 em { font-style: italic; font-weight: 400; color: var(--oxblood); }
-  .close .ctas { justify-content: flex-end; }
-
-  /* ── Footer ───────────────────────────────────────────────────────── */
-  footer { border-top: 1px solid var(--rule); padding: 32px 0 64px; color: var(--ink-muted); }
-  footer .wrap { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 40px; font-family: var(--sans); font-size: 13px; letter-spacing: 0.04em; }
-  footer .colophon { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--ink-muted); }
-  footer .col h4 { font-family: var(--sans); font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink); margin: 0 0 16px; }
-  footer ul { list-style: none; margin: 0; padding: 0; }
-  footer li { margin-bottom: 8px; }
   footer a:hover { color: var(--ink); }
 
   /* ── Responsive ───────────────────────────────────────────────────── */
   @media (max-width: 880px) {
-    .hero { padding: 72px 0 64px; }
-    .hero .wrap { grid-template-columns: 1fr; gap: 56px; }
-    .section-head { grid-template-columns: 1fr; gap: 24px; margin-bottom: 40px; }
-    .section-head .standfirst { grid-column: 1; }
-    .audience-grid, .templates-grid, .pricing-cards { grid-template-columns: 1fr 1fr; }
-    .audience-grid .card:nth-child(2), .templates-grid .tpl:nth-child(2), .pricing-cards .plan:nth-child(2) { border-right: 0; }
-    .what-list li, .start-list li { grid-template-columns: 60px 1fr; gap: 24px; }
-    .what-list .body, .start-list .detail { grid-column: 2; }
-    .how-stages { grid-template-columns: 1fr; gap: 32px; }
-    .req-cols { grid-template-columns: 1fr; gap: 48px; }
-    .connectors-grid { grid-template-columns: repeat(3, 1fr); }
-    .close .wrap { grid-template-columns: 1fr; gap: 32px; }
-    .close .ctas { justify-content: flex-start; }
-    footer .wrap { grid-template-columns: 1fr 1fr; }
+    .hero { min-height: auto; padding: 140px 0 64px; }
+    .preview-grid { grid-template-columns: 1fr; }
+    .preview-grid .col + .col { padding-left: 0; border-left: 0; padding-top: 24px; border-top: 1px solid var(--rule); }
+    .preview-meta { grid-template-columns: 1fr; }
+    .preview-meta .stat { border-right: 0; border-bottom: 1px solid var(--rule); }
+    .preview-meta .stat:last-child { padding-left: 0; border-bottom: 0; }
+    .examples-grid { grid-template-columns: 1fr 1fr; }
+    .example:nth-child(3n) { border-right: 1px solid var(--rule); }
+    .example:nth-child(2n) { border-right: 0; }
+    .flow { font-size: 17px; gap: 12px; }
   }
   @media (max-width: 540px) {
     :root { --gutter: 24px; }
-    .nav { gap: 14px; font-size: 11px; }
-    .audience-grid, .templates-grid, .pricing-cards { grid-template-columns: 1fr; }
-    .audience-grid .card, .templates-grid .tpl, .pricing-cards .plan { border-right: 0; }
-    .connectors-grid { grid-template-columns: repeat(2, 1fr); }
-    footer .wrap { grid-template-columns: 1fr; }
+    .examples-grid { grid-template-columns: 1fr; }
+    .example { border-right: 0 !important; }
+    .hero h1 { font-size: clamp(44px, 12vw, 72px); }
+    textarea#outcome-input { font-size: 18px; line-height: 26px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ── Masthead ────────────────────────────────────────────────────── -->
 <header class="masthead">
   <div class="wrap">
     <a href="/" class="mark" aria-label="Orqestra">
@@ -448,679 +603,356 @@
       </svg>
       <span class="word">orqestra</span>
     </a>
-    <nav class="nav">
-      <a href="#what">What</a>
-      <a href="#how">How</a>
-      <a href="#start">Start</a>
-      <a href="#templates">Templates</a>
-      <a href="#pricing">Pricing</a>
-      <a href="/sign-in" class="signin">Sign in</a>
-    </nav>
+    <a href="/sign-in" class="signin">Sign in</a>
   </div>
 </header>
 
 <!-- ── Hero ────────────────────────────────────────────────────────── -->
-<section class="hero">
+<section class="hero" id="top">
   <div class="wrap">
-    <div>
-      <p class="eyebrow">Orqestra <span class="dot">·</span> Op. 1, mvt. i</p>
-      <h1>Work is no longer<br/>executed.<br/><em>It's orchestrated.</em></h1>
-      <p class="standfirst">
-        Orqestra is the operating layer for autonomous teams.
-        Define the outcome. The system assembles, directs,
-        and delivers.
-      </p>
-      <p class="tagline"><em>One input.</em> Coordinated execution.</p>
-      <div class="ctas">
-        <a href="/start" class="btn btn--primary">Try free <span class="arrow">→</span></a>
-        <a href="mailto:matt@future-collective.co.uk?subject=Orqestra%20walkthrough" class="btn btn--ghost">Book a walkthrough</a>
+    <h1>Run a company<br/><em>with AI.</em></h1>
+    <p class="standfirst">
+      Tell Orqestra what you want. It plans the work, builds the team,
+      and delivers the result.
+    </p>
+
+    <form id="outcome-form" class="outcome-form" autocomplete="off">
+      <label class="visually-hidden" for="outcome-input">What do you want to achieve?</label>
+      <div class="outcome-input-wrap">
+        <textarea
+          id="outcome-input"
+          name="input"
+          rows="1"
+          placeholder="What do you want to achieve?"
+          spellcheck="true"
+          maxlength="500"
+        ></textarea>
+      </div>
+      <div class="row">
+        <p class="helper">Press <kbd>↵</kbd> to preview your plan</p>
+        <button type="submit" class="btn btn--primary" id="submit-btn">
+          See how this would run <span class="arrow">→</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ── Plan preview (hidden until generated) ───────────────────────── -->
+<section class="preview" id="preview" aria-live="polite">
+  <div class="wrap">
+    <p class="kicker">A plan <span class="ox">for you</span></p>
+    <h2 class="preview-title" id="preview-title">Your outcome.</h2>
+
+    <div class="preview-grid">
+      <div class="col">
+        <h3>The plan</h3>
+        <ol id="preview-steps"></ol>
+      </div>
+      <div class="col">
+        <h3>The team</h3>
+        <ul id="preview-agents"></ul>
       </div>
     </div>
-    <div class="score" aria-hidden="true">
-      <div class="row b1"><span class="label">Plan</span><span class="bar"></span><span class="meta">0:14</span></div>
-      <div class="row b2"><span class="label">Research</span><span class="bar"></span><span class="meta">2:42</span></div>
-      <div class="row b3"><span class="label">Decide</span><span class="bar"></span><span class="meta">3:01</span></div>
-      <div class="row b4"><span class="label">Execute</span><span class="bar"></span><span class="meta">7:18</span></div>
-      <div class="row b5"><span class="label">Review</span><span class="bar"></span><span class="meta">7:44</span></div>
-    </div>
-  </div>
-</section>
 
-<!-- ── § I · What it does ──────────────────────────────────────────── -->
-<section class="what" id="what">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="label">§ I  ·  What it does</span>
-      <h2>Four moves, performed in order, every time.</h2>
-      <p class="standfirst">
-        Each outcome you ask for moves through the same four-stage cycle.
-        Orqestra is the conductor; the agents are the orchestra. Both are doing
-        the work — the conductor's job is to know <em class="ox">when each
-        instrument should sound</em>.
-      </p>
-    </div>
-    <ol class="what-list">
-      <li>
-        <span class="num">i.</span>
-        <p class="head">Plans the <em>outcome</em> from one sentence.</p>
-        <p class="body">Tell Orqestra what you want — "an intelligence report on agentic AI", "the September close" — and it returns a costed plan with the steps, the agents, and the budget before any work begins.</p>
-      </li>
-      <li>
-        <span class="num">ii.</span>
-        <p class="head">Routes work to the <em>right agent</em>.</p>
-        <p class="body">A workforce of specialists — research, finance, legal, ops, sales — each with their own instructions and tools. Orqestra hands every step to the one whose job it is.</p>
-      </li>
-      <li>
-        <span class="num">iii.</span>
-        <p class="head">Reviews itself before <em>shipping</em>.</p>
-        <p class="body">A reviewer agent reads what each operator produced, flags weaknesses, and asks for revisions. The output you see is the version that already survived a critique.</p>
-      </li>
-      <li>
-        <span class="num">iv.</span>
-        <p class="head">Tells you what it spent and <em>why</em>.</p>
-        <p class="body">Every run is logged with token cost, time, and the human equivalent of what was just done. No mystery bill at the end of the month.</p>
-      </li>
-    </ol>
-  </div>
-</section>
-
-<!-- ── § II · How it works ─────────────────────────────────────────── -->
-<section class="how" id="how">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="label">§ II  ·  How it works</span>
-      <h2>The conductor, the score, the <em>orchestra</em>.</h2>
-      <p class="standfirst">
-        Orqestra is built around a deliberate pattern. A planning service writes
-        the score. A router decides who plays each part. The orchestra of agents
-        executes in parallel where it can, in sequence where it must. A reviewer
-        listens before the cue is sent to the audience. Every motion is
-        observable, costed, and auditable.
-      </p>
-    </div>
-
-    <!-- Architecture diagram -->
-    <div class="how-architecture">
-      <figure>
-        <svg viewBox="0 0 1200 540" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
-          <defs>
-            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#0E0E0C"/>
-            </marker>
-            <marker id="arr-soft" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#8B8479"/>
-            </marker>
-          </defs>
-          <style>
-            .lab { font-family: "Plex Serif", serif; font-size: 16px; font-weight: 700; fill: #0E0E0C; letter-spacing: -0.01em; }
-            .lab-it { font-family: "Plex Serif", serif; font-style: italic; font-size: 13px; fill: #5A564E; }
-            .lab-agent { font-family: "Plex Serif", serif; font-style: italic; font-size: 14px; fill: #0E0E0C; }
-            .stage-tag { font-family: "Plex Mono", monospace; font-size: 10px; fill: #8B8479; letter-spacing: 0.18em; text-transform: uppercase; }
-            .tag { font-family: "Plex Mono", monospace; font-size: 10px; fill: #5A564E; letter-spacing: 0.18em; text-transform: uppercase; }
-            .ox-tag { font-family: "Plex Mono", monospace; font-size: 10px; fill: #8B2A2A; letter-spacing: 0.18em; text-transform: uppercase; }
-            .box { fill: #F4EFE6; stroke: #0E0E0C; stroke-width: 1.5; }
-            .gate { fill: #F4EFE6; stroke: #8B2A2A; stroke-width: 1.5; }
-            .conn { stroke: #0E0E0C; stroke-width: 1.25; fill: none; }
-            .conn-soft { stroke: #8B8479; stroke-width: 1; stroke-dasharray: 5 5; fill: none; }
-          </style>
-
-          <!-- Title strip -->
-          <text x="40" y="34" class="tag">Fig. 1  ·  Orqestra signal flow</text>
-          <line x1="40" y1="50" x2="1160" y2="50" stroke="#0E0E0C" stroke-width="1"/>
-
-          <!-- Stage tags above each box -->
-          <text x="120"  y="90" class="stage-tag" text-anchor="middle">Stage 01 · Input</text>
-          <text x="320"  y="90" class="stage-tag" text-anchor="middle">Stage 02 · Plan</text>
-          <text x="520"  y="90" class="ox-tag"   text-anchor="middle">Stage 03 · Approve</text>
-          <text x="720"  y="90" class="stage-tag" text-anchor="middle">Stage 04 · Execute</text>
-          <text x="920"  y="90" class="stage-tag" text-anchor="middle">Stage 05 · Review</text>
-          <text x="1100" y="90" class="stage-tag" text-anchor="middle">Stage 06 · Deliver</text>
-
-          <!-- 6-stage pipeline boxes (top row) -->
-          <!-- Box 1: User outcome -->
-          <rect x="60" y="110" width="120" height="80" class="box"/>
-          <text x="120" y="145" class="lab" text-anchor="middle">Outcome</text>
-          <text x="120" y="168" class="lab-it" text-anchor="middle">"one sentence"</text>
-
-          <!-- Box 2: Planner -->
-          <rect x="260" y="110" width="120" height="80" class="box"/>
-          <text x="320" y="145" class="lab" text-anchor="middle">Planner</text>
-          <text x="320" y="168" class="lab-it" text-anchor="middle">writes the score</text>
-
-          <!-- Box 3: Decision gate (oxblood-bordered hexagon) -->
-          <polygon points="470,150 495,110 545,110 570,150 545,190 495,190" class="gate"/>
-          <text x="520" y="146" class="lab" text-anchor="middle" fill="#8B2A2A">Approval</text>
-          <text x="520" y="168" class="lab-it" text-anchor="middle" fill="#8B2A2A">you decide</text>
-
-          <!-- Box 4: Router -->
-          <rect x="660" y="110" width="120" height="80" class="box"/>
-          <text x="720" y="145" class="lab" text-anchor="middle">Router</text>
-          <text x="720" y="168" class="lab-it" text-anchor="middle">picks the player</text>
-
-          <!-- Box 5: Reviewer -->
-          <rect x="860" y="110" width="120" height="80" class="box"/>
-          <text x="920" y="145" class="lab" text-anchor="middle">Reviewer</text>
-          <text x="920" y="168" class="lab-it" text-anchor="middle">critiques work</text>
-
-          <!-- Box 6: Assembler -->
-          <rect x="1040" y="110" width="120" height="80" class="box"/>
-          <text x="1100" y="145" class="lab" text-anchor="middle">Assembler</text>
-          <text x="1100" y="168" class="lab-it" text-anchor="middle">final deliverable</text>
-
-          <!-- Horizontal arrows between boxes -->
-          <line x1="180" y1="150" x2="465" y2="150" class="conn" marker-end="url(#arr)"/>
-          <line x1="380" y1="150" x2="465" y2="150" class="conn"/>
-          <!-- Box1 → Box2 -->
-          <line x1="180" y1="150" x2="260" y2="150" class="conn" marker-end="url(#arr)"/>
-          <!-- Box2 → Gate -->
-          <line x1="380" y1="150" x2="468" y2="150" class="conn" marker-end="url(#arr)"/>
-          <!-- Gate → Router -->
-          <line x1="572" y1="150" x2="660" y2="150" class="conn" marker-end="url(#arr)"/>
-          <!-- Router → Reviewer (this loops via orchestra below — see dashed) -->
-          <line x1="780" y1="150" x2="860" y2="150" class="conn" marker-end="url(#arr)"/>
-          <!-- Reviewer → Assembler -->
-          <line x1="980" y1="150" x2="1040" y2="150" class="conn" marker-end="url(#arr)"/>
-
-          <!-- Orchestra block hanging beneath the Router box -->
-          <text x="720" y="240" class="stage-tag" text-anchor="middle">The Orchestra</text>
-          <line x1="640" y1="252" x2="800" y2="252" stroke="#0E0E0C" stroke-width="1"/>
-          <!-- Connection from router box down to orchestra -->
-          <line x1="720" y1="190" x2="720" y2="220" class="conn"/>
-          <!-- Branching bracket — left and right small lines -->
-          <line x1="640" y1="220" x2="800" y2="220" class="conn"/>
-          <line x1="640" y1="220" x2="640" y2="252" class="conn"/>
-          <line x1="800" y1="220" x2="800" y2="252" class="conn"/>
-
-          <!-- Agent rows -->
-          <text x="720" y="278" class="lab-agent" text-anchor="middle">Research</text>
-          <text x="720" y="302" class="lab-agent" text-anchor="middle">Finance</text>
-          <text x="720" y="326" class="lab-agent" text-anchor="middle">Legal</text>
-          <text x="720" y="350" class="lab-agent" text-anchor="middle">Operations</text>
-          <text x="720" y="374" class="lab-agent" text-anchor="middle">Sales</text>
-          <text x="720" y="398" class="lab-it" text-anchor="middle">+ your custom agents</text>
-
-          <!-- Bracket close -->
-          <line x1="640" y1="412" x2="800" y2="412" stroke="#0E0E0C" stroke-width="1"/>
-
-          <!-- Output return to user (soft dashed loop) -->
-          <path d="M 1100 190 L 1100 460 L 120 460 L 120 190" class="conn-soft" marker-end="url(#arr-soft)"/>
-          <text x="610" y="453" class="tag" text-anchor="middle">Final deliverable returns to the originator</text>
-
-          <!-- Footer strip -->
-          <line x1="40" y1="510" x2="1160" y2="510" stroke="#0E0E0C" stroke-width="1"/>
-          <text x="40"   y="500" class="tag">Side A</text>
-          <text x="1160" y="500" class="tag" text-anchor="end">© Orqestra · MMXXVI</text>
-        </svg>
-        <figcaption>Fig. 1  ·  The signal flow of a single outcome through Orqestra. The approval gate (red) is where the human decides; everything before it is proposal, everything after is execution.</figcaption>
-      </figure>
-    </div>
-
-    <!-- Stages -->
-    <ol class="how-stages">
-      <li>
-        <p class="stage-num">Stage 01  ·  Intake</p>
-        <h3>You write one sentence.</h3>
-        <p>The outcome lands at <code>/start</code>. You name what you want, the audience, the deadline. No fields, no tickbox forms.</p>
-      </li>
-      <li>
-        <p class="stage-num">Stage 02  ·  Planning</p>
-        <h3>The planner writes the score.</h3>
-        <p>An LLM reads your fleet of agents and your outcome, returns a <em class="ox">step-by-step plan</em> with named owners and an estimated cost. You see it before any token is spent.</p>
-      </li>
-      <li>
-        <p class="stage-num">Stage 03  ·  Approval</p>
-        <h3>You approve, or revise.</h3>
-        <p>One click to start. Or edit the plan in place — swap the agent on a step, drop a step, raise the budget.</p>
-      </li>
-      <li>
-        <p class="stage-num">Stage 04  ·  Routing</p>
-        <h3>Each step finds its specialist.</h3>
-        <p>The router picks the agent best suited to the step — based on role, capabilities, and historical performance.</p>
-      </li>
-      <li>
-        <p class="stage-num">Stage 05  ·  Execution</p>
-        <h3>The orchestra plays.</h3>
-        <p>Independent steps run in parallel. Each agent has its own working folder, its own session, its own tools.</p>
-      </li>
-      <li>
-        <p class="stage-num">Stage 06  ·  Review</p>
-        <h3>A reviewer critiques the output.</h3>
-        <p>A separate agent reads the work as a sceptical reader. Calls weaknesses. Asks for revisions. The version you receive has already survived this gate.</p>
-      </li>
-      <li>
-        <p class="stage-num">Stage 07  ·  Assembly</p>
-        <h3>One coherent deliverable.</h3>
-        <p>An assembler agent stitches the parts together — your report, your plan, your model — into a single document with the right tone, structure, and citations.</p>
-      </li>
-      <li>
-        <p class="stage-num">Stage 08  ·  Standup</p>
-        <h3>You get a daily summary.</h3>
-        <p>Every morning, a digest of what shipped, what's running, what stalled, and what it cost. <em class="ox">Standup as email.</em></p>
-      </li>
-    </ol>
-
-    <!-- Worked example -->
-    <div class="example">
-      <p class="example-head">A worked example  ·  observed run, 28 April 2026</p>
-      <p class="example-prompt">"Produce an intelligence report on the future of <em>agentic AI</em>."</p>
-
-      <table class="example-table">
-        <thead>
-          <tr>
-            <th>Step</th>
-            <th>Owner</th>
-            <th>Action</th>
-            <th style="text-align:right;">Cost</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>01</td>
-            <td class="role">Research Director</td>
-            <td class="task">Scopes the report, sets the table of contents, allocates research streams.</td>
-            <td class="cost">$0.04</td>
-          </tr>
-          <tr>
-            <td>02</td>
-            <td class="role">3 × Sector Researchers</td>
-            <td class="task">Run in parallel. Survey academic literature, industry reporting, public filings. Capture citations.</td>
-            <td class="cost">$0.21</td>
-          </tr>
-          <tr>
-            <td>03</td>
-            <td class="role">Principal Strategy</td>
-            <td class="task">Synthesises findings into a thesis. Identifies the second-order implications.</td>
-            <td class="cost">$0.07</td>
-          </tr>
-          <tr>
-            <td>04</td>
-            <td class="role">Reviewer</td>
-            <td class="task">Reads the draft. Flags two weak claims for revision. Approves on round two.</td>
-            <td class="cost">$0.05</td>
-          </tr>
-          <tr>
-            <td>05</td>
-            <td class="role">Assembler</td>
-            <td class="task">Final document with cover, table of contents, footnotes, executive summary.</td>
-            <td class="cost">$0.03</td>
-          </tr>
-          <tr class="total">
-            <td></td>
-            <td class="role">Total</td>
-            <td class="task">14 minutes wall-clock. Roughly 7 hours of analyst time at consultancy rates.</td>
-            <td class="cost">$0.40</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<!-- ── § III · Who it's for ────────────────────────────────────────── -->
-<section class="audience" id="who">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="label">§ III  ·  Who it's for</span>
-      <h2>Four kinds of people are quietly using <em>Orqestra</em>.</h2>
-    </div>
-    <div class="audience-grid">
-      <article class="card">
-        <p class="num">01</p>
-        <h3>Founders &amp; <em>solo operators</em></h3>
-        <p>You are the CEO, COO and CFO of a company that doesn't yet have any of those. Orqestra runs the back office while you sell.</p>
-      </article>
-      <article class="card">
-        <p class="num">02</p>
-        <h3>Mid-market <em>execs</em></h3>
-        <p>You have a team that's busy, not productive. Hand the routine orchestration to Orqestra and reclaim the strategic hours.</p>
-      </article>
-      <article class="card">
-        <p class="num">03</p>
-        <h3>Agencies &amp; <em>consultancies</em></h3>
-        <p>A delivery arm that scales without hiring. Spin up a workforce per client. Charge for outcomes, not seats.</p>
-      </article>
-      <article class="card">
-        <p class="num">04</p>
-        <h3>Builders &amp; <em>technologists</em></h3>
-        <p>Self-host, extend and route. Bring your own model. Ship custom agents on top of the same orchestration core.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ── § IV · Getting started ──────────────────────────────────────── -->
-<section class="start" id="start">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="label">§ IV  ·  Getting started</span>
-      <h2>From sign-up to first finished outcome in <em>three minutes</em>.</h2>
-      <p class="standfirst">
-        No installation. No configuration. The first run pays its way in less
-        than a coffee.
-      </p>
-    </div>
-    <ol class="start-list">
-      <li>
-        <span class="step-tag">Step 01  ·  60 sec</span>
-        <div>
-          <h3>Sign up.</h3>
-          <p>Email and password at <code>orqestra.run</code>. No credit card. No verification email purgatory.</p>
-        </div>
-        <p class="detail">You arrive directly at <code>/start</code> — a single prompt asking what you want done. There is no onboarding wizard.</p>
-      </li>
-      <li>
-        <span class="step-tag">Step 02  ·  30 sec</span>
-        <div>
-          <h3>Install a <em>template</em>.</h3>
-          <p>Pick a workforce: <em class="ox">The Agent Collective</em> (113 agents, full-service firm), <em class="ox">Solo Consultant</em> (3 agents, lean), or <em class="ox">Engineering Squad</em> (12 agents, builders).</p>
-        </div>
-        <p class="detail">Templates are forkable. Edit any agent's instructions, add your own, remove the ones you don't need. Templates are also shareable — your fork can be installed by anyone you give the link to.</p>
-      </li>
-      <li>
-        <span class="step-tag">Step 03  ·  10 sec</span>
-        <div>
-          <h3>Describe an <em>outcome</em>.</h3>
-          <p>One sentence. <code>"Produce a competitive teardown of Notion vs Coda."</code> Or <code>"Close the September books."</code> Or <code>"Find me 20 leads in fintech, London, Series B."</code></p>
-        </div>
-        <p class="detail">Orqestra returns a costed plan in 5–15 seconds. You see every step, every owner, every estimated dollar before any work begins.</p>
-      </li>
-      <li>
-        <span class="step-tag">Step 04  ·  5 sec</span>
-        <div>
-          <h3>Approve the plan.</h3>
-          <p>One click. Or edit the plan in place — swap an agent, raise a budget, drop a step.</p>
-        </div>
-        <p class="detail">Decisions are reversible. You can pause a run mid-flight, intervene with feedback, and resume.</p>
-      </li>
-      <li>
-        <span class="step-tag">Step 05  ·  ~minutes</span>
-        <div>
-          <h3>Receive the work.</h3>
-          <p>Watch live, or close the laptop. The outcome appears in your inbox with the deliverable, the cost, the time, and the human equivalent.</p>
-        </div>
-        <p class="detail">Every run produces an audit log: which agent did what, what was reviewed, how much each step cost, and which sources were consulted.</p>
-      </li>
-    </ol>
-  </div>
-</section>
-
-<!-- ── § V · Templates ─────────────────────────────────────────────── -->
-<section class="templates" id="templates">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="label">§ V  ·  Templates</span>
-      <h2>Install a workforce in one click.</h2>
-      <p class="standfirst">
-        Each template is a complete fleet — agents, instructions, tools, and a
-        company structure. Use one as-is, or fork it into your own.
-      </p>
-    </div>
-    <div class="templates-grid">
-      <article class="tpl">
-        <p class="meta">Template 01  ·  Full firm</p>
-        <h3>The Agent <em>Collective</em></h3>
-        <p>A full-service consultancy modelled on a Big-4 structure. Strategy, research, technology, finance, legal, marketing, operations.</p>
-        <p class="stat"><strong>113 agents</strong>  ·  9 departments  ·  ready in 12 sec</p>
-      </article>
-      <article class="tpl">
-        <p class="meta">Template 02  ·  Lean</p>
-        <h3>The Solo <em>Consultant</em></h3>
-        <p>Three agents that act as your principal, your researcher, and your delivery lead. Built for one human running a one-person practice.</p>
-        <p class="stat"><strong>3 agents</strong>  ·  1 founder  ·  ready in 4 sec</p>
-      </article>
-      <article class="tpl">
-        <p class="meta">Template 03  ·  Builders</p>
-        <h3>The Engineering <em>Squad</em></h3>
-        <p>VP Engineering, principal, infra, security, SRE, QA, design. Spin up a software team that ships pull requests.</p>
-        <p class="stat"><strong>12 agents</strong>  ·  GitHub-aware  ·  ready in 6 sec</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ── § VI · Requirements ─────────────────────────────────────────── -->
-<section class="req" id="requirements">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="label">§ VI  ·  Requirements</span>
-      <h2>What you need.</h2>
-      <p class="standfirst">
-        Cloud at <code>orqestra.run</code> needs nothing but a browser. Self-host
-        needs a Postgres and a place for Node 22 to run.
-      </p>
-    </div>
-    <div class="req-cols">
-      <div class="req-block">
-        <h3>To use the cloud</h3>
-        <dl>
-          <dt>Browser</dt>
-          <dd>Latest Chrome, Safari, Firefox, or Edge. No mobile app — yet.</dd>
-          <dt>Account</dt>
-          <dd>Email and password. No verification step. No credit card.</dd>
-          <dt>Anthropic API key</dt>
-          <dd>Optional, for direct billing. Without it, runs use the managed plan once it ships. <code>console.anthropic.com</code></dd>
-          <dt>Network</dt>
-          <dd>Outbound HTTPS only. No ports to open, no IPs to allowlist.</dd>
-        </dl>
+    <div class="preview-meta">
+      <div class="stat">
+        <h4>Estimated cost</h4>
+        <p class="value" id="preview-cost">£32</p>
       </div>
-      <div class="req-block">
-        <h3>To self-host</h3>
-        <dl>
-          <dt>Runtime</dt>
-          <dd>Node <code>22.x</code>, pnpm <code>9.x</code>. macOS or Linux. Windows via WSL.</dd>
-          <dt>Database</dt>
-          <dd>Postgres 14+ (managed or local). An embedded Postgres is bundled for dev.</dd>
-          <dt>Storage</dt>
-          <dd>~2 GB for the binary and skills. Run logs grow with use; rotate weekly.</dd>
-          <dt>Secrets</dt>
-          <dd><code>ANTHROPIC_API_KEY</code> required. Optional: <code>OPENROUTER_API_KEY</code> for fallback. Better-Auth secret for sessions.</dd>
-          <dt>Domain (production)</dt>
-          <dd>An HTTPS domain with valid certificate. Railway, Fly, or your own infra.</dd>
-        </dl>
+      <div class="stat">
+        <h4>Estimated time</h4>
+        <p class="value" id="preview-time">18 minutes</p>
       </div>
     </div>
+
+    <div class="preview-cta">
+      <button type="button" class="btn btn--primary btn--large" id="run-btn">
+        Run this company <span class="arrow">→</span>
+      </button>
+      <p class="footnote">Sign-up takes about 30 seconds. Your plan is preserved.</p>
+    </div>
   </div>
 </section>
 
-<!-- ── § VII · Connectors ──────────────────────────────────────────── -->
-<section class="connectors" id="connectors">
+<!-- ── What is this ────────────────────────────────────────────────── -->
+<section class="what">
+  <div class="wrap" style="text-align:center;">
+    <p class="what-block">
+      <span class="lead">Orqestra runs work the way a <em>real company</em> does.</span>
+      You set the outcome.<br/>
+      It plans the work.<br/>
+      Agents execute it.<br/>
+      You approve decisions when needed.<br/>
+      The result is delivered as a finished output.
+    </p>
+    <div class="flow">
+      <span>Outcome</span>
+      <span class="arrow">→</span>
+      <span>Plan</span>
+      <span class="arrow">→</span>
+      <span>Work</span>
+      <span class="arrow">→</span>
+      <span>Review</span>
+      <span class="arrow">→</span>
+      <span>Result</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── Example companies ──────────────────────────────────────────── -->
+<section class="examples">
   <div class="wrap">
-    <div class="section-head">
-      <span class="label">§ VII  ·  Connectors</span>
-      <h2>What it talks to.</h2>
-      <p class="standfirst">
-        Orqestra agents work with the tools your team already uses. Plugins
-        ship as MCP servers; new ones can be installed in one click from the
-        marketplace.
-      </p>
+    <h2 class="examples-head">A few <em>companies</em> people are running.</h2>
+    <div class="examples-grid">
+      <button type="button" class="example" data-input="Build a content engine for our brand on LinkedIn. Plan the editorial calendar, draft the posts, and review for voice.">
+        <span class="num">01  ·  Studio</span>
+        <h3>AI <em>content</em> studio</h3>
+        <p>A small team that plans, drafts, and reviews social and brand content every week.</p>
+        <p class="produces">Produces: a fortnightly editorial calendar with posts ready to ship.</p>
+        <span class="try">Try this →</span>
+      </button>
+      <button type="button" class="example" data-input="Run a market intelligence unit that tracks three competitors in fintech each week and publishes a Monday briefing.">
+        <span class="num">02  ·  Intelligence</span>
+        <h3>Market <em>intelligence</em> unit</h3>
+        <p>Tracks competitors and market shifts. Sends a weekly briefing the moment something matters.</p>
+        <p class="produces">Produces: a Monday-morning briefing on competitors and signals.</p>
+        <span class="try">Try this →</span>
+      </button>
+      <button type="button" class="example" data-input="Build a sales operations engine that finds 20 qualified leads in fintech, enriches them, and drafts personalised outreach.">
+        <span class="num">03  ·  Sales</span>
+        <h3>Sales <em>ops</em> engine</h3>
+        <p>Finds qualified leads, enriches them, drafts personalised outreach, and lines up the call.</p>
+        <p class="produces">Produces: 20 qualified leads with first-touch emails ready to send.</p>
+        <span class="try">Try this →</span>
+      </button>
+      <button type="button" class="example" data-input="Run a product launch team. Define the launch plan, prepare the announcement assets, and brief the press.">
+        <span class="num">04  ·  Launch</span>
+        <h3>Product <em>launch</em> team</h3>
+        <p>Plans the launch, prepares the assets, briefs the press, and tracks the day-one numbers.</p>
+        <p class="produces">Produces: a launch plan, assets, and a day-one telemetry dashboard.</p>
+        <span class="try">Try this →</span>
+      </button>
+      <button type="button" class="example" data-input="Run a back office for a one-person consultancy. Send invoices, chase payments, file expenses, and produce a monthly P&amp;L.">
+        <span class="num">05  ·  Back office</span>
+        <h3>Solo <em>back office</em></h3>
+        <p>Invoicing, expenses, chasing late payments, monthly accounts. Done before you've had your coffee.</p>
+        <p class="produces">Produces: invoices sent, expenses filed, monthly P&amp;L on the first of the month.</p>
+        <span class="try">Try this →</span>
+      </button>
+      <button type="button" class="example" data-input="Run a research desk. When I ask for an intelligence report, produce a 6-section briefing with citations.">
+        <span class="num">06  ·  Research</span>
+        <h3>Research <em>desk</em></h3>
+        <p>An on-demand research team. Ask for a report, get a properly cited briefing in minutes.</p>
+        <p class="produces">Produces: a six-section briefing with sources, on demand.</p>
+        <span class="try">Try this →</span>
+      </button>
     </div>
-    <div class="connectors-grid">
-      <div class="item">Slack<span class="small">messaging</span></div>
-      <div class="item">Notion<span class="small">docs &amp; wiki</span></div>
-      <div class="item">Google Drive<span class="small">files</span></div>
-      <div class="item">Gmail<span class="small">email</span></div>
-      <div class="item">Calendar<span class="small">scheduling</span></div>
-      <div class="item">Asana<span class="small">tasks</span></div>
-      <div class="item">Linear<span class="small">issues</span></div>
-      <div class="item">GitHub<span class="small">code</span></div>
-      <div class="item">Webflow<span class="small">CMS</span></div>
-      <div class="item">PagerDuty<span class="small">on-call</span></div>
-      <div class="item">Stripe<span class="small">billing</span></div>
-      <div class="item">+ MCP<span class="small">your own</span></div>
-    </div>
-    <p class="connectors-note">
-      Don't see your tool? Build a connector with the <code>@orqestra/plugin-sdk</code>.
-      Standard MCP. Ship it as a private plugin to your fleet, or list it on
-      Clipmart for everyone.
+  </div>
+</section>
+
+<!-- ── Trust ───────────────────────────────────────────────────────── -->
+<section class="trust">
+  <div class="wrap">
+    <p class="declaration">This is <em>not a demo.</em></p>
+    <p class="body">
+      Orqestra is already running multi-agent companies with real budgets,
+      real workflows, and real outputs.
+    </p>
+    <p class="proof">
+      <span class="number">113</span>
+      <span>agents, one company, already live</span>
     </p>
   </div>
 </section>
 
-<!-- ── § VIII · Pricing ────────────────────────────────────────────── -->
-<section class="pricing" id="pricing">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="label">§ VIII  ·  Cost</span>
-      <h2>You pay for what your <em>workforce</em> actually does.</h2>
-      <p class="standfirst">
-        No seats. No tiers based on team size. Cost is metered to model usage —
-        the same dollars Anthropic or OpenRouter would charge you, plus a thin
-        platform fee on the managed tier.
-      </p>
-    </div>
-    <div class="pricing-cards">
-      <article class="plan">
-        <p class="meta">Plan 01</p>
-        <h3>Bring your <em>own key</em></h3>
-        <p class="price">Free <em>· during beta</em></p>
-        <ul>
-          <li>Cloud or self-host</li>
-          <li>Anthropic key billed direct to you</li>
-          <li>Unlimited agents, runs, templates</li>
-          <li>Community support</li>
-        </ul>
-      </article>
-      <article class="plan featured">
-        <p class="meta">Plan 02  ·  Coming Q3</p>
-        <h3>Managed</h3>
-        <p class="price">$0.20 <em>/ run + tokens</em></p>
-        <ul>
-          <li>No keys to manage</li>
-          <li>Volume discounts on tokens</li>
-          <li>Hosted backups, audit log retention</li>
-          <li>Email support</li>
-        </ul>
-      </article>
-      <article class="plan">
-        <p class="meta">Plan 03</p>
-        <h3>Enterprise</h3>
-        <p class="price">Talk to us</p>
-        <ul>
-          <li>Single-tenant deploy</li>
-          <li>SSO, SCIM, audit log export</li>
-          <li>Bring-your-own-cloud option</li>
-          <li>SLA &amp; named support</li>
-        </ul>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ── Pull quote ──────────────────────────────────────────────────── -->
-<section class="quote">
-  <div class="wrap">
-    <p class="pull">
-      The conductor's job is not to play <span class="em">every instrument</span> —<br/>
-      it is to know <span class="em">when each one should sound</span>.
-    </p>
-    <p class="pull-attr">— On the design of Orqestra</p>
-  </div>
-</section>
-
-<!-- ── § IX · FAQ ──────────────────────────────────────────────────── -->
-<section class="faq" id="faq">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="label">§ IX  ·  Frequently asked</span>
-      <h2>The questions we keep being asked.</h2>
-    </div>
-    <div class="faq-list">
-      <details>
-        <summary>Is this just a <em>wrapper</em> around Claude?</summary>
-        <div class="ans">
-          <p>No. Claude (and other models, via OpenRouter) is the engine that powers individual agents. Orqestra is the orchestration on top: the planner, router, reviewer, assembler, the workforce of named specialists, the cost telemetry, the templates, the workspace.</p>
-          <p>You can swap the underlying model without changing how the rest of the system behaves. The orchestration is the product.</p>
-        </div>
-      </details>
-      <details>
-        <summary>What happens if an agent <em>fails</em>?</summary>
-        <div class="ans">
-          <p>Failures are first-class. Every run is logged with status, exit code, and stderr. A failed step does not silently roll the outcome forward — it appears as a failed step in the plan, with the error visible.</p>
-          <p>You can retry the step, edit its prompt, or reassign it to a different agent. The rest of the plan continues running where dependencies allow.</p>
-        </div>
-      </details>
-      <details>
-        <summary>Can I <em>self-host</em> it?</summary>
-        <div class="ans">
-          <p>Yes. The full repo is open and Dockerised. Postgres and Node 22 are the only hard requirements. Production needs a domain with HTTPS — Railway, Fly, Render, or your own infra all work.</p>
-          <p>See the <code>README.md</code> for a one-command setup, or the deployment doc for production hardening.</p>
-        </div>
-      </details>
-      <details>
-        <summary>What about my <em>data</em>?</summary>
-        <div class="ans">
-          <p>On the cloud at <code>orqestra.run</code>, your outcomes, plans, and run logs live in our managed Postgres. We do not train any model on your inputs or outputs. We do not share data between accounts.</p>
-          <p>Self-hosters keep everything on their own infrastructure. Bringing your own Anthropic key means model calls go directly to Anthropic without passing through us.</p>
-        </div>
-      </details>
-      <details>
-        <summary>How is this different from <em>LangChain, AutoGen, CrewAI</em>?</summary>
-        <div class="ans">
-          <p>Those are libraries. They give you primitives to build agentic applications. They do not give you a running company — a workforce, a UI, a planner, a budget, an inbox, a CEO who chases stuck work, a CFO who flags overspend.</p>
-          <p>Orqestra is opinionated where they are flexible. You install a fleet and start asking for outcomes the same afternoon. You can still extend with the SDK if you need to, but the default path is "use the workforce that ships with it."</p>
-        </div>
-      </details>
-      <details>
-        <summary>Does it work for <em>regulated</em> industries?</summary>
-        <div class="ans">
-          <p>The audit log is designed for it: every action, every model call, every cost, with timestamps and actor identity. Self-host puts the data fully in your custody.</p>
-          <p>SOC 2 and ISO 27001 are on the roadmap for the managed tier. Until those land, regulated buyers should self-host.</p>
-        </div>
-      </details>
-      <details>
-        <summary>Is there an API?</summary>
-        <div class="ans">
-          <p>Yes. Every action you can take in the UI has an HTTP endpoint behind it. Outcomes can be created via <code>POST /api/companies/:id/outcomes</code>, runs polled via <code>GET /api/heartbeat-runs/:runId</code>, agents managed via <code>PATCH /api/agents/:id</code>.</p>
-          <p>Webhooks for run completion are coming in the next release.</p>
-        </div>
-      </details>
-    </div>
-  </div>
-</section>
-
-<!-- ── Close ───────────────────────────────────────────────────────── -->
+<!-- ── Final CTA ───────────────────────────────────────────────────── -->
 <section class="close">
   <div class="wrap">
-    <h2>Hand the routine work to a team that <em>never sleeps</em>.</h2>
-    <div class="ctas">
-      <a href="/start" class="btn btn--primary">Try free <span class="arrow">→</span></a>
-    </div>
+    <h2>Start with <em>one outcome</em>.</h2>
+    <a href="#top" class="btn btn--primary btn--large" id="final-cta">
+      Run your first company <span class="arrow">→</span>
+    </a>
   </div>
 </section>
 
 <!-- ── Footer ──────────────────────────────────────────────────────── -->
 <footer>
   <div class="wrap">
-    <div class="col">
-      <p class="colophon">Orqestra. Operating since 2026.<br/>Made by Future Collective, in London.</p>
-    </div>
-    <div class="col">
-      <h4>Product</h4>
-      <ul>
-        <li><a href="#what">What it does</a></li>
-        <li><a href="#how">How it works</a></li>
-        <li><a href="#templates">Templates</a></li>
-        <li><a href="#pricing">Cost</a></li>
-      </ul>
-    </div>
-    <div class="col">
-      <h4>Get started</h4>
-      <ul>
-        <li><a href="#start">In 3 minutes</a></li>
-        <li><a href="#requirements">Requirements</a></li>
-        <li><a href="#connectors">Connectors</a></li>
-        <li><a href="#faq">Frequently asked</a></li>
-      </ul>
-    </div>
-    <div class="col">
-      <h4>Company</h4>
-      <ul>
-        <li><a href="mailto:matt@future-collective.co.uk">Contact</a></li>
-        <li><a href="/sign-in">Sign in</a></li>
-      </ul>
-    </div>
+    <p class="colophon">Orqestra. Made by Future Collective, in London.</p>
+    <p>
+      <a href="/sign-in">Sign in</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:matt@future-collective.co.uk">Contact</a>
+    </p>
   </div>
 </footer>
+
+<script>
+(function () {
+  // Rotating placeholders for the outcome input.
+  var examples = [
+    "Build a go-to-market strategy for a new AI product",
+    "Analyse three competitors in ecommerce",
+    "Create a content plan for LinkedIn",
+    "Prepare a client proposal",
+    "Find 20 qualified leads in fintech",
+    "Produce an intelligence report on agentic AI",
+  ];
+  var input = document.getElementById('outcome-input');
+  var inputWrap = input.parentElement;
+  var idx = 0;
+  function rotate() {
+    if (input.value || document.activeElement === input) return;
+    inputWrap.classList.add('rotating');
+    setTimeout(function () {
+      input.placeholder = examples[idx];
+      idx = (idx + 1) % examples.length;
+      inputWrap.classList.remove('rotating');
+    }, 380);
+  }
+  setInterval(rotate, 3200);
+
+  // Auto-grow textarea.
+  function autosize() {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+  }
+  input.addEventListener('input', autosize);
+
+  // Enter to submit (Shift-Enter for newline).
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('outcome-form').requestSubmit();
+    }
+  });
+
+  // Form submission.
+  var form = document.getElementById('outcome-form');
+  var submitBtn = document.getElementById('submit-btn');
+  var preview = document.getElementById('preview');
+  var lastInput = '';
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = input.value.trim();
+    if (!text) {
+      input.focus();
+      return;
+    }
+    lastInput = text;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner"></span> Building plan…';
+
+    fetch('/api/preview', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ input: text }),
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        renderPreview(data);
+        preview.classList.add('visible');
+        setTimeout(function () {
+          preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+      })
+      .catch(function () {
+        renderPreview({
+          outcome: text.slice(0, 80),
+          steps: [
+            'Define the scope',
+            'Gather inputs',
+            'Synthesise findings',
+            'Draft the deliverable',
+            'Review and iterate',
+            'Finalise the output',
+          ],
+          agents: [
+            { name: 'Strategy lead', role: 'scope and structure the work' },
+            { name: 'Researcher', role: 'gather inputs' },
+            { name: 'Writer', role: 'draft the deliverable' },
+            { name: 'Reviewer', role: 'critique and approve' },
+          ],
+          costEstimate: 28,
+          timeEstimate: '16 minutes',
+        });
+        preview.classList.add('visible');
+        setTimeout(function () {
+          preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'See how this would run <span class="arrow">→</span>';
+      });
+  });
+
+  function renderPreview(data) {
+    document.getElementById('preview-title').textContent = data.outcome || lastInput;
+
+    var stepsEl = document.getElementById('preview-steps');
+    stepsEl.innerHTML = '';
+    (data.steps || []).forEach(function (step) {
+      var li = document.createElement('li');
+      li.textContent = step;
+      stepsEl.appendChild(li);
+    });
+
+    var agentsEl = document.getElementById('preview-agents');
+    agentsEl.innerHTML = '';
+    (data.agents || []).forEach(function (a) {
+      var li = document.createElement('li');
+      var nm = document.createElement('strong');
+      nm.textContent = a.name || 'Specialist';
+      var rl = document.createElement('em');
+      rl.textContent = a.role ? '— ' + a.role : '';
+      li.appendChild(nm);
+      if (a.role) li.appendChild(rl);
+      agentsEl.appendChild(li);
+    });
+
+    var cost = (typeof data.costEstimate === 'number') ? data.costEstimate : 32;
+    document.getElementById('preview-cost').textContent = '£' + cost;
+    document.getElementById('preview-time').textContent = data.timeEstimate || '15 minutes';
+  }
+
+  // Run-this-company: persist outcome and bounce to sign-in.
+  document.getElementById('run-btn').addEventListener('click', function () {
+    try {
+      sessionStorage.setItem('orqestra_pending_outcome', lastInput);
+    } catch (_) { /* ignore */ }
+    var url = '/sign-in?continue=/start';
+    if (lastInput) {
+      url += '&outcome=' + encodeURIComponent(lastInput.slice(0, 200));
+    }
+    window.location.href = url;
+  });
+
+  // Final CTA scrolls to top and focuses input.
+  document.getElementById('final-cta').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('top').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(function () { input.focus(); }, 600);
+  });
+
+  // Example cards: populate input and submit.
+  document.querySelectorAll('.example').forEach(function (card) {
+    card.addEventListener('click', function () {
+      input.value = card.dataset.input || '';
+      autosize();
+      input.focus();
+      document.getElementById('top').scrollIntoView({ behavior: 'smooth' });
+      setTimeout(function () { form.requestSubmit(); }, 700);
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
