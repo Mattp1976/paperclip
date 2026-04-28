@@ -50,6 +50,7 @@
     "@orqestra/adapter-gemini-local": "workspace:*",
     "@orqestra/adapter-openclaw-gateway": "workspace:*",
     "@orqestra/adapter-opencode-local": "workspace:*",
+    "@orqestra/adapter-openrouter-local": "workspace:*",
     "@orqestra/adapter-pi-local": "workspace:*",
     "@orqestra/adapter-utils": "workspace:*",
     "@orqestra/db": "workspace:*",
