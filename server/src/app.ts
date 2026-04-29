@@ -138,6 +138,15 @@ export async function createApp(
 
   // TEMPORARY diagnostic — returns the resolved actor verbatim so we can
   // see what auth middleware actually populated. REMOVE after debugging.
+  app.get("/api/_debug/dbinfo", async (_req, res) => {
+    try {
+      const { sql } = await import("drizzle-orm");
+      const r = await db.execute(sql`SELECT current_database() AS db, current_schema() AS schema, inet_server_addr()::text AS server_addr, inet_server_port() AS server_port, current_user AS db_user`);
+      res.json({ rows: r });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  });
   app.get("/api/_debug/whoami", async (req, res) => {
     const userId = (req.actor as { userId?: string } | undefined)?.userId ?? null;
     let role: unknown = null;
