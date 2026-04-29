@@ -463,9 +463,16 @@ const COMPANY_LOGO_CONTENT_TYPE_EXTENSIONS: Record<string, string> = {
 
 const COMPANY_LOGO_FILE_NAME = "company-logo";
 
+// Defaults applied to runtimeConfig when an agent is imported with missing
+// fields. heartbeat.intervalSec=0 means "no idle auto-fire" — the agent will
+// only run when explicitly invoked (on-demand, assignment, automation,
+// routine). Setting this above 0 makes the agent self-poke every N seconds
+// regardless of whether there is work to do, which silently burns LLM credits.
+// Opt agents into idle auto-fire explicitly, in their template, when the
+// behaviour is genuinely desired.
 const RUNTIME_DEFAULT_RULES: Array<{ path: string[]; value: unknown }> = [
   { path: ["heartbeat", "cooldownSec"], value: 10 },
-  { path: ["heartbeat", "intervalSec"], value: 3600 },
+  { path: ["heartbeat", "intervalSec"], value: 0 },
   { path: ["heartbeat", "wakeOnOnDemand"], value: true },
   { path: ["heartbeat", "wakeOnAssignment"], value: true },
   { path: ["heartbeat", "wakeOnAutomation"], value: true },

@@ -25,6 +25,10 @@ export const defaultCreateValues: CreateConfigValues = {
   worktreeParentDir: "",
   runtimeServicesJson: "",
   maxTurnsPerRun: 300,
+  // Heartbeat off by default. intervalSec is the idle-poke cadence — only
+  // takes effect when heartbeatEnabled is true. Keeping the cadence at 0
+  // means "never auto-fire on idle" even if heartbeat gets toggled on later
+  // without an explicit interval being set.
   heartbeatEnabled: false,
-  intervalSec: 300,
+  intervalSec: 0,
 };
