@@ -136,6 +136,12 @@ export async function createApp(
   }
   app.use(llmRoutes(db));
 
+  // TEMPORARY diagnostic — returns the resolved actor verbatim so we can
+  // see what auth middleware actually populated. REMOVE after debugging.
+  app.get("/api/_debug/whoami", (req, res) => {
+    res.json({ actor: req.actor });
+  });
+
   // Public, unauthenticated preview endpoint for the marketing landing page.
   // Mounted BEFORE the /api router so it bypasses the board-mutation guard
   // and the rest of the API auth chain.
