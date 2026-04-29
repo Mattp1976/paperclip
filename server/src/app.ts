@@ -138,8 +138,31 @@ export async function createApp(
 
   // TEMPORARY diagnostic — returns the resolved actor verbatim so we can
   // see what auth middleware actually populated. REMOVE after debugging.
-  app.get("/api/_debug/whoami", (req, res) => {
-    res.json({ actor: req.actor });
+  app.get("/api/_debug/whoami", async (req, res) => {
+    const userId = (req.actor as { userId?: string } | undefined)?.userId ?? null;
+    let role: unknown = null;
+    let memberships: unknown = null;
+    let allRoles: unknown = null;
+    let allMembershipsForUser: unknown = null;
+    if (userId) {
+      try {
+        const { instanceUserRoles, companyMemberships } = await import("@orqestra/db");
+        const { and, eq } = await import("drizzle-orm");
+        role = await db
+          .select({ id: instanceUserRoles.id, role: instanceUserRoles.role, userId: instanceUserRoles.userId })
+          .from(instanceUserRoles)
+          .where(and(eq(instanceUserRoles.userId, userId), eq(instanceUserRoles.role, "instance_admin")));
+        memberships = await db
+          .select({ companyId: companyMemberships.companyId, status: companyMemberships.status, principalType: companyMemberships.principalType, principalId: companyMemberships.principalId })
+          .from(companyMemberships)
+          .where(and(eq(companyMemberships.principalType, "user"), eq(companyMemberships.principalId, userId), eq(companyMemberships.status, "active")));
+        allRoles = await db.select().from(instanceUserRoles);
+        allMembershipsForUser = await db.select().from(companyMemberships).where(eq(companyMemberships.principalId, userId));
+      } catch (err) {
+        role = { error: String(err) };
+      }
+    }
+    res.json({ actor: req.actor, role, memberships, allRoles, allMembershipsForUser });
   });
 
   // Public, unauthenticated preview endpoint for the marketing landing page.
