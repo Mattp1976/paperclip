@@ -136,43 +136,6 @@ export async function createApp(
   }
   app.use(llmRoutes(db));
 
-  // TEMPORARY diagnostic — returns the resolved actor verbatim so we can
-  // see what auth middleware actually populated. REMOVE after debugging.
-  app.get("/api/_debug/dbinfo", async (_req, res) => {
-    try {
-      const { sql } = await import("drizzle-orm");
-      const r = await db.execute(sql`SELECT current_database() AS db, current_schema() AS schema, inet_server_addr()::text AS server_addr, inet_server_port() AS server_port, current_user AS db_user`);
-      res.json({ rows: r });
-    } catch (err) {
-      res.status(500).json({ error: String(err) });
-    }
-  });
-  app.get("/api/_debug/whoami", async (req, res) => {
-    const userId = (req.actor as { userId?: string } | undefined)?.userId ?? null;
-    let role: unknown = null;
-    let memberships: unknown = null;
-    let allRoles: unknown = null;
-    let allMembershipsForUser: unknown = null;
-    if (userId) {
-      try {
-        const { instanceUserRoles, companyMemberships } = await import("@orqestra/db");
-        const { and, eq } = await import("drizzle-orm");
-        role = await db
-          .select({ id: instanceUserRoles.id, role: instanceUserRoles.role, userId: instanceUserRoles.userId })
-          .from(instanceUserRoles)
-          .where(and(eq(instanceUserRoles.userId, userId), eq(instanceUserRoles.role, "instance_admin")));
-        memberships = await db
-          .select({ companyId: companyMemberships.companyId, status: companyMemberships.status, principalType: companyMemberships.principalType, principalId: companyMemberships.principalId })
-          .from(companyMemberships)
-          .where(and(eq(companyMemberships.principalType, "user"), eq(companyMemberships.principalId, userId), eq(companyMemberships.status, "active")));
-        allRoles = await db.select().from(instanceUserRoles);
-        allMembershipsForUser = await db.select().from(companyMemberships).where(eq(companyMemberships.principalId, userId));
-      } catch (err) {
-        role = { error: String(err) };
-      }
-    }
-    res.json({ actor: req.actor, role, memberships, allRoles, allMembershipsForUser });
-  });
 
   // Public, unauthenticated preview endpoint for the marketing landing page.
   // Mounted BEFORE the /api router so it bypasses the board-mutation guard
